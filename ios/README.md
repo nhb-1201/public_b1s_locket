@@ -36,7 +36,7 @@ ios/
 Sau khi Locket đã lên Gold:
 
 1. Tắt VPN Shadowrocket.
-2. Mở Safari → vào [b1s.id.vn/locketgold/ios/locketgold.mobileconfig](https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.mobileconfig).
+2. Mở Safari → vào [locketgold.mobileconfig](https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.mobileconfig).
 3. *Cài đặt → Đã tải về hồ sơ* → **Cài đặt**.
 4. *Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị → DNS* → chọn **Locket Gold DNS — B1sTeam**.
 
