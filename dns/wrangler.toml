@@ -1,0 +1,21 @@
+# LocketGold DNS — B1sTeam v3.0 · Cloudflare Workers Config
+# B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
+
+name = "locketgold-dns"
+main = "worker.js"
+compatibility_date = "2026-11-09"
+
+# Custom Domain: Cloudflare TỰ tạo DNS record + TLS cert cho doh.b1s.id.vn
+# (yêu cầu zone b1s.id.vn nằm trong cùng account — OAuth scope của wrangler đã có)
+workers_dev = true
+routes = [
+  { pattern = "doh.b1s.id.vn", custom_domain = true }
+]
+
+[vars]
+SERVICE_NAME = "locketgold-dns"
+VERSION = "3.0.0"
+RELEASE = "B1sTeam"
+
+[observability]
+enabled = true

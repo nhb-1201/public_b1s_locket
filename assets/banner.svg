@@ -1,0 +1,61 @@
+<!-- author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket -->
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LocketGold B1sTeam — Locket Gold VIP vĩnh viễn">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08080f"/>
+      <stop offset="0.55" stop-color="#101018"/>
+      <stop offset="1" stop-color="#08080f"/>
+    </linearGradient>
+    <radialGradient id="goldGlow" cx="0.72" cy="0.32" r="0.55">
+      <stop offset="0" stop-color="#ffd700" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffd700" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cyanGlow" cx="0.12" cy="0.8" r="0.5">
+      <stop offset="0" stop-color="#38e1ff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#38e1ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="crownGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff7b0"/>
+      <stop offset="0.4" stop-color="#ffd700"/>
+      <stop offset="0.78" stop-color="#e0a92e"/>
+      <stop offset="1" stop-color="#8a6d1a"/>
+    </linearGradient>
+    <linearGradient id="textGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff3a0"/>
+      <stop offset="0.5" stop-color="#ffd700"/>
+      <stop offset="1" stop-color="#b8860b"/>
+    </linearGradient>
+    <pattern id="grid" width="46" height="46" patternUnits="userSpaceOnUse">
+      <path d="M46 0H0V46" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect width="1200" height="630" fill="url(#goldGlow)"/>
+  <rect width="1200" height="630" fill="url(#cyanGlow)"/>
+
+  <!-- Left: copy -->
+  <g font-family="'Space Grotesk','Be Vietnam Pro',sans-serif">
+    <text x="80" y="168" font-size="24" font-weight="600" fill="#38e1ff" letter-spacing="6">B1STEAM · v3.0</text>
+    <text x="76" y="300" font-size="96" font-weight="700" fill="url(#textGold)" letter-spacing="-2">LOCKET</text>
+    <text x="76" y="404" font-size="96" font-weight="700" fill="url(#textGold)" letter-spacing="-2">GOLD VIP</text>
+    <text x="80" y="470" font-size="26" font-weight="500" fill="#f4f1e8" fill-opacity="0.85">Mở khóa vĩnh viễn · Miễn phí trọn đời</text>
+    <text x="80" y="530" font-size="22" font-weight="400" fill="#38e1ff" fill-opacity="0.9" font-family="'JetBrains Mono',monospace">b1s.id.vn/locketgold</text>
+  </g>
+
+  <!-- Right: crown emblem with orbit rings -->
+  <g transform="translate(905,315)" filter="url(#soft)">
+    <circle r="165" fill="none" stroke="#ffd700" stroke-opacity="0.25" stroke-width="2" stroke-dasharray="5 11"/>
+    <circle r="122" fill="none" stroke="#38e1ff" stroke-opacity="0.3" stroke-width="2" stroke-dasharray="3 9"/>
+    <circle r="88" fill="#ffd700" fill-opacity="0.07" stroke="#ffd700" stroke-opacity="0.5" stroke-width="1.5"/>
+    <path d="M-64 34 L-46 -34 L-14 4 L0 -52 L14 4 L46 -34 L64 34 Z" fill="url(#crownGold)" stroke="#fff0a8" stroke-width="2.4" stroke-linejoin="round"/>
+    <rect x="-56" y="44" width="112" height="11" rx="5.5" fill="url(#crownGold)"/>
+    <circle cx="0" cy="76" r="5.5" fill="#ffd700"/>
+  </g>
+</svg>

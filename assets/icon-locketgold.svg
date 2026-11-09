@@ -1,0 +1,32 @@
+<!-- author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket -->
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LocketGold B1sTeam">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16161f"/>
+      <stop offset="1" stop-color="#08080f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff3a0"/>
+      <stop offset="0.42" stop-color="#ffd700"/>
+      <stop offset="0.78" stop-color="#e0a92e"/>
+      <stop offset="1" stop-color="#8a6d1a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#ffd700" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffd700" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#glow)"/>
+  <rect x="14" y="14" width="484" height="484" rx="100" fill="none" stroke="#ffd700" stroke-opacity="0.28" stroke-width="6"/>
+
+  <!-- Crown -->
+  <path d="M118 320 L150 158 L232 236 L256 104 L280 236 L362 158 L394 320 Z" fill="url(#gold)" stroke="#fff0a8" stroke-width="14" stroke-linejoin="round"/>
+  <rect x="140" y="342" width="232" height="26" rx="13" fill="url(#gold)"/>
+  <circle cx="256" cy="414" r="13" fill="#ffd700"/>
+
+  <!-- Sparkles -->
+  <path d="M398 96l6.2 15 15 6.2-15 6.2-6.2 15-6.2-15-15-6.2 15-6.2z" fill="#38e1ff" fill-opacity="0.9"/>
+  <path d="M96 118l4.6 11.2 11.2 4.6-11.2 4.6L96 149.6l-4.6-11.2-11.2-4.6 11.2-4.6z" fill="#ffd700" fill-opacity="0.85"/>
+</svg>

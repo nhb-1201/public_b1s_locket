@@ -1,0 +1,42 @@
+# author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
+# ╔══════════════════════════════════════════════════════════════════╗
+#  Locket Gold DNS — B1sTeam v3.0 · Android
+#  Chống thu hồi Locket Gold vĩnh viễn — Split DNS qua DoH
+#  B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
+# ╚══════════════════════════════════════════════════════════════════╝
+#
+# Android KHÔNG cài được file .mobileconfig như iOS.
+# File này là cấu hình Private DNS / DoH chính thức của B1sTeam.
+#
+# ─── CÁCH 1 · Private DNS (áp dụng TOÀN HỆ THỐNG — khuyên dùng) ───
+#   Cài đặt → Mạng & Internet → Private DNS
+#   → chọn "Tên máy chủ của nhà cung cấp Private DNS"
+#   → nhập:  doh.b1s.id.vn
+#   → Lưu
+#
+# ─── CÁCH 2 · Bên trong V2RayNG / Sing-Box / NekoBox ───
+#   DNS server : https://doh.b1s.id.vn/dns-query
+#   Fallback   : https://1.1.1.1/dns-query · https://dns.google/dns-query
+#   Strategy   : IPv4
+#   (Xem chi tiết trong singbox.json / v2rayng.json cùng thư mục)
+#
+# ─── THÔNG SỐ KỸ THUẬT ───
+doh.hostname=doh.b1s.id.vn
+doh.url=https://doh.b1s.id.vn/dns-query
+doh.protocol=RFC8484
+doh.accept=application/dns-message, application/dns-json
+doh.fallback=1.1.1.1, 8.8.8.8
+doh.cache_ttl=300
+doh.query_limit=unlimited
+
+# Domain được định tuyến qua DoH B1sTeam (Split DNS) — phần còn lại dùng DNS gốc:
+route.domains=api.revenuecat.com, api.rc-backup.com, firebaseremoteconfig.googleapis.com, api.locketcamera.com, locketcamera.com, locket.camera, revenuecat.com, rc-backup.com
+route.bypass=127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+
+# ─── GHI CHÚ BẢO MẬT ───
+# Worker DoH của B1sTeam KHÔNG ghi log tên miền, KHÔNG lưu IP người dùng,
+# KHÔNG chèn quảng cáo. Toàn bộ mã nguồn nằm trong repo B1sTeam — có thể audit.
+
+version=3.0.0
+release=B1sTeam
+updated=2026-11-09

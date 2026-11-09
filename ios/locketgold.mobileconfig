@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<dict>
+		<key>DNSSettings</key>
+		<dict>
+			<key>DNSProtocols</key>
+			<array>
+				<string>HTTPS</string>
+			</array>
+			<key>DNSServerAddresses</key>
+			<array>
+				<string>https://doh.b1s.id.vn/dns-query</string>
+			</array>
+			<key>FallbackDNS</key>
+			<array>
+				<string>1.1.1.1</string>
+				<string>8.8.8.8</string>
+			</array>
+		</dict>
+	</dict>
+	<key>PayloadDescription</key>
+	<string>Profile DNS chống thu hồi Locket Gold vĩnh viễn từ B1sTeam (b1s.id.vn). Split DNS: chỉ định tuyến các truy vấn Locket/RevenueCat về máy chủ DoH B1sTeam, toàn bộ mạng lướt web vẫn chạy trên DNS gốc tốc độ cao.</string>
+	<key>PayloadDisplayName</key>
+	<string>Locket Gold DNS — B1sTeam</string>
+	<key>PayloadIdentifier</key>
+	<string>vn.b1s.locketgold.dns</string>
+	<key>PayloadOrganization</key>
+	<string>B1sTeam — b1s.id.vn</string>
+	<key>PayloadType</key>
+	<string>com.apple.network.dns</string>
+	<key>PayloadUUID</key>
+	<string>E8B7C2A4-3F1D-4A6E-9C5B-7D2A91F04B63</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+</dict>
+</plist>
