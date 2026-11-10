@@ -270,10 +270,12 @@ function refusedDnsMessage(queryBuffer) {
   const flags = view.getUint16(2);
   // QR=1, giữ Opcode, AA=0, TC=0, RD giữ nguyên, RA=1, Z=0, RCODE=5 (REFUSED)
   const rd = (flags >> 8) & 0x01;
-  view.setUint16(2, 0x8000 | (rd << 8) | 0x0080 | 0x0005);
-  view.setUint16(6, 1); // QDCOUNT = 1
-  view.setUint16(8, 0); // ANCOUNT = 0
-  view.setUint16(10, 0); // NSCOUNT = 0
+  const opcode = (flags >> 11) & 0xf;
+  view.setUint16(2, 0x8000 | (opcode << 11) | (rd << 8) | 0x0080 | 0x0005);
+  view.setUint16(4, 1); // QDCOUNT = 1
+  view.setUint16(6, 0); // ANCOUNT = 0
+  view.setUint16(8, 0); // NSCOUNT = 0
+  view.setUint16(10, 0); // ARCOUNT = 0
   // Cắt bớt body sau question nếu có (giả định 1 question)
   let offset = 12;
   while (offset < out.length) {
