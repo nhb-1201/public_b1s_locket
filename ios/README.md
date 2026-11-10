@@ -36,7 +36,7 @@ ios/
 Sau khi Locket đã lên Gold:
 
 1. Tắt VPN Shadowrocket.
-2. Mở Safari → vào [locketgold.mobileconfig](https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.mobileconfig).
+2. Mở Safari → vào [locketgold.mobileconfig](https://b1s.id.vn/locketgold/ios/locketgold.mobileconfig).
 3. *Cài đặt → Đã tải về hồ sơ* → **Cài đặt**.
 4. *Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị → DNS* → chọn **Locket Gold DNS — B1sTeam**.
 
@@ -46,9 +46,9 @@ Split DNS chỉ định tuyến truy vấn Locket/RevenueCat qua DoH riêng (`ht
 
 | Mục | Link |
 |---|---|
-| Cài Module | `shadowrocket://install?module=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.sgmodule` |
-| Thêm Config | `shadowrocket://config/add/https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.conf` |
-| Tải Profile DNS | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.mobileconfig> |
+| Cài Module | `shadowrocket://install?module=https://b1s.id.vn/locketgold/ios/locketgold.sgmodule` |
+| Thêm Config | `shadowrocket://config/add/https://b1s.id.vn/locketgold/ios/locketgold.conf` |
+| Tải Profile DNS | <https://b1s.id.vn/locketgold/ios/locketgold.mobileconfig> |
 | Hướng dẫn đầy đủ | <https://b1s.id.vn/locketgold> |
 
 ## Bảo mật & Minh bạch

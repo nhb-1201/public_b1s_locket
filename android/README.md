@@ -34,9 +34,9 @@ android/
 
 | Mục | Link |
 |---|---|
-| V2RayNG / NekoBox | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/android/v2rayng.json> |
-| Sing-Box | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/android/singbox.json> |
-| Thông số DNS | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/android/locketgold.dns> |
+| V2RayNG / NekoBox | <https://b1s.id.vn/locketgold/android/v2rayng.json> |
+| Sing-Box | <https://b1s.id.vn/locketgold/android/singbox.json> |
+| Thông số DNS | <https://b1s.id.vn/locketgold/android/locketgold.dns> |
 | Hướng dẫn đầy đủ | <https://b1s.id.vn/locketgold> |
 
 ## Bảo mật & Minh bạch

@@ -9,24 +9,28 @@
 
 ---
 
-## 📥 Tải file cấu hình (raw, không cần đăng nhập)
+## 📥 Tải file cấu hình
+
+Tất cả file đều host tại `b1s.id.vn` (MIME chuẩn cho iOS/Android) — **không cần đăng nhập, không ra GitHub**.
 
 ### 📱 iOS — Shadowrocket
 
 | Bước | Link tải |
 |---|---|
-| ⚡ Cài Module (khuyến dùng) | `shadowrocket://install?module=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.sgmodule` |
-| 📄 Thêm Config | `shadowrocket://config/add/https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.conf` |
+| ⚡ Cài Module (khuyến dùng) | `shadowrocket://install?module=https://b1s.id.vn/locketgold/ios/locketgold.sgmodule` |
+| 📄 Thêm Config | `shadowrocket://config/add/https://b1s.id.vn/locketgold/ios/locketgold.conf` |
 | 🛡️ **LocketGold DoH · B1sTeam ✦** — Profile DNS chống thu hồi (icon riêng, Split DNS) | <https://b1s.id.vn/locketgold/ios/locketgold.mobileconfig> |
 | 📎 **B1sTeam ✦ Giới thiệu** — WebClip → b1s.id.vn/about | <https://b1s.id.vn/locketgold/ios/locketgold-webclip.mobileconfig> |
+
+> Mở link profile bằng **Safari** → “Tải về hồ sơ?” → Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị.
 
 ### 🤖 Android — V2RayNG / Sing-Box / NekoBox
 
 | Bước | Link tải |
 |---|---|
-| ⚡ V2RayNG / NekoBox | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/android/v2rayng.json> |
-| ⚡ Sing-Box | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/android/singbox.json> |
-| 🛡️ DNS (Private DNS: `doh.b1s.id.vn`) | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/android/locketgold.dns> |
+| ⚡ V2RayNG / NekoBox | <https://b1s.id.vn/locketgold/android/v2rayng.json> |
+| ⚡ Sing-Box | <https://b1s.id.vn/locketgold/android/singbox.json> |
+| 🛡️ DNS (Private DNS: `doh.b1s.id.vn`) | <https://b1s.id.vn/locketgold/android/locketgold.dns> |
 
 Hướng dẫn cài đặt đầy đủ từng bước: <https://b1s.id.vn/locketgold>
 
