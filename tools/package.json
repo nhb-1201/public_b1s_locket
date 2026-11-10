@@ -1,0 +1,14 @@
+{
+  "name": "b1s-locketgold-profiles",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Trình sinh 2 hồ sơ .mobileconfig của LocketGold B1sTeam (DNS DoH + Web Clip) — dùng @zone-eu/mobileconfig + sharp.",
+  "scripts": {
+    "build": "node gen-profiles.cjs",
+    "build:signed": "node gen-profiles.cjs --sign"
+  },
+  "dependencies": {
+    "@zone-eu/mobileconfig": "^2.4.8",
+    "plist": "^3.1.0"
+  }
+}

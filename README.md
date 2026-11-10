@@ -17,8 +17,8 @@
 |---|---|
 | ⚡ Cài Module (khuyến dùng) | `shadowrocket://install?module=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.sgmodule` |
 | 📄 Thêm Config | `shadowrocket://config/add/https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.conf` |
-| 🛡️ Profile DNS chống thu hồi | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.mobileconfig> |
-| 📎 **B1sDev_ WebClip** (màn hình chính) | <https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold-webclip.mobileconfig> |
+| 🛡️ **LocketGold DoH · B1sTeam ✦** — Profile DNS chống thu hồi (icon riêng, Split DNS) | <https://b1s.id.vn/locketgold/ios/locketgold.mobileconfig> |
+| 📎 **B1sTeam ✦ Giới thiệu** — WebClip → b1s.id.vn/about | <https://b1s.id.vn/locketgold/ios/locketgold-webclip.mobileconfig> |
 
 ### 🤖 Android — V2RayNG / Sing-Box / NekoBox
 
@@ -56,12 +56,15 @@ public_b1s_locket/
 ├── .gitignore
 ├── assets/
 │   ├── banner.svg                 # OG banner 1200×630
-│   └── icon-locketgold.svg        # Icon vương miện B1sTeam
+│   ├── icon-locketgold.svg        # Icon vương miện B1sTeam
+│   ├── icon-doh-locketgold.svg    # Icon khiên DoH (profile DNS)
+│   ├── icon-doh-locketgold-1024.png # Icon PNG 1024 (nhúng trong profile)
+│   └── icon-locketgold-512.png    # Icon PNG 512 (nhúng trong Web Clip)
 ├── ios/
 │   ├── locketgold.conf            # Shadowrocket Config (MITM routing)
 │   ├── locketgold.sgmodule        # Shadowrocket Module (khuyên dùng)
-│   ├── locketgold.mobileconfig    # Profile DNS chống thu hồi (iOS 14+)
-│   ├── locketgold-webclip.mobileconfig  # B1sDev_ — WebClip → b1s.id.vn/about
+│   ├── locketgold.mobileconfig    # Profile DNS DoH chống thu hồi (iOS 14+, Split DNS + icon riêng)
+│   ├── locketgold-webclip.mobileconfig  # B1sTeam ✦ Giới thiệu — WebClip → b1s.id.vn/about
 │   ├── module.html / conf.html    # Trang chuyển hướng 1-Click
 │   ├── .htaccess                  # CORS + MIME types (Apache)
 │   └── scripts/
@@ -78,7 +81,22 @@ public_b1s_locket/
 └── dns/
     ├── worker.js                  # DoH Worker (Cloudflare, RFC 8484)
     └── wrangler.toml              # Deploy doh.b1s.id.vn
+├── tools/
+│   ├── gen-profiles.cjs            # Sinh lại 2 .mobileconfig (dùng @zone-eu/mobileconfig)
+│   └── package.json
 ```
+
+## 🧩 Tái tạo hồ sơ .mobileconfig (zone-eu/mobileconfig)
+
+Hồ sơ iOS được sinh bằng [zone-eu/mobileconfig](https://github.com/zone-eu/mobileconfig) (npm: `@zone-eu/mobileconfig`) — build qua `plist` (round-trip parse OK), ký CMS khi có CA cert thật (tự ký không giúp gì — hiện “Not Verified” như unsigned; unsigned là chuẩn chung của AdGuard/NextDNS).
+
+```bash
+cd tools && npm install
+node gen-profiles.cjs                      # unsigned — mặc định
+PROFILE_KEY_PEM=key.pem PROFILE_CERT_PEM=cert.pem node gen-profiles.cjs --sign  # ký (CA tin cậy)
+```
+
+`PayloadUUID` cố định → người dùng cũ nhận **Update** thay vì cài trùng hồ sơ. iOS hiển thị trực tiếp `PayloadDisplayName` / `PayloadDescription` / `PayloadIcon` — đây chính là “UI” của hồ sơ.
 
 ## 🛡️ Minh bạch & Bảo mật
 
