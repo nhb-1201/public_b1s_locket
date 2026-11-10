@@ -15,11 +15,15 @@ ios/
 ├── conf.html                 # Trang chuyển hướng → thêm Config 1-Click (noindex)
 ├── .htaccess                 # Apache: CORS + MIME types + cache headers
 └── scripts/
-    ├── locketgold_revenuecat.js   # Entitlement locket_gold vĩnh viễn (hết hạn 9999)
+    ├── locketgold_revenuecat.js   # LICENSE-GATED: entitlement locket_gold (chỉ máy đã verify key)
     ├── locketgold_deleteHeader.js # Xóa ETag/If-None-Match → luôn nhận bản mới
-    ├── locketgold_remote.js       # Firebase Remote Config → bật toàn bộ flag premium
-    └── locketgold_profile.js      # Giữ badge Gold luôn bật trên api.locketcamera.com
+    ├── locketgold_remote.js       # LICENSE-GATED: Remote Config premium flags
+    └── locketgold_profile.js      # LICENSE-GATED: giữ badge Gold trên api.locketcamera.com
 ```
+
+> **License-gated:** scripts tự gọi <https://b1s.id.vn/api/locketgold/verify?key=…&device_id=…>
+> (device id lưu bền trong `$prefs`). Sai key / khác máy / offline >72h → không bơm Gold.
+> Module/config tải từ b1s.id.vn/locketgold chứa đích danh license key của bạn — **không chia sẻ**.
 
 ## Cài đặt — 7 bước (A → Z)
 
