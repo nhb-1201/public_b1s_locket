@@ -48,10 +48,16 @@ function loadSharp() {
   process.exit(1);
 }
 
-async function rasterize(svgFile, outFile, size) {
+async function rasterize(svgFile, outFile, size, backgroundHex = '#0E3320') {
   const sharp = loadSharp();
   const svg = fs.readFileSync(svgFile);
-  const png = await sharp(svg, { density: 384 }).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
+  // flatten: bỏ kênh alpha — Apple yêu cầu icon PNG không có nền trong suốt (PayloadIcon/webClip Icon)
+  const png = await sharp(svg, { density: 384 })
+    .resize(size, size)
+    .flatten({ background: backgroundHex })
+    .removeAlpha()
+    .png({ compressionLevel: 9 })
+    .toBuffer();
   fs.writeFileSync(outFile, png);
   console.log(`✓ icon ${size}px → ${path.relative(ROOT, outFile)} (${png.length} bytes)`);
   return fs.readFileSync(outFile).toString('base64');
@@ -60,37 +66,57 @@ async function rasterize(svgFile, outFile, size) {
 /* ── Dữ liệu hồ sơ ──────────────────────────────────────────── */
 const CREATOR = 'B1sTeam — b1s.id.vn · @b1steam';
 
+// UUID cho payload dnsSettings.managed bên trong (cố định — để update tại chỗ)
+const DNS_INNER_UUID = 'D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3';
+
 function dnsProfile(iconPngBase64) {
-  return {
-    // ── Tiêu đề / nhận diện (giữ nguyên identifier & UUID để update tại chỗ) ──
-    PayloadIdentifier: 'vn.b1s.locketgold.dns',
-    PayloadType: 'com.apple.network.dns',
+  // Cấu trúc theo chuẩn Apple: Payload Content = ARRAY payload dnsSettings.managed.
+  // Split DNS thật qua OnDemandRules: Connect CHỈ cho domain Locket/RevenueCat đi DoH,
+  // mọi domain khác Disconnect → DNS gốc của thiết bị (tốc độ 100%).
+  const locketDomains = [
+    'locketcamera.com',
+    'locket.camera',
+    'revenuecat.com',
+    'rc-backup.com',
+    'firebaseremoteconfig.googleapis.com',
+  ];
+  const dnsPayload = {
+    PayloadType: 'com.apple.dnsSettings.managed',
     PayloadVersion: 1,
-    PayloadUUID: 'E8B7C2A4-3F1D-4A6E-9C5B-7D2A91F04B63',
+    PayloadIdentifier: `com.apple.dnsSettings.managed.${DNS_INNER_UUID}`,
+    PayloadUUID: DNS_INNER_UUID,
+    PayloadDisplayName: 'LocketGold DoH · B1sTeam ✦',
+    PayloadDescription: 'DNS này chỉ áp dụng cho domain Locket & RevenueCat (Split DNS qua doh.b1s.id.vn) — chặn thu hồi Gold. Web khác dùng DNS gốc của bạn.',
+    PayloadOrganization: CREATOR,
+    DNSSettings: {
+      DNSProtocol: 'HTTPS',
+      ServerURL: 'https://doh.b1s.id.vn/dns-query',
+    },
+    // Bật khi có mạng khả dụng (RFC/Apple OnDemand switch)
+    OnDemandEnabled: 1,
+    // Connect CHỈ cho domain Locket/RevenueCat → mọi domain khác: Disconnect (DNS gốc).
+    OnDemandRules: [
+      { Action: 'Connect', DNSDomainMatch: locketDomains },
+      { Action: 'Disconnect' },
+    ],
+    ProhibitDisablement: false,
+  };
+
+  return {
+    PayloadType: 'Configuration',
+    PayloadVersion: 1,
+    PayloadIdentifier: 'vn.b1s.locketgold.dns',
+    PayloadUUID: 'E8B7C2A4-3F1D-4A6E-9C5B-7D2A91F04B63', // giữ cố định → update tại chỗ
     PayloadDisplayName: 'LocketGold DoH · B1sTeam ✦',
     PayloadDescription:
       'DoH dành riêng cho Locket Gold VIP — chỉ truy vấn Locket/RevenueCat ' +
       'đi qua máy chủ B1sTeam, chặn mọi lệnh thu hồi Gold. Mọi web khác giữ nguyên ' +
       'DNS gốc: tốc độ 100% · không log · miễn phí vĩnh viễn · b1s.id.vn/locketgold',
     PayloadOrganization: CREATOR,
+    PayloadScope: 'System',
     PayloadRemovalDisallowed: false,
     PayloadIcon: iconPngBase64,
-    // ── Cấu hình Split DNS (iOS 14+) ──
-    PayloadContent: {
-      DNSSettings: {
-        // DoH RFC 8484 — chỉ các domain dưới đây đi qua doh.b1s.id.vn (Locket/RevenueCat).
-        DNSServerAddresses: ['https://doh.b1s.id.vn/dns-query'],
-        DNSProtocols: ['HTTPS'],
-        FallbackDNS: ['1.1.1.1', '8.8.8.8'],
-        MatchDomains: [
-          'locketcamera.com',
-          'locket.camera',
-          'revenuecat.com',
-          'rc-backup.com',
-          'firebaseremoteconfig.googleapis.com',
-        ],
-      },
-    },
+    PayloadContent: [dnsPayload],
   };
 }
 
@@ -134,8 +160,8 @@ async function main() {
   console.log('— B1sTeam · sinh hồ sơ LocketGold —\n');
   fs.mkdirSync(OUT_IOS, { recursive: true });
 
-  const dohIcon = await rasterize(path.join(ASSETS, 'icon-doh-locketgold.svg'), path.join(ASSETS, 'icon-doh-locketgold-1024.png'), 1024);
-  const crownIcon = await rasterize(path.join(ASSETS, 'icon-locketgold.svg'), path.join(ASSETS, 'icon-locketgold-512.png'), 512);
+  const dohIcon = await rasterize(path.join(ASSETS, 'icon-doh-locketgold.svg'), path.join(ASSETS, 'icon-doh-locketgold-1024.png'), 1024, '#0E3320');
+  const crownIcon = await rasterize(path.join(ASSETS, 'icon-locketgold.svg'), path.join(ASSETS, 'icon-locketgold-512.png'), 512, '#08080F');
 
   const dns = dnsProfile(dohIcon);
   const webClip = webClipProfile(crownIcon);
