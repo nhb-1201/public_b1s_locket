@@ -45,28 +45,15 @@
           <string>HTTPS</string>
           <key>ServerURL</key>
           <string>https://doh.b1s.id.vn/dns-query</string>
+          <key>SupplementalMatchDomains</key>
+          <array>
+            <string>locketcamera.com</string>
+            <string>locket.camera</string>
+            <string>revenuecat.com</string>
+            <string>rc-backup.com</string>
+            <string>firebaseremoteconfig.googleapis.com</string>
+          </array>
         </dict>
-        <key>OnDemandEnabled</key>
-        <integer>1</integer>
-        <key>OnDemandRules</key>
-        <array>
-          <dict>
-            <key>Action</key>
-            <string>Connect</string>
-            <key>DNSDomainMatch</key>
-            <array>
-              <string>locketcamera.com</string>
-              <string>locket.camera</string>
-              <string>revenuecat.com</string>
-              <string>rc-backup.com</string>
-              <string>firebaseremoteconfig.googleapis.com</string>
-            </array>
-          </dict>
-          <dict>
-            <key>Action</key>
-            <string>Disconnect</string>
-          </dict>
-        </array>
         <key>ProhibitDisablement</key>
         <false/>
       </dict>

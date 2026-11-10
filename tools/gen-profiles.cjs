@@ -91,14 +91,11 @@ function dnsProfile(iconPngBase64) {
     DNSSettings: {
       DNSProtocol: 'HTTPS',
       ServerURL: 'https://doh.b1s.id.vn/dns-query',
+      // ── Split DNS THẬT (iOS 14+): CHỈ query cho các domain dưới đây (và subdomain)
+      //    đi qua DoH B1sTeam — mọi domain khác dùng DNS gốc của thiết bị.
+      //    Wildcard ngầm: "example.com" khớp cả "foo.example.com" (Apple docs).
+      SupplementalMatchDomains: locketDomains,
     },
-    // Bật khi có mạng khả dụng (RFC/Apple OnDemand switch)
-    OnDemandEnabled: 1,
-    // Connect CHỈ cho domain Locket/RevenueCat → mọi domain khác: Disconnect (DNS gốc).
-    OnDemandRules: [
-      { Action: 'Connect', DNSDomainMatch: locketDomains },
-      { Action: 'Disconnect' },
-    ],
     ProhibitDisablement: false,
   };
 
