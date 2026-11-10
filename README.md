@@ -11,26 +11,18 @@
 
 ## 📥 Tải file cấu hình
 
-Tất cả file đều host tại `b1s.id.vn` (MIME chuẩn cho iOS/Android) — **không cần đăng nhập, không ra GitHub**.
+Kể từ v4.0, LocketGold phát hành **file cá nhân hóa** (khóa đúng thiết bị — Device ID + mật khẩu ngẫu nhiên + hết hạn tự thu hồi) — tải từ trang đăng nhập, không dùng file public.
 
-### 📱 iOS — Shadowrocket
+1. Vào <https://b1s.id.vn/locketgold> — đăng nhập.
+2. Cài **V2Box** (iOS App Store / Android Google Play — miễn phí).
+3. V2Box → Cài đặt → Thông tin → sao chép **Device ID** → dán vào trang → chọn gói (Thử 15 ngày / Vĩnh viễn).
+4. Bấm **Tạo file cấu hình** → tải **locketgold-b1sdev.v2box** + mật khẩu ngẫu nhiên → mở trong V2Box → bật kết nối → Gold ✦.
 
-| Bước | Link tải |
-|---|---|
-| ⚡ Cài Module (khuyến dùng) | `shadowrocket://install?module=https://b1s.id.vn/locketgold/ios/locketgold.sgmodule` |
-| 📄 Thêm Config | `shadowrocket://config/add/https://b1s.id.vn/locketgold/ios/locketgold.conf` |
-| 🛡️ **LocketGold DoH · B1sTeam ✦** — Profile DNS chống thu hồi (icon riêng, Split DNS) | <https://b1s.id.vn/locketgold/ios/locketgold.mobileconfig> |
-| 📎 **B1sTeam ✦ Giới thiệu** — WebClip → b1s.id.vn/about | <https://b1s.id.vn/locketgold/ios/locketgold-webclip.mobileconfig> |
+### Hồ sơ DNS (tùy chọn — chống thu hồi thêm lớp)
+- iOS: <https://b1s.id.vn/locketgold/ios/locketgold.mobileconfig> (Safari → Cài đặt)
+- Android: Private DNS `doh.b1s.id.vn`
 
-> Mở link profile bằng **Safari** → “Tải về hồ sơ?” → Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị.
-
-### 🤖 Android — V2RayNG / Sing-Box / NekoBox
-
-| Bước | Link tải |
-|---|---|
-| ⚡ V2RayNG / NekoBox | <https://b1s.id.vn/locketgold/android/v2rayng.json> |
-| ⚡ Sing-Box | <https://b1s.id.vn/locketgold/android/singbox.json> |
-| 🛡️ DNS (Private DNS: `doh.b1s.id.vn`) | <https://b1s.id.vn/locketgold/android/locketgold.dns> |
+> Các file public cũ (.sgmodule/.conf/v2rayng/singbox) không còn là kênh phân phối chính — b1s.id.vn/locketgold mới là nơi phát hành file khóa thiết bị.
 
 Hướng dẫn cài đặt đầy đủ từng bước: <https://b1s.id.vn/locketgold>
 
