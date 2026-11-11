@@ -1,10 +1,19 @@
 // author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * LocketGold B1sTeam — Firebase Remote Config Unlock (DEVICE-LOCKED)
+ * LocketGold B1sTeam — Firebase Remote Config Unlock (DEVICE-LOCKED) v4.0
  *
- * Merge toàn bộ feature flag premium vào parameters của Remote Config —
- * CHỈ KHI license hợp lệ trên đúng thiết bị này (xem locketgold_revenuecat.js).
- * Key sai/khác máy/offline quá 72h → giữ nguyên body gốc.
+ * MỞ KHÓA TOÀN BỘ TÍNH NĂNG PREMIUM CỦA LOCKET — danh sách flag thật:
+ *   · Firebase v1 fetch trả về { entries: { flag: "value", ... } } (flat, string) — v3 trở về
+ *     trước script này tưởng nhầm là { parameters / parameterGroups } nên không hề đổi được flag.
+ *   · Bảng FORCE_ENTRIES dưới đây map ĐÚNG tên flag thật của Locket (camera, camera_roll,
+ *     camera_video_recording, camera_filter_config, feature_gates, moment_*, rollcall_*, groups,
+ *     journal, widgets, uploads, friends, cache/CDN…) — KHÔNG đoán tên nữa.
+ *   · feature_gates là JSON string → parse, bật "enabled" cho toàn bộ gate premium, giữ key lạ.
+ *   · Entry liên quan thương hiệu bên ngoài (URL mạng xã hội, overlay quảng cáo của bên thứ 3,
+ *     popup upsell) KHÔNG được bơm — giữ nguyên giá trị máy chủ trả về.
+ *
+ * CHỈ CHẠY KHI license hợp lệ trên đúng thiết bị (xem locketgold_revenuecat.js):
+ *   key sai / máy khác / cache hết hạn → trả body gốc, không bơm flag nào.
  *
  * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
  */
@@ -48,90 +57,299 @@ function markVerified() {
   } catch (e) { /* bỏ qua */ }
 }
 
-function injectFlags(body) {
+/* ════════════════════════════════════════════════════════════
+   BẢNG FLAG THẬT CỦA LOCKET (entries — string values)
+   Nguồn: phân tích response Remote Config của app Locket.
+   Giá trị KHÔNG đổi: URL ngoài / branding bên thứ 3 (app tự giữ mặc định server).
+   ════════════════════════════════════════════════════════════ */
+var FORCE_ENTRIES = {
+  /* ── Badge & beta ── */
+  "profile_badge_visible": "true",
+  "beta_features_enabled": "true",
+
+  /* ── Captions ── */
+  "captions_enabled": "true",
+  "overlay_dynamic_captions": "[\"standard\",\"poll\",\"color_palette\",\"review\",\"music\",\"location\",\"weather\",\"time\",\"streak\",\"star_sign\",\"party_time\",\"locket_count\",\"good_morning\",\"goodnight\",\"ootd\",\"miss_you\",\"custom\",\"halloween_2026\"]",
+  "overlay_navigator_enabled": "true",
+  "overlays_v2_config": "{\"suggestions_enabled\":true}",
+  "link_caption_link_enabled": "true",
+  "music_caption_enabled": "true",
+  "music_caption_song_preview_enabled": "true",
+  "unsend_message_enabled": "true",
+  "lunar_new_year_app_icon_enabled": "true",
+  "year_of_the_horse_icon_enabled": "true",
+
+  /* ── Paywall: tắt hẳn (đã premium) ── */
+  "paywall_presentation_config": "{\"uid\":\"paywall_disabled\",\"onboarding\":false,\"after_sent_moment\":false,\"on_foreground\":false,\"interval\":999999999,\"profile_banner\":false}",
+  "feature_discovery_popup_config": "{\"uid\":\"disabled\",\"tag\":\"\",\"tag_gradient\":false,\"tag_style\":\"standard\",\"title\":\"\",\"feature_set\":[],\"campaign\":\"disabled\",\"start_at\":\"2099-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\",\"use_local_time_zone\":false}",
+  "upsell_features": "{\"app_icon_picker\":true,\"camera_roll\":true,\"camera_theme\":true,\"locket_views\":true,\"remove_ads\":true,\"custom_widget_frames\":true}",
+
+  /* ── Ads & telemetry: TẮT ── */
+  "history_ads_mode": "off",
+  "history_ads_prefetch_count": "0",
+  "history_ads_prefetch_immediate": "false",
+  "history_ads_prefetch_reroute": "false",
+  "history_ads_dynamic_insertion": "false",
+  "history_ads_refresh_prefetch_on_foreground": "false",
+  "history_ads_floor_price": "0",
+  "history_ads_floor_price_att": "0",
+  "history_ad_log_displayed_on_background": "false",
+  "history_ads_debug_menu": "false",
+  "sentry_sample_rate": "0",
+  "sentry_network_tracing": "false",
+  "sentry_performance_tracking": "false",
+  "sentry_trace_sample_rate": "0",
+  "sentry_profiles_sample_rate": "0",
+
+  /* ── Camera: premium ── */
+  "camera": "{\"gold_max_duration\":30,\"goldMaxDuration\":30,\"max_duration\":30,\"maxDuration\":30,\"ultra_wide\":true,\"ultraWide\":true,\"volume_button\":true,\"volumeButton\":true,\"flash_button\":true,\"telephoto\":true,\"srgb\":true,\"lanczos\":true,\"quality_mbps\":0.9,\"qualityMbps\":0.9}",
+  "camera_roll": "{\"gold_max_duration\":30,\"goldMaxDuration\":30,\"video_max_duration\":30,\"videoMaxDuration\":30,\"max_duration\":30,\"maxDuration\":30,\"trim_max_duration\":30,\"trimMaxDuration\":30,\"camera_roll_max_duration\":30,\"quality_mbps\":0.9,\"qualityMbps\":0.9,\"flash_button\":true}",
+  "live_photos": "{\"capture\":true,\"viewing\":true,\"catch_up\":true,\"widget_looping_mode\":\"never\"}",
+  "camera_filter_config": "{\"allows_custom_filters\":true,\"show_filter_button\":true,\"sheet_enabled\":true,\"open_sheet_immediately\":true,\"sheet_filters\":[{\"title\":{\"en\":\"Goofy\"},\"filter_ids\":[\"okay_wig\",\"influencer\",\"looks_maxxing\",\"toothless\",\"bye_brows\"]},{\"title\":{\"en\":\"Looks\"},\"filter_ids\":[\"bowling_ball\",\"blonde_bleached\",\"beard\",\"bob_cut\",\"buns\",\"tatted\",\"mohawk\",\"braces\",\"bye_brows\"]},{\"title\":{\"en\":\"Celebrate\"},\"filter_ids\":[\"slimed\",\"princess\",\"disco_lights\",\"cash_money\",\"happy_birthday\"]},{\"title\":{\"en\":\"Cute\"},\"filter_ids\":[\"cutesy\",\"sticker_face\",\"flower_crown\",\"love_bug\"]},{\"title\":{\"en\":\"Costumes\"},\"filter_ids\":[\"wedding\",\"cowboy_cowgirl\",\"giraffe\",\"clown\"]},{\"title\":{\"en\":\"Holidays\"},\"filter_ids\":[\"easter_bunney_cutout\",\"easter_chick_cutout\",\"bearded\",\"leprechaun\",\"lucky_face\",\"sweet_hearts\",\"elf_cutout\",\"santa_cutout\",\"frosty\"]}],\"picker_filters\":[\"okay_wig\",\"influencer\",\"looks_maxxing\",\"toothless\",\"bye_brows\",\"bowling_ball\",\"blonde_bleached\",\"beard\",\"bob_cut\",\"buns\",\"tatted\",\"mohawk\",\"braces\",\"slimed\",\"princess\",\"disco_lights\",\"cash_money\",\"happy_birthday\",\"cutesy\",\"sticker_face\",\"flower_crown\",\"love_bug\",\"wedding\",\"cowboy_cowgirl\",\"giraffe\",\"clown\",\"easter_bunney_cutout\",\"easter_chick_cutout\",\"bearded\",\"leprechaun\",\"lucky_face\",\"sweet_hearts\",\"elf_cutout\",\"santa_cutout\",\"frosty\"]}",
+  "camera_roll_preview_enabled": "true",
+  "camera_video_recording": "{\"default\":{\"maximum_duration\":30000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"},\"gold\":{\"maximum_duration\":60000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"}}",
+  "android_camera_video_recording": "{\"default\":{\"maximum_duration\":30000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"},\"gold\":{\"maximum_duration\":60000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"}}",
+  "camera_roll_video_enabled": "true",
+  "camera_roll_video_upload_enabled": "true",
+  "internal_camera_roll_video_upload_enabled": "true",
+  "longer_camera_roll_videos_enabled": "true",
+  "camera_roll_video_max_duration": "60.0",
+  "camera_roll_max_duration": "60.0",
+  "camera_roll_duration": "60.0",
+  "max_video_duration": "60.0",
+  "video_max_duration": "60.0",
+  "video_trim_max_duration": "60.0",
+  "trim_max_duration": "60.0",
+  "gold_max_duration": "60.0",
+  "goldMaxDuration": "60.0",
+  "photo_quality_balance": "quality",
+  "android_photo_quality_balance": "quality",
+  "video_quality_mbps": "2.5",
+  "video_sound_enabled": "true",
+  "microphone_enabled": "true",
+  "camera_microphone_enabled": "true",
+  "audio_session_deactivation_enabled": "true",
+  "zoom_enabled": "true",
+
+  /* ── Upload: chất lượng cao nhất ── */
+  "upload_main": "true",
+  "upload_main_image_quality": "1.0",
+  "upload_main_image_size": "2560",
+  "upload_thumbnail_image_quality": "1.0",
+  "upload_thumbnail_image_size": "2048",
+  "upload_use_webp_thumbnail": "true",
+  "android_upload_use_webp_thumbnail": "true",
+
+  /* ── Bạn bè: không giới hạn ── */
+  "max_friends_count": "999999",
+  "signup_max_friends_count": "999999",
+  "celebrity_inbox_limit": "999999",
+  "soft_friend_limit_threshold_count": "999999",
+  "friend_limit_mode": "0",
+  "friend_limit_geo_override": "{\"experiments\":{},\"area_code_overrides\":{}}",
+  "friends_sheet_locket_count_config": "{\"items\":[{\"threshold\":0,\"icon_name\":\"heart\"},{\"threshold\":1,\"icon_name\":\"heart.fill\"},{\"threshold\":10,\"emoji\":\"🤍\"},{\"threshold\":100,\"emoji\":\"💛\"},{\"threshold\":500,\"emoji\":\"❤️‍🔥\"},{\"threshold\":1000,\"emoji\":\"🌟🫶🌟\"},{\"threshold\":2000,\"emoji\":\"✨💟✨\"},{\"threshold\":5000,\"emoji\":\"⚡️😵‍💫⚡\"},{\"threshold\":10000,\"emoji\":\"✨⚡️😱⚡✨\"}]}",
+  "friend_locket_count_config": "{\"items\":[{\"threshold\":0,\"icon_name\":\"heart\"},{\"threshold\":1,\"icon_name\":\"heart.fill\"},{\"threshold\":10,\"emoji\":\"🤍\"},{\"threshold\":100,\"emoji\":\"💛\"},{\"threshold\":500,\"emoji\":\"❤️‍🔥\"},{\"threshold\":1000,\"emoji\":\"✨💗✨\"},{\"threshold\":2000,\"emoji\":\"✨️⭐️✨\"},{\"threshold\":5000,\"emoji\":\"✨💎✨\"},{\"threshold\":10000,\"emoji\":\"✨🔐💛✨\"}]}",
+  "new_friends_monitoring_enabled": "true",
+  "improved_friend_suggestions": "true",
+  "show_friend_suggestions_by_default": "true",
+  "emoji_friend_suggestions": "true",
+  "prompt_contact_permissions_on_search": "true",
+  "populate_phone_numbers_from_suggest_friends": "true",
+  "hide_friends_enabled": "true",
+  "hide_skip_contacts": "true",
+  "show_all_contacts": "true",
+  "show_invite_suggestions": "true",
+  "signup_allow_skip_add_friends": "true",
+  "show_friend_limit_on_cam": "false",
+  "show_no_friends_bottom_sheet": "false",
+  "hide_invite_links": "false",
+
+  /* ── Streak / Recovery ── */
+  "streak_config": "{\"minimum_recovery_count\":0,\"minimum_display_count\":0}",
+
+  /* ── Moment views & reactions (Gold) ── */
+  "moment_views_enabled": "true",
+  "moment_views_v2": "true",
+  "record_moment_views": "true",
+  "notify_moment_views": "true",
+  "get_moment_views_as_cloud_function": "true",
+  "moment_reactions_v2": "true",
+  "chat_reactions_enabled": "true",
+  "conversation_reactions": "true",
+  "typing_indicators_enabled": "true",
+  "reply_prototype_enabled": "true",
+  "messages_integration": "true",
+  "conversations_enabled": "true",
+  "fetch_moments_in_conversation": "true",
+  "hide_chat_button": "false",
+  "groups_enabled": "true",
+  "send_to_self_only_mode": "always_enabled",
+  "time_travel_rewind_v2_enabled": "true",
+  "calendar_delete_moment_enabled": "true",
+  "calendar_rewind_enabled": "false",
+  "locket_yearbook_story_sharing_encouraged": "true",
+
+  /* ── Rollcall (tag bạn bè trong ảnh) ── */
+  "rollcall_enabled": "true",
+  "rollcall_comment_actions": "true",
+  "rollcall_profile_button": "true",
+  "rollcall_prompt_export_after_share": "true",
+  "rollcall_confirm_skip_tagging": "false",
+  "rollcall_tap_to_tag_enabled": "false",
+
+  /* ── Widget & Live Activity ── */
+  "widget_frame_event_max_images": "5",
+  "android_widget_frame_event_enabled": "true",
+  "widget_badge_enabled": "true",
+  "widget_badge_v2": "true",
+  "widget_stale_state_enabled": "false",
+  "widget_last_sent_indicator": "false",
+  "widget_sync_token_reload_mode": "clearTokenNever",
+  "live_activity_onboarding": "true",
+  "live_activity_onboarding_variant": "friending",
+  "register_live_activity_push_to_start_token": "true",
+  "live_activity_remove_stale_start_token": "true",
+  "notification_preferences_live_activities": "true",
+  "notification_preferences": "true",
+  "notification_reply_body_visible": "true",
+  "prompt_notification_permissions_after_friending": "true",
+
+  /* ── Activity bar & journal ── */
+  "activity_bar_enabled": "true",
+  "journal_activity_bar_enabled": "true",
+  "journal_settings": "{\"debug_menu_enabled\":false,\"focus_animation\":true,\"compact_header\":true,\"friends_button\":true,\"reverse_scroll_direction\":false,\"streak_visualization\":true,\"streak_visualization_style\":\"gradient\",\"streak_header_minimum_count\":0,\"streak_visualization_minimum_count\":2,\"overlay_indicators\":{\"location\":true,\"music\":true,\"static_content\":true,\"weather\":true}}",
+  "qr_code_config": "{\"profile_enabled\":true,\"scanning_enabled\":true}",
+
+  /* ── Ảnh đại diện & profile ── */
+  "custom_profile_pics": "true",
+  "profile_menu_v2_enabled": "true",
+
+  /* ── CDN & cache: nhanh hơn ── */
+  "cdn_domain_replacements": "{\"firebasestorage.googleapis.com\":\"cdn.locketcamera.com\"}",
+  "cdn_domain_replacements_video": "true",
+  "storage_bucket": "gs://locket-img",
+  "storage_bucket_video": "gs://locket-video",
+  "image_cache_max_age_sec": "157680000",
+  "image_cache_max_size": "400000000",
+  "history_cache_age_days": "1000",
+  "user_cache_max_age_sec": "691200",
+  "friends_cache_max_age_sec": "2592000",
+  "image_fetch_cache": "true",
+  "image_cache_use_shared": "true",
+  "use_doc_dir_for_image_cache": "true",
+  "efficient_history_cache_invalidation": "true",
+  "timestamp_based_history_fetches": "true",
+  "get_latest_moment_v2": "true",
+  "fetch_users_from_cloud_function": "true",
+  "refresh_interval": "60",
+  "firestore_refresh_v2": "true",
+  "firestore_refresh_v3": "true",
+  "keychain_access_retries": "true",
+  "blocked_users_cached_sync_enabled": "true",
+
+  /* ── Cộng đồng & hỗ trợ ── */
+  "join_testflight_enabled": "true",
+  "safety_center": "true",
+  "help_center": "true",
+  "support_v2": "true",
+  "privacy_choices_setting": "true",
+  "request_att_permission": "true",
+  "invite_link_preview_variant": "4",
+  "share_history_config": "{\"prompt_enabled\":false,\"fetching_enabled\":true}",
+  "share_history_prompt_enabled": "false",
+  "use_thumbnails_for_sharing": "true",
+  "use_thumbnails_in_timeline": "true",
+  "persist_onboarding_step": "true",
+  "onboarding_contact_permission_step": "true"
+};
+
+/* Các feature gate premium — Locket đọc JSON này từ entries.feature_gates */
+var KNOWN_PREMIUM_GATES = [
+  "app_icon_picker", "camera_roll", "camera_theme", "locket_views", "long_captions",
+  "longer_video", "unlimited_friends", "priority_support", "profile_badge",
+  "remove_ads", "video", "custom_widget_frames", "streak_recovery"
+];
+
+function featureGatesJSON(raw) {
+  var obj = {};
+  try { obj = JSON.parse(raw || "{}"); if (!obj || typeof obj !== "object") obj = {}; } catch (e) { obj = {}; }
+  for (var i = 0; i < KNOWN_PREMIUM_GATES.length; i++) obj[KNOWN_PREMIUM_GATES[i]] = "enabled";
+  return JSON.stringify(obj);
+}
+
+/* ── Legacy: phòng khi app đổi sang format { parameters / parameterGroups } ── */
+var FORCE_ON_LEGACY = /(gold|premium|vip|subscription|ads[-_]?free|no[-_]?ads|unlimited|infinite|caption|widget|streak|badge|views?|friends|album|hd_photo|premium_icon|camera_theme)/i;
+function forceLegacyParam(p) {
+  if (!p || typeof p !== "object") return;
+  var raw = "";
+  try { raw = (p.defaultValue && typeof p.defaultValue.value === "string") ? p.defaultValue.value : ""; } catch (e) { /* bỏ qua */ }
+  if (/^-?\d+(\.\d+)?$/.test(raw)) { p.defaultValue = { value: "999999" }; return; }
+  p.defaultValue = { value: "true" };
+}
+
+function hasOwn(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+
+function injectEntries(body) {
   var obj;
   try {
     obj = JSON.parse(body);
-    if (!obj || typeof obj !== "object") obj = {};
+    if (!obj || typeof obj !== "object") return null;
   } catch (e) {
-    obj = {};
+    return null;
   }
 
-  if (!obj.condition || typeof obj.condition !== "object") obj.condition = {};
-  if (!obj.parameters || typeof obj.parameters !== "object") obj.parameters = {};
-  if (!obj.parameterGroups || typeof obj.parameterGroups !== "object") obj.parameterGroups = {};
+  var touched = false;
 
-  var premiumFlags = {
-    "gold_badge_enabled": true,
-    "vip_subscription_active": true,
-    "unlimited_views": true,
-    "unlimited_captions": true,
-    "custom_widgets": true,
-    "streak_recovery": true,
-    "no_ads": true,
-    "premium_icons": true,
-    "premium_camera_themes": true,
-    "locket_gold_active": true,
-    "free_trial_available": true,
-    "gold_tier": true
-  };
-
-  for (var flag in premiumFlags) {
-    if (!Object.prototype.hasOwnProperty.call(premiumFlags, flag)) continue;
-    var existing = obj.parameters[flag];
-    var param = (existing && typeof existing === "object") ? existing : {};
-    param.defaultValue = { value: "true" };
-    obj.parameters[flag] = param;
+  /* Format chuẩn: {"entries": {...}, "state": ...} */
+  if (!obj.entries || typeof obj.entries !== "object") obj.entries = {};
+  for (var key in FORCE_ENTRIES) {
+    if (!hasOwn(FORCE_ENTRIES, key)) continue;
+    obj.entries[key] = FORCE_ENTRIES[key];
+    touched = true;
   }
+  obj.entries["feature_gates"] = featureGatesJSON(obj.entries["feature_gates"]);
+  obj.entries["upsell_features"] = FORCE_ENTRIES["upsell_features"];
 
-  /* ── Quét TOÀN BỘ parameters & parameterGroups, ép mọi flag tên kiểu premium sang true ──
-     Tên flag thật của Locket không công khai — quét theo từ khóa premium/gold/vip/…
-     thay vì đoán danh sách (trước đây nhiều tính năng VIP không bật vì tên không khớp). */
-  var FORCE_ON = /(gold|premium|vip|subscription|ads[-_]?free|no[-_]?ads|unlimited|infinite|caption|widget|streak|badge|views?|friends|album|hd_photo|premium_icon|camera_theme)/i;
-
-  function forceParam(p) {
-    if (!p || typeof p !== "object") return;
-    var raw = "";
-    try { raw = (p.defaultValue && typeof p.defaultValue.value === "string") ? p.defaultValue.value : ""; } catch (e) { /* bỏ qua */ }
-    // Flag kiểu số (giới hạn caption, số bạn, thời lượng video…) → set thật to — không ép sang "true" (NaN)
-    if (/^-?\d+(\.\d+)?$/.test(raw)) { p.defaultValue = { value: "999999" }; return; }
-    // Boolean-ish/chuỗi khác → "true"
-    p.defaultValue = { value: "true" };
-  }
-
+  /* Format legacy dự phòng */
   if (obj.parameters && typeof obj.parameters === "object") {
-    for (var key in obj.parameters) {
-      if (!Object.prototype.hasOwnProperty.call(obj.parameters, key)) continue;
-      if (FORCE_ON.test(key)) forceParam(obj.parameters[key]);
+    for (var p in obj.parameters) {
+      if (!hasOwn(obj.parameters, p)) continue;
+      if (FORCE_ON_LEGACY.test(p)) forceLegacyParam(obj.parameters[p]);
     }
   }
   if (obj.parameterGroups && typeof obj.parameterGroups === "object") {
-    for (var groupKey in obj.parameterGroups) {
-      if (!Object.prototype.hasOwnProperty.call(obj.parameterGroups, groupKey)) continue;
-      var group = obj.parameterGroups[groupKey];
+    for (var g in obj.parameterGroups) {
+      if (!hasOwn(obj.parameterGroups, g)) continue;
+      var group = obj.parameterGroups[g];
       var params = group && typeof group === "object" ? group.parameters : null;
       if (!params || typeof params !== "object") continue;
-      for (var p in params) {
-        if (!Object.prototype.hasOwnProperty.call(params, p)) continue;
-        if (FORCE_ON.test(p)) forceParam(params[p]);
+      for (var p2 in params) {
+        if (!hasOwn(params, p2)) continue;
+        if (FORCE_ON_LEGACY.test(p2)) forceLegacyParam(params[p2]);
       }
     }
   }
 
-  obj.version = {
-    version_number: "3.1.0",
-    update_time: "2026-11-10T00:00:00Z",
-    description: "LocketGold B1sTeam — device-locked"
-  };
-
+  if (!touched) return null;
   return JSON.stringify(obj);
 }
 
-function unlock() { $done({ body: injectFlags(rawBody) }); }
+function unlock() {
+  var out = injectEntries(rawBody);
+  $done({ body: (out === null) ? rawBody : out });
+}
 function deny() { $done({ body: rawBody }); }
 
 (function gate() {
   if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) return deny();
+
+  // Chỉ đụng Remote Config của app Locket — app khác trên cùng máy không bị ảnh hưởng
+  try {
+    var ua = (typeof $request !== "undefined" && $request && $request.headers)
+      ? String($request.headers["user-agent"] || $request.headers["User-Agent"] || "")
+      : "";
+    if (ua && !/locket/i.test(ua)) return deny();
+  } catch (e) { /* không đọc được UA → cứ xử lý tiếp (pattern URL đã giới hạn project) */ }
 
   if (Date.now() - lastVerifiedAt() < 259200000) return unlock();
 
@@ -140,6 +358,7 @@ function deny() { $done({ body: rawBody }); }
 
   // Thử lần lượt 2 endpoint — zone b1s.id.vn có thể chặn app proxy lạ (WAF),
   // workers.dev luôn trả lời trực tiếp. Cả hai verify cùng 1 license.
+  // ⚠️ Shadowrocket/Loon API: callback(errormsg, response, data) — data chính là body (String).
   function verifyWith(base, onDone) {
     if (typeof $httpClient === "undefined" || !$httpClient) return onDone(false);
     $httpClient.get(
