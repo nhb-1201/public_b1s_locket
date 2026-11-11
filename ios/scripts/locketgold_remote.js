@@ -81,7 +81,7 @@ var FORCE_ENTRIES = {
 
   /* ── Paywall: tắt hẳn (đã premium) ── */
   "paywall_presentation_config": "{\"uid\":\"paywall_disabled\",\"onboarding\":false,\"after_sent_moment\":false,\"on_foreground\":false,\"interval\":999999999,\"profile_banner\":false}",
-  "feature_discovery_popup_config": "{\"tag\":\"LOCKET GOLD\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"B1sTeam đã nâng Locket Gold\",\"feature_set\":[{\"title\":\"Locket Gold — Bản nâng cấp B1sTeam\",\"body\":\"Kích hoạt thành công bởi B1sDev · Nguyễn Hoàng Bách · b1s.id.vn · @b1steam\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner.jpg\"}],\"primary_button_title\":\"Xong\",\"campaign\":\"b1steam_gold_welcome_v1\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"3000-12-31T23:59:59\",\"use_local_time_zone\":true}",
+  "feature_discovery_popup_config": "{\"tag\":\"LOCKET GOLD\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"B1sTeam đã nâng Locket Gold\",\"feature_set\":[{\"title\":\"Locket Gold — Bản nâng cấp B1sTeam\",\"body\":\"Kích hoạt thành công bởi B1sDev · Nguyễn Hoàng Bách · b1s.id.vn · @b1steam\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner_wide.jpg\"}],\"primary_button_title\":\"Xong\",\"campaign\":\"b1steam_gold_welcome_v1\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"3000-12-31T23:59:59\",\"use_local_time_zone\":true}",
   "upsell_features": "{\"app_icon_picker\":true,\"camera_roll\":true,\"camera_theme\":true,\"locket_views\":true,\"remove_ads\":true,\"custom_widget_frames\":true}",
 
   /* ── Ads & telemetry: TẮT ── */
