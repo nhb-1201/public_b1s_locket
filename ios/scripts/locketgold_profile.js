@@ -178,6 +178,21 @@ if (mode === "request") {
   gate(
     function () {
       var body = (typeof $response !== "undefined" && $response) ? $response.body : null;
+      // Bỏ qua mọi response không phải JSON text — file tải về/nhị phân phải đi nguyên vẹn
+      try {
+        var ct = "";
+        if ($response && $response.headers) {
+          for (var h in $response.headers) {
+            if (Object.prototype.hasOwnProperty.call($response.headers, h) && String(h).toLowerCase() === "content-type") {
+              ct = String($response.headers[h] || "").toLowerCase();
+              break;
+            }
+          }
+        }
+        if (ct && ct.indexOf("json") === -1 && ct.indexOf("text") === -1 && ct.indexOf("x-www-form-urlencoded") === -1) {
+          return $done({ body: body }); // nhị phân/media — giữ nguyên
+        }
+      } catch (e) { /* không đọc được header → xử lý như text */ }
       if (body) {
         try {
           var obj = JSON.parse(body);

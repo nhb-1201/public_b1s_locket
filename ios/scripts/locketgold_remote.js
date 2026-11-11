@@ -224,11 +224,8 @@ var FORCE_ENTRIES = {
   "custom_profile_pics": "true",
   "profile_menu_v2_enabled": "true",
 
-  /* ── CDN & cache: nhanh hơn ── */
-  "cdn_domain_replacements": "{\"firebasestorage.googleapis.com\":\"cdn.locketcamera.com\"}",
-  "cdn_domain_replacements_video": "true",
-  "storage_bucket": "gs://locket-img",
-  "storage_bucket_video": "gs://locket-video",
+  /* ── CDN/cache. KHÔNG force cdn_domain_replacements / storage_bucket: v4.0 rewrite
+     firebasestorage→cdn.locketcamera.com làm hỏng upload (ảnh & video). Server tự cấp. ── */
   "image_cache_max_age_sec": "157680000",
   "image_cache_max_size": "400000000",
   "history_cache_age_days": "1000",
