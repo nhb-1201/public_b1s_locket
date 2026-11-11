@@ -3,12 +3,14 @@
  * Locket Gold DNS — B1sTeam v3.1 · DoH Worker (Cloudflare, RFC 8484)
  * Endpoint: https://doh.b1s.id.vn/dns-query
  *
- * Kiến trúc Split DNS (TỐI THIỂU — chỉ anti-revoke, mọi telemetry/analytics đều cho qua):
+ * Kiến trúc Split DNS (anti-revoke + telemetry — bản đầy đủ theo yêu cầu chủ repo):
  *   • RevenueCat / rc-backup / rev.cat          → REFUSED (apex + mọi subdomain) — chống thu hồi
- *   • Mọi domain khác (locketcamera, firebaseremoteconfig, telemetry…) → Cloudflare 1.1.1.1 (fallback Google 8.8.8.8)
+ *   • Telemetry (Mixpanel, Firebase Analytics)  → REFUSED (riêng tư)
+ *   • Mọi domain khác (locketcamera, firebaseremoteconfig, …) → Cloudflare 1.1.1.1 (fallback Google 8.8.8.8)
  *
- * (v3.2 chặn thêm Mixpanel/app-measurement/firebaselogging — gây nghi ngờ app lỗi kết nối;
- *  v3.3 gỡ bỏ hết, CHỈ giữ revenuecat/rc-backup/rev.cat đúng anti-revoke.)
+ * (2026-11-12 chủ repo yêu cầu khôi phục chặn telemetry — revert quyết định v3.3.)
+ *
+ * ⚠️ Chặn telemetry có thể làm app báo lỗi kết nối/analytics không gửi được (không ảnh hưởng Gold/tính năng).
  *
  * ⚠️ v3.0.0 CHẶN QUÁ TAY: firebaseremoteconfig.googleapis.com + api.locketcamera.com cũng REFUSED
  *    → app chết hoàn toàn khi bật DNS. v3.1 thu hẹp danh sách đúng chuẩn anti-revoke,
@@ -21,7 +23,7 @@
  * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
  */
 
-const VERSION = "3.3.0";
+const VERSION = "3.4.0";
 const DEFAULT_UPSTREAM = "https://1.1.1.1/dns-query";
 const FALLBACK_UPSTREAM = "https://8.8.8.8/dns-query";
 const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
@@ -29,10 +31,16 @@ const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
 const BLOCK_LOCKET = true;
 
 const LOCKET_DOMAINS = [
-  // CHỈ anti-revoke — chặn FULL RevenueCat: apex + mọi subdomain
+  // Anti-revoke (BẮT BUỘC) — chặn FULL RevenueCat: apex + mọi subdomain
   "revenuecat.com",
   "rc-backup.com",
   "rev.cat", // short domain chính thức (errors.rev.cat…)
+  // Telemetry bên thứ 3 (chủ repo yêu cầu khôi phục)
+  "app-measurement.com",
+  "firebaselogging-pa.googleapis.com",
+  "mixpanel.com",
+  "api.mixpanel.com",
+  "in.appcenter.ms",
 ];
 
 function corsHeaders(extra = {}) {
