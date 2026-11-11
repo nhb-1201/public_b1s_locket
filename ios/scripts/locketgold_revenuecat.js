@@ -27,6 +27,7 @@ var PRODUCT_ID_MONTHLY = "locket_199_1m";
 var rawBody = (typeof $response !== "undefined" && $response && $response.body) ? $response.body : "";
 
 /* ── Device id bền trên máy này (tạo 1 lần) ── */
+var memDeviceId = null;
 function deviceId() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) {
@@ -46,7 +47,9 @@ function deviceId() {
       return id2;
     }
   } catch (e) { /* tiếp tục */ }
-  return null;
+  // Fallback in-memory khi store lỗi — KHÔNG deny cứng
+  if (!memDeviceId) memDeviceId = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return memDeviceId;
 }
 
 function lastVerifiedAt() {

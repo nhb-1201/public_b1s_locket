@@ -23,6 +23,7 @@ var LICENSE_KEY = "__LICENSE_KEY__";
 
 var rawBody = (typeof $response !== "undefined" && $response && $response.body) ? $response.body : "";
 
+var memDeviceId = null;
 function deviceId() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) {
@@ -42,7 +43,9 @@ function deviceId() {
       return id2;
     }
   } catch (e) { /* tiếp tục */ }
-  return null;
+  // Fallback in-memory khi store lỗi — KHÔNG deny cứng
+  if (!memDeviceId) memDeviceId = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return memDeviceId;
 }
 
 function lastVerifiedAt() {
@@ -346,13 +349,14 @@ function deny() { $done({ body: rawBody }); }
   console.log("[locketgold] remote: fired | key=" + (LICENSE_KEY ? "embedded" : "none") + " len=" + String(LICENSE_KEY || "").length);
   if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) { console.log("[locketgold] remote: DENY (bad key)"); return deny(); }
 
-  // Chỉ đụng Remote Config của app Locket — app khác trên cùng máy không bị ảnh hưởng
+  // Pattern URL đã giới hạn đúng project Locket — KHÔNG gate theo UA
+  // (Firebase iOS SDK có thể gọi với UA không chứa "locket" → trước đây deny nhầm, flags trả về bản free).
   try {
     var ua = (typeof $request !== "undefined" && $request && $request.headers)
       ? String($request.headers["user-agent"] || $request.headers["User-Agent"] || "")
       : "";
-    if (ua && !/locket/i.test(ua)) { console.log("[locketgold] remote: DENY (UA not Locket: " + ua.slice(0, 40) + ")"); return deny(); }
-  } catch (e) { /* không đọc được UA → cứ xử lý tiếp (pattern URL đã giới hạn project) */ }
+    console.log("[locketgold] remote: UA = \"" + ua.slice(0, 90) + "\"");
+  } catch (e) { /* bỏ qua */ }
 
   console.log("[locketgold] remote: gate | cache=" + (Date.now() - lastVerifiedAt() < 259200000 ? "HIT" : "MISS"));
   if (Date.now() - lastVerifiedAt() < 259200000) { console.log("[locketgold] remote: UNLOCK via cache"); return unlock(); }

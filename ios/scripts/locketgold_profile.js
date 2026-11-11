@@ -36,7 +36,8 @@ var GOLD_PROFILE = {
   success: true
 };
 
-/* ── License gate (giống hệt locketgold_revenuecat.js) ── */
+/* ── License gate (giống hệt locketgold_revenuecat.js) + fallback in-memory ── */
+var memDeviceId = null;
 function deviceId() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) {
@@ -56,7 +57,9 @@ function deviceId() {
       return id2;
     }
   } catch (e) { /* tiếp tục */ }
-  return null;
+  // Fallback in-memory khi store lỗi — KHÔNG deny cứng
+  if (!memDeviceId) memDeviceId = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return memDeviceId;
 }
 
 function lastVerifiedAt() {
