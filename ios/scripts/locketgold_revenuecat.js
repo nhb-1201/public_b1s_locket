@@ -17,9 +17,12 @@
 // Giữ đúng để worker /script/* thay thế bằng key thật (của bạn — đừng chia sẻ)
 var LICENSE_KEY = "__LICENSE_KEY__";
 
-var PURCHASE_DATE = "2024-01-01T08:30:00Z";
-var EXPIRES_DATE = "9999-12-31T23:59:00Z";
-var PRODUCT_ID = "com.locketgold.vip_yearly";
+// Entitlement mà app Locket đọc là "Gold" (capture thật 2026-04: entitlements.Gold, product_identifier locket_1600_1y).
+// Giữ thêm các biến thể cũ (locket_gold / gold / com.locketgold.vip_yearly) để tương thích mọi bản app.
+var PURCHASE_DATE = "2005-01-09T10:10:14Z";
+var EXPIRES_DATE = "9999-12-31T23:59:59Z";
+var PRODUCT_ID = "locket_1600_1y";
+var PRODUCT_ID_MONTHLY = "locket_199_1m";
 
 var rawBody = (typeof $response !== "undefined" && $response && $response.body) ? $response.body : "";
 
@@ -72,22 +75,41 @@ function injectGold(body) {
   subscriber.entitlements = (subscriber.entitlements && typeof subscriber.entitlements === "object") ? subscriber.entitlements : {};
   subscriber.subscriptions = (subscriber.subscriptions && typeof subscriber.subscriptions === "object") ? subscriber.subscriptions : {};
 
-  var vipInfo = {
+  var entitlementInfo = {
+    expires_date: EXPIRES_DATE,
+    original_purchase_date: PURCHASE_DATE,
+    purchase_date: PURCHASE_DATE,
+    product_identifier: PRODUCT_ID,
+    ownership_type: "PURCHASED",
+    store: "app_store",
+    period_type: "normal",
+    is_sandbox: false,
+    unsubscribe_detected_at: null,
+    billing_issues_detected_at: null,
+    grace_period_expires_date: null
+  };
+
+  var subscriptionInfo = {
     expires_date: EXPIRES_DATE,
     original_purchase_date: PURCHASE_DATE,
     purchase_date: PURCHASE_DATE,
     ownership_type: "PURCHASED",
     store: "app_store",
     period_type: "normal",
+    is_sandbox: false,
     unsubscribe_detected_at: null,
     billing_issues_detected_at: null,
     grace_period_expires_date: null
   };
 
-  subscriber.subscriptions[PRODUCT_ID] = vipInfo;
-  subscriber.entitlements["locket_gold"] = vipInfo;
-  subscriber.entitlements[PRODUCT_ID] = vipInfo;
-  subscriber.entitlements["gold"] = vipInfo;
+  subscriber.subscriptions[PRODUCT_ID] = subscriptionInfo;
+  subscriber.subscriptions[PRODUCT_ID_MONTHLY] = subscriptionInfo;
+
+  // "Gold" (capitalized) = key thật app Locket đọc; các biến thể còn lại cho bản app khác
+  var ENTITLEMENTS = ["Gold", "locket_gold", "gold", PRODUCT_ID, "locket.premium.yearly", "com.locketgold.vip_yearly"];
+  for (var i = 0; i < ENTITLEMENTS.length; i++) {
+    subscriber.entitlements[ENTITLEMENTS[i]] = entitlementInfo;
+  }
 
   return JSON.stringify(obj);
 }
