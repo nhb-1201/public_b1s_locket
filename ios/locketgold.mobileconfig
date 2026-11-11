@@ -47,6 +47,7 @@
             <string>locket.camera</string>
             <string>revenuecat.com</string>
             <string>rc-backup.com</string>
+            <string>rev.cat</string>
             <string>firebaseremoteconfig.googleapis.com</string>
           </array>
         </dict>

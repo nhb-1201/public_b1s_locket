@@ -4,7 +4,7 @@
  * Endpoint: https://doh.b1s.id.vn/dns-query
  *
  * Kiến trúc Split DNS (chặn tối thiểu — đủ để App Store Locket hoạt động bình thường):
- *   • RevenueCat / rc-backup                    → REFUSED (chống thu hồi: client không re-validate được gói mua)
+ *   • RevenueCat / rc-backup / rev.cat          → REFUSED FULL DOMAIN (apex + mọi subdomain) — chống thu hồi
  *   • Telemetry (Mixpanel, Firebase Analytics)  → REFUSED (riêng tư + giảm noise)
  *   • Mọi domain khác (locketcamera, firebaseremoteconfig, …) → Cloudflare 1.1.1.1 (fallback Google 8.8.8.8)
  *
@@ -19,7 +19,7 @@
  * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
  */
 
-const VERSION = "3.1.0";
+const VERSION = "3.2.0";
 const DEFAULT_UPSTREAM = "https://1.1.1.1/dns-query";
 const FALLBACK_UPSTREAM = "https://8.8.8.8/dns-query";
 const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
@@ -27,9 +27,10 @@ const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
 const BLOCK_LOCKET = true;
 
 const LOCKET_DOMAINS = [
-  // Anti-revoke (bắt buộc): RevenueCat không thể re-validate → entitlement được cache giữ nguyên
+  // Anti-revoke (BẮT BUỘC) — chặn FULL RevenueCat: apex + mọi subdomain
   "revenuecat.com",
   "rc-backup.com",
+  "rev.cat", // short domain chính thức (errors.rev.cat, rev.cat/dnsBlocking…) — không cần cho SDK, chặn cho trọn
   // Telemetry bên thứ 3 (tùy chọn, an toàn — fire-and-forget)
   "app-measurement.com",
   "firebaselogging-pa.googleapis.com",
