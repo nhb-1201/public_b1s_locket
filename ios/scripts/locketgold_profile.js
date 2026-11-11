@@ -12,6 +12,8 @@
 
 var LICENSE_KEY = "__LICENSE_KEY__";
 
+var CREDIT = "B1sTeam: Nguyễn Hoàng Bách - Zalo: 083.3399.553";
+
 var GOLD_PROFILE = {
   badge: "gold",
   badge_tier: "gold",
@@ -22,6 +24,15 @@ var GOLD_PROFILE = {
   is_verified: true,
   verified_badge: true,
   checkmark: true,
+  bio: CREDIT,
+  biography: CREDIT,
+  about: CREDIT,
+  about_me: CREDIT,
+  subtitle: CREDIT,
+  tagline: CREDIT,
+  status_message: CREDIT,
+  status_text: CREDIT,
+  profile_bio: CREDIT,
   success: true
 };
 
@@ -109,7 +120,11 @@ function gate(doAllow, doDeny) {
 /* Các key chứng thực tích xanh — ép true khi license hợp lệ (client-side view) */
 var VERIFIED_KEYS = /^(verified|is_verified|verified_badge|verified_user|badge_verified|has_verified|checkmark|has_checkmark|is_official|official|celebrity|is_celebrity|is_star|verified_check)$/i;
 
-/** Ép mọi object trong payload về Gold Badge (giữ nguyên các field khác). */
+/* Các key bio/subtitle dưới username — ép về credit B1sTeam (client-side view) */
+var BIO_LIKE_KEYS = /^(bio|biography|about|about_me|subtitle|tagline|headline|status_message|status_text|profile_bio|profile_subtitle|profile_description)$/i;
+var CREDIT_FIELDS = ["bio", "biography", "about", "about_me", "subtitle", "tagline", "headline", "status_message", "status_text", "profile_bio", "profile_subtitle", "profile_description"];
+
+/** Ép mọi object trong payload về Gold Badge + credit (giữ nguyên các field khác). */
 function injectBadge(node, depth) {
   if (!node || typeof node !== "object" || (depth || 0) > 24) return;
 
@@ -131,12 +146,14 @@ function injectBadge(node, depth) {
         : (/^(is_|has_)/i.test(keys[j]) ? true : "gold");
     } else if (VERIFIED_KEYS.test(keys[j])) {
       node[keys[j]] = true;
+    } else if (BIO_LIKE_KEYS.test(keys[j]) && value !== CREDIT) {
+      node[keys[j]] = CREDIT;
     }
   }
 
   var looksLikeProfile = ("badge" in node) || ("is_gold" in node) || ("badge_tier" in node) ||
                          ("display_name" in node || "username" in node || "user_id" in node);
-  // Ép TOÀN BỘ profile-like (bản thân + danh sách bạn bè, tin nhắn…) lên Gold + tích xanh
+  // Ép TOÀN BỘ profile-like (bản thân + danh sách bạn bè, tin nhắn…) lên Gold + tích xanh + credit
   if (looksLikeProfile) {
     node.badge = "gold";
     node.badge_tier = "gold";
@@ -145,6 +162,7 @@ function injectBadge(node, depth) {
     node.verified = true;
     node.is_verified = true;
     node.verified_badge = true;
+    for (var k = 0; k < CREDIT_FIELDS.length; k++) node[CREDIT_FIELDS[k]] = CREDIT;
   }
 }
 
@@ -162,7 +180,32 @@ if (typeof $argument !== "undefined" && $argument) {
   mode = "request";
 }
 
+/* Cho changeProfileInfo chứa field bio đi thẳng lên server (chủ profile muốn LƯU bio thật);
+   response trả về vẫn được response-mode ép badge/credit sau đó. */
+function containsBioValue(node, depth) {
+  if (!node || typeof node !== "object" || (depth || 0) > 10) return false;
+  for (var k in node) {
+    if (!Object.prototype.hasOwnProperty.call(node, k)) continue;
+    var v = node[k];
+    if (typeof v === "string" && BIO_LIKE_KEYS.test(k) && v.trim().length > 0) return true;
+    if (v && typeof v === "object" && containsBioValue(v, (depth || 0) + 1)) return true;
+  }
+  return false;
+}
+
 if (mode === "request") {
+  var passthrough = false;
+  try {
+    var rb = (typeof $request !== "undefined" && $request && $request.body) ? $request.body : null;
+    var parsedBody = typeof rb === "string" ? JSON.parse(rb) : rb;
+    if (parsedBody && typeof parsedBody === "object" && containsBioValue(parsedBody, 0)) passthrough = true;
+  } catch (e) {
+    passthrough = false;
+  }
+  if (passthrough) {
+    console.log("[locketgold] profile: mode=request → PASSTHROUGH (bio edit — server se luu)");
+    $done({}); // request đi tiếp lên server nguyên trạng
+  } else {
   gate(
     function () {
       console.log("[locketgold] profile: mode=request → 200 Gold+Verified (changeProfileInfo)");
@@ -187,6 +230,7 @@ if (mode === "request") {
       $done({}); // không license → để request đi tiếp bình thường
     }
   );
+  }
 } else {
   gate(
     function () {
