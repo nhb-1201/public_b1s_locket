@@ -108,6 +108,7 @@ function deny() { $done({ body: rawBody }); }
 
   // Thử lần lượt 2 endpoint — zone b1s.id.vn có thể chặn app proxy lạ (WAF),
   // workers.dev luôn trả lời trực tiếp. Cả hai verify cùng 1 license.
+  // ⚠️ Shadowrocket/Loon API: callback(errormsg, response, data) — data chính là body (String).
   function verifyWith(base, onDone) {
     if (typeof $httpClient === "undefined" || !$httpClient) return onDone(false);
     $httpClient.get(
@@ -116,10 +117,15 @@ function deny() { $done({ body: rawBody }); }
         headers: { "Accept": "application/json", "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1" },
         timeout: 10
       },
-      function (err, resp) {
-        if (err || !resp || !resp.body) return onDone(false);
+      function (err, response, data) {
+        if (err) return onDone(false);
+        var body = "";
+        if (typeof data === "string") body = data;
+        else if (typeof data !== "undefined" && data !== null) { try { body = String(data); } catch (e) { return onDone(false); } }
+        else if (response && typeof response.body === "string") body = response.body; // tương thích ngược
+        if (!body) return onDone(false);
         try {
-          var j = JSON.parse(resp.body);
+          var j = JSON.parse(body);
           return onDone(Boolean(j && j.valid === true));
         } catch (e) {
           return onDone(false);
