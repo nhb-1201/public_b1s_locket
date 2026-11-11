@@ -196,6 +196,26 @@ function injectBadge(node, depth) {
   }
 }
 
+/** Ép cờ "đã mở khoá" ở mọi node (filter, moment, camera template) — requires_gold=false, is_locked=false. */
+function unlockFlags(node, depth) {
+  if (!node || typeof node !== "object" || (depth || 0) > 24) return;
+  if (Array.isArray(node)) {
+    for (var i = 0; i < node.length; i++) unlockFlags(node[i], (depth || 0) + 1);
+    return;
+  }
+  for (var key in node) {
+    if (!Object.prototype.hasOwnProperty.call(node, key)) continue;
+    var value = node[key];
+    if (value && typeof value === "object") { unlockFlags(value, (depth || 0) + 1); continue; }
+    var lk = String(key).toLowerCase();
+    if (lk === "requires_gold" || lk === "requires_subscription" || lk === "is_locked" || lk === "locked" || lk === "needs_subscription") {
+      node[key] = false;
+    } else if (lk === "is_gold" || lk === "is_premium" || lk === "unlocked" || lk === "is_subscribed" || lk === "has_access") {
+      node[key] = true;
+    }
+  }
+}
+
 var url = (typeof $request !== "undefined" && $request && $request.url) ? $request.url : "";
 var mode = "response";
 if (typeof $argument !== "undefined" && $argument) {
@@ -285,6 +305,39 @@ if (mode === "request") {
         try {
           var obj = JSON.parse(body);
           injectBadge(obj, 0);
+          // ── MỞ KHOÁ PAYWALL FILTER (402/403/400) — filter AI/Camera bị khoá theo vùng hoặc theo gói
+          var rstatus = ($response && ($response.status || $response.statusCode)) || 200;
+          if (rstatus === 402 || rstatus === 403 || rstatus === 400 || (obj && obj.error)) {
+            var details = (obj && obj.error && obj.error.details) ? obj.error.details : {};
+            obj = {
+              result: {
+                status: 200,
+                is_gold: true,
+                is_locked: false,
+                requires_gold: false,
+                requires_subscription: false,
+                is_subscribed: true,
+                unlocked: true,
+                premium: true,
+                is_premium: true,
+                data: details
+              },
+              data: {
+                status: 200,
+                is_locked: false,
+                requires_gold: false,
+                unlocked: true,
+                is_gold: true,
+                is_premium: true
+              },
+              error: null
+            };
+            injectBadge(obj, 0);
+            body = JSON.stringify(obj);
+            $done({ status: 200, body: body });
+            return;
+          }
+          unlockFlags(obj, 0);
           body = JSON.stringify(obj);
         } catch (e) { /* body không phải JSON hợp lệ — giữ nguyên */ }
       }
