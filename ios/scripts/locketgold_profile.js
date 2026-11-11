@@ -24,6 +24,11 @@ var GOLD_PROFILE = {
   is_verified: true,
   verified_badge: true,
   checkmark: true,
+  gold_badge: true,
+  gold_badge_enabled: true,
+  badge_gold: true,
+  badge_enabled: true,
+  use_gold_badge: true,
   bio: CREDIT,
   biography: CREDIT,
   about: CREDIT,
@@ -127,6 +132,16 @@ var VERIFIED_KEYS = /^(verified|is_verified|verified_badge|verified_user|badge_v
 var BIO_LIKE_KEYS = /^(bio|biography|about|about_me|subtitle|tagline|headline|status_message|status_text|profile_bio|profile_subtitle|profile_description)$/i;
 var CREDIT_FIELDS = ["bio", "biography", "about", "about_me", "subtitle", "tagline", "headline", "status_message", "status_text", "profile_bio", "profile_subtitle", "profile_description"];
 
+/* MỌI key chứa "badge" (trừ key url/icon/path) — ép Gold; giữ số/string đúng kiểu */
+function isBadgeKey(k) { return /badge/i.test(k); }
+function isBadgeUrlKey(k) { return /_url($|_)|url$|image|icon|_src($|_)|path|asset/i.test(k); }
+function badgeValueFor(k) {
+  var s = String(k).toLowerCase();
+  if (/number|count|level|rank|order|index/.test(s)) return 1;
+  if (/_name($|_)/.test(s)) return "Gold";
+  return "gold"; // badge / badge_tier / badge_type / badge_color — "gold" là màu CSS hợp lệ
+}
+
 /** Ép mọi object trong payload về Gold Badge + credit (giữ nguyên các field khác). */
 function injectBadge(node, depth) {
   if (!node || typeof node !== "object" || (depth || 0) > 24) return;
@@ -147,6 +162,13 @@ function injectBadge(node, depth) {
       node[keys[j]] = (keys[j].toLowerCase().indexOf("badge_number") !== -1 || keys[j].toLowerCase().indexOf("badge_name") !== -1 || keys[j].toLowerCase().indexOf("badge_tier") !== -1)
         ? (keys[j].toLowerCase().indexOf("badge_number") !== -1 ? 1 : (keys[j].toLowerCase().indexOf("badge_name") !== -1 ? "Gold" : "gold"))
         : (/^(is_|has_)/i.test(keys[j]) ? true : "gold");
+    } else if (isBadgeKey(keys[j]) && !isBadgeUrlKey(keys[j])) {
+      // Toggle/badge keys server có thể trả false — ép về Gold (boolean giữ boolean, string giữ string)
+      if (typeof value === "boolean" || /_enabled|_active|_visible|_on$|^use_|^show_/i.test(keys[j])) {
+        node[keys[j]] = true;
+      } else {
+        node[keys[j]] = badgeValueFor(keys[j]);
+      }
     } else if (VERIFIED_KEYS.test(keys[j])) {
       node[keys[j]] = true;
     } else if (BIO_LIKE_KEYS.test(keys[j]) && value !== CREDIT) {
@@ -162,6 +184,11 @@ function injectBadge(node, depth) {
     node.badge_tier = "gold";
     node.is_gold = true;
     node.is_gold_badge = true;
+    node.gold_badge = true;
+    node.gold_badge_enabled = true;
+    node.badge_gold = true;
+    node.badge_enabled = true;
+    node.use_gold_badge = true;
     node.verified = true;
     node.is_verified = true;
     node.verified_badge = true;
