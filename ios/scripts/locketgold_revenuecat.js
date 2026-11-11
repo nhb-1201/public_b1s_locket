@@ -119,14 +119,14 @@ function deny() { $done({ body: rawBody }); }
 
 /* ── License gate: key + device phải khớp ── */
 (function gate() {
-  // Không có key (module chung chưa cá nhân hóa) → không bơm Gold
-  if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) return deny();
+  console.log("[locketgold] revenuecat: fired | key len=" + String(LICENSE_KEY || "").length);
+  if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) { console.log("[locketgold] revenuecat: DENY (bad key)"); return deny(); }
 
-  // Cache verify gần đây (72h) — dùng offline
-  if (Date.now() - lastVerifiedAt() < 259200000) return unlock();
+  console.log("[locketgold] revenuecat: gate | cache=" + (Date.now() - lastVerifiedAt() < 259200000 ? "HIT" : "MISS"));
+  if (Date.now() - lastVerifiedAt() < 259200000) { console.log("[locketgold] revenuecat: UNLOCK via cache"); return unlock(); }
 
   var id = deviceId();
-  if (!id) return deny();
+  if (!id) { console.log("[locketgold] revenuecat: DENY (no device id)"); return deny(); }
 
   // Thử lần lượt 2 endpoint — zone b1s.id.vn có thể chặn app proxy lạ (WAF),
   // workers.dev luôn trả lời trực tiếp. Cả hai verify cùng 1 license.
@@ -156,15 +156,20 @@ function deny() { $done({ body: rawBody }); }
     );
   }
   verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okPrimary) {
+    console.log("[locketgold] revenuecat: verify b1s.id.vn = " + okPrimary);
     if (okPrimary) {
       markVerified();
+      console.log("[locketgold] revenuecat: UNLOCK (primary) — Gold sẽ được bơm");
       return unlock();
     }
     verifyWith("https://locketgold-backend.nhb-120111.workers.dev/api/v2/locketgold/verify", function (okFallback) {
+      console.log("[locketgold] revenuecat: verify workers.dev = " + okFallback);
       if (okFallback) {
         markVerified();
+        console.log("[locketgold] revenuecat: UNLOCK (fallback) — Gold sẽ được bơm");
         return unlock();
       }
+      console.log("[locketgold] revenuecat: DENY (verify failed)");
       return deny();
     });
   });

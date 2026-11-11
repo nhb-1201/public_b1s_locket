@@ -18,6 +18,10 @@ var GOLD_PROFILE = {
   badge_name: "Gold",
   is_gold: true,
   is_gold_badge: true,
+  verified: true,
+  is_verified: true,
+  verified_badge: true,
+  checkmark: true,
   success: true
 };
 
@@ -102,6 +106,9 @@ function gate(doAllow, doDeny) {
   });
 }
 
+/* Các key chứng thực tích xanh — ép true khi license hợp lệ (client-side view) */
+var VERIFIED_KEYS = /^(verified|is_verified|verified_badge|verified_user|badge_verified|has_verified|checkmark|has_checkmark|is_official|official|celebrity|is_celebrity|is_star|verified_check)$/i;
+
 /** Ép mọi object trong payload về Gold Badge (giữ nguyên các field khác). */
 function injectBadge(node, depth) {
   if (!node || typeof node !== "object" || (depth || 0) > 24) return;
@@ -111,7 +118,6 @@ function injectBadge(node, depth) {
     return;
   }
 
-  var touched = false;
   var keys = Object.keys(node);
   for (var j = 0; j < keys.length; j++) {
     var value = node[keys[j]];
@@ -123,17 +129,22 @@ function injectBadge(node, depth) {
       node[keys[j]] = (keys[j].toLowerCase().indexOf("badge_number") !== -1 || keys[j].toLowerCase().indexOf("badge_name") !== -1 || keys[j].toLowerCase().indexOf("badge_tier") !== -1)
         ? (keys[j].toLowerCase().indexOf("badge_number") !== -1 ? 1 : (keys[j].toLowerCase().indexOf("badge_name") !== -1 ? "Gold" : "gold"))
         : (/^(is_|has_)/i.test(keys[j]) ? true : "gold");
-      touched = true;
+    } else if (VERIFIED_KEYS.test(keys[j])) {
+      node[keys[j]] = true;
     }
   }
 
   var looksLikeProfile = ("badge" in node) || ("is_gold" in node) || ("badge_tier" in node) ||
                          ("display_name" in node || "username" in node || "user_id" in node);
-  if (looksLikeProfile && !touched) {
+  // Ép TOÀN BỘ profile-like (bản thân + danh sách bạn bè, tin nhắn…) lên Gold + tích xanh
+  if (looksLikeProfile) {
     node.badge = "gold";
     node.badge_tier = "gold";
     node.is_gold = true;
     node.is_gold_badge = true;
+    node.verified = true;
+    node.is_verified = true;
+    node.verified_badge = true;
   }
 }
 
@@ -154,6 +165,7 @@ if (typeof $argument !== "undefined" && $argument) {
 if (mode === "request") {
   gate(
     function () {
+      console.log("[locketgold] profile: mode=request → 200 Gold+Verified (changeProfileInfo)");
       $done({
         response: {
           status: 200,
@@ -171,12 +183,14 @@ if (mode === "request") {
       });
     },
     function () {
+      console.log("[locketgold] profile: mode=request → DENY (license invalid) → passthrough");
       $done({}); // không license → để request đi tiếp bình thường
     }
   );
 } else {
   gate(
     function () {
+      console.log("[locketgold] profile: mode=response → inject Gold+Verified badge");
       var body = (typeof $response !== "undefined" && $response) ? $response.body : null;
       // Bỏ qua mọi response không phải JSON text — file tải về/nhị phân phải đi nguyên vẹn
       try {
@@ -203,6 +217,7 @@ if (mode === "request") {
       $done({ body: body });
     },
     function () {
+      console.log("[locketgold] profile: mode=response → DENY (license invalid) → nguyên vẹn");
       var body = (typeof $response !== "undefined" && $response) ? $response.body : null;
       $done({ body: body }); // không license → nguyên vẹn
     }

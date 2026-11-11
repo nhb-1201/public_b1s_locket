@@ -198,6 +198,7 @@ var FORCE_ENTRIES = {
   "rollcall_tap_to_tag_enabled": "false",
 
   /* ── Widget & Live Activity ── */
+  "widget_frame_event": "{\"uid\":\"midautumn_2026\",\"url\":\"https://i.ibb.co/1Yt1Dzzy/Shin-chan-1.png\",\"use_local_time_zone\":true,\"placement\":\"below\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
   "widget_frame_event_max_images": "5",
   "android_widget_frame_event_enabled": "true",
   "widget_badge_enabled": "true",
@@ -290,8 +291,9 @@ function injectEntries(body) {
   var obj;
   try {
     obj = JSON.parse(body);
-    if (!obj || typeof obj !== "object") return null;
+    if (!obj || typeof obj !== "object") { console.log("[locketgold] remote: body NOT JSON object → passthrough"); return null; }
   } catch (e) {
+    console.log("[locketgold] remote: body NOT JSON → passthrough");
     return null;
   }
 
@@ -299,13 +301,16 @@ function injectEntries(body) {
 
   /* Format chuẩn: {"entries": {...}, "state": ...} */
   if (!obj.entries || typeof obj.entries !== "object") obj.entries = {};
+  var forcedCount = 0;
   for (var key in FORCE_ENTRIES) {
     if (!hasOwn(FORCE_ENTRIES, key)) continue;
     obj.entries[key] = FORCE_ENTRIES[key];
+    forcedCount++;
     touched = true;
   }
   obj.entries["feature_gates"] = featureGatesJSON(obj.entries["feature_gates"]);
   obj.entries["upsell_features"] = FORCE_ENTRIES["upsell_features"];
+  console.log("[locketgold] remote: body len=" + (body || "").length + " | entries=" + Object.keys(obj.entries).length + " (forced " + forcedCount + ") | state=" + (obj.state || "?") + " | feature_gates=" + (obj.entries.feature_gates ? "yes" : "no"));
 
   /* Format legacy dự phòng */
   if (obj.parameters && typeof obj.parameters === "object") {
@@ -338,20 +343,22 @@ function unlock() {
 function deny() { $done({ body: rawBody }); }
 
 (function gate() {
-  if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) return deny();
+  console.log("[locketgold] remote: fired | key=" + (LICENSE_KEY ? "embedded" : "none") + " len=" + String(LICENSE_KEY || "").length);
+  if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) { console.log("[locketgold] remote: DENY (bad key)"); return deny(); }
 
   // Chỉ đụng Remote Config của app Locket — app khác trên cùng máy không bị ảnh hưởng
   try {
     var ua = (typeof $request !== "undefined" && $request && $request.headers)
       ? String($request.headers["user-agent"] || $request.headers["User-Agent"] || "")
       : "";
-    if (ua && !/locket/i.test(ua)) return deny();
+    if (ua && !/locket/i.test(ua)) { console.log("[locketgold] remote: DENY (UA not Locket: " + ua.slice(0, 40) + ")"); return deny(); }
   } catch (e) { /* không đọc được UA → cứ xử lý tiếp (pattern URL đã giới hạn project) */ }
 
-  if (Date.now() - lastVerifiedAt() < 259200000) return unlock();
+  console.log("[locketgold] remote: gate | cache=" + (Date.now() - lastVerifiedAt() < 259200000 ? "HIT" : "MISS"));
+  if (Date.now() - lastVerifiedAt() < 259200000) { console.log("[locketgold] remote: UNLOCK via cache"); return unlock(); }
 
   var id = deviceId();
-  if (!id) return deny();
+  if (!id) { console.log("[locketgold] remote: DENY (no device id)"); return deny(); }
 
   // Thử lần lượt 2 endpoint — zone b1s.id.vn có thể chặn app proxy lạ (WAF),
   // workers.dev luôn trả lời trực tiếp. Cả hai verify cùng 1 license.
@@ -381,15 +388,20 @@ function deny() { $done({ body: rawBody }); }
     );
   }
   verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okPrimary) {
+    console.log("[locketgold] remote: verify b1s.id.vn = " + okPrimary);
     if (okPrimary) {
       markVerified();
+      console.log("[locketgold] remote: UNLOCK (primary)");
       return unlock();
     }
     verifyWith("https://locketgold-backend.nhb-120111.workers.dev/api/v2/locketgold/verify", function (okFallback) {
+      console.log("[locketgold] remote: verify workers.dev = " + okFallback);
       if (okFallback) {
         markVerified();
+        console.log("[locketgold] remote: UNLOCK (fallback)");
         return unlock();
       }
+      console.log("[locketgold] remote: DENY (verify failed)");
       return deny();
     });
   });
