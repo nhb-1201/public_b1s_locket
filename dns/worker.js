@@ -1,39 +1,41 @@
 // author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * Locket Gold DNS — B1sTeam v3.0 · DoH Worker (Cloudflare, RFC 8484)
+ * Locket Gold DNS — B1sTeam v3.1 · DoH Worker (Cloudflare, RFC 8484)
  * Endpoint: https://doh.b1s.id.vn/dns-query
  *
- * Kiến trúc Split DNS:
- *   • Domain Locket / RevenueCat / Firebase RC  → BLOCKLIST (REFUSED) hoặc pin về upstream tuỳ env
- *     (mặc định: refuse — chống thu hồi: client không thể re-validate subscription)
- *   • Mọi domain khác                           → Cloudflare 1.1.1.1 (fallback Google 8.8.8.8)
+ * Kiến trúc Split DNS (chặn tối thiểu — đủ để App Store Locket hoạt động bình thường):
+ *   • RevenueCat / rc-backup                    → REFUSED (chống thu hồi: client không re-validate được gói mua)
+ *   • Telemetry (Mixpanel, Firebase Analytics)  → REFUSED (riêng tư + giảm noise)
+ *   • Mọi domain khác (locketcamera, firebaseremoteconfig, …) → Cloudflare 1.1.1.1 (fallback Google 8.8.8.8)
+ *
+ * ⚠️ v3.0.0 CHẶN QUÁ TAY: firebaseremoteconfig.googleapis.com + api.locketcamera.com cũng REFUSED
+ *    → app chết hoàn toàn khi bật DNS. v3.1 thu hẹp danh sách đúng chuẩn anti-revoke,
+ *    giữ nguyên telemetry blocklist. KHÔNG chặn domain Apple cert/OCSP (Locket cài từ App Store).
  *
  * Hỗ trợ cả hai kiểu truy vấn DoH:
  *   • GET  ?name=<domain>&type=<type>  → application/dns-json
  *   • POST (body: application/dns-message) → forward nguyên trạng (RFC 8484 đầy đủ)
  *
- * ⚠️ Bản v2.0.0 có lỗi CRITICAL: domain Locket forward về doh.locketgold.vn = CHÍNH worker này
- *    → infinite loop. Bản v3.0 đã loại bỏ hoàn toàn mọi self-forward.
- *
  * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
  */
 
-const VERSION = "3.0.0";
+const VERSION = "3.1.0";
 const DEFAULT_UPSTREAM = "https://1.1.1.1/dns-query";
 const FALLBACK_UPSTREAM = "https://8.8.8.8/dns-query";
 const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
-/** true = từ chối truy vấn domain Locket (khuyến nghị khi dùng kèm module MITM) */
+/** true = từ chối truy vấn các domain trong BLOCKLIST (khuyến nghị khi dùng kèm MITM) */
 const BLOCK_LOCKET = true;
 
 const LOCKET_DOMAINS = [
+  // Anti-revoke (bắt buộc): RevenueCat không thể re-validate → entitlement được cache giữ nguyên
   "revenuecat.com",
   "rc-backup.com",
-  "api.revenuecat.com",
-  "api.rc-backup.com",
-  "firebaseremoteconfig.googleapis.com",
-  "api.locketcamera.com",
-  "locketcamera.com",
-  "locket.camera",
+  // Telemetry bên thứ 3 (tùy chọn, an toàn — fire-and-forget)
+  "app-measurement.com",
+  "firebaselogging-pa.googleapis.com",
+  "mixpanel.com",
+  "api.mixpanel.com",
+  "in.appcenter.ms",
 ];
 
 function corsHeaders(extra = {}) {
@@ -210,7 +212,7 @@ export default {
 
     const question = QUESTION(name, type);
 
-    // ── Split DNS: chặn domain Locket (chống thu hồi)
+    // ── Split DNS: REFUSED các domain anti-revoke / telemetry (Locket App Store vẫn chạy bình thường)
     if (BLOCK_LOCKET && isLocketDomain(name)) {
       return respondGet(new Response(dnsJson(5, question, { Comment: "Blocked by LocketGold anti-revoke policy (B1sTeam)" }), {
         status: 200, // dns-json convention: HTTP 200 + Status 5 (REFUSED)
