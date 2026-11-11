@@ -87,7 +87,7 @@ function injectFlags(body) {
   /* ── Quét TOÀN BỘ parameters & parameterGroups, ép mọi flag tên kiểu premium sang true ──
      Tên flag thật của Locket không công khai — quét theo từ khóa premium/gold/vip/…
      thay vì đoán danh sách (trước đây nhiều tính năng VIP không bật vì tên không khớp). */
-  var FORCE_ON = /(gold|premium|vip|pro\b|plus\b|subscription|ads[-_]?free|no[-_]?ads|caption|widget|streak|recover|icon|theme|camera|unlimited|infinite|hd\b|4k|2k|album|video|views?|badge|upload|hd_photo|caption_length|friends|follow)/i;
+  var FORCE_ON = /(gold|premium|vip|subscription|ads[-_]?free|no[-_]?ads|unlimited|infinite|caption|widget|streak|badge|views?|friends|album|hd_photo|premium_icon|camera_theme)/i;
 
   function forceParam(p) {
     if (!p || typeof p !== "object") return;
