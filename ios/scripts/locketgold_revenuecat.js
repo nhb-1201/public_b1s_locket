@@ -100,6 +100,10 @@ function injectGold(body) {
     store: "app_store",
     period_type: "normal",
     is_sandbox: false,
+    display_name: PRODUCT_ID,
+    auto_resume_date: null,
+    refunded_at: null,
+    management_url: "https://apps.apple.com/account/subscriptions",
     unsubscribe_detected_at: null,
     billing_issues_detected_at: null,
     grace_period_expires_date: null
