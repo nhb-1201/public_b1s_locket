@@ -21,4 +21,4 @@
 
 LocketGold là dự án cộng đồng miễn phí, **không liên kết** với Locket Labs, Inc. hay RevenueCat, Inc. Các nhãn hiệu thuộc về chủ sở hữu tương ứng. Phần mềm được cung cấp "nguyên trạng" (AS IS), không bảo hành — tác giả không chịu trách nhiệm cho mọi thiệt hại phát sinh khi sử dụng.
 
-Liên hệ: <nhb.b1steam@gmail.com> · Telegram: [@b1steam](https://t.me/b1steam)
+Liên hệ: <nhb.b1steam@gmail.com> · Zalo: 083.3399.553

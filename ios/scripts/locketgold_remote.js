@@ -260,9 +260,9 @@ var FORCE_ENTRIES = {
   "safety_center_url": "https://b1s.id.vn/locketgold",
   "parent_center_url": "https://b1s.id.vn/locketgold",
   "rewarded_referral_rule_url": "https://b1s.id.vn/locketgold",
-  "settings_instagram_url": "https://t.me/b1steam",
-  "settings_tiktok_url": "https://t.me/b1steam",
-  "settings_twitter_url": "https://t.me/b1steam",
+  "settings_instagram_url": "https://zalo.me/0833399553",
+  "settings_tiktok_url": "https://zalo.me/0833399553",
+  "settings_twitter_url": "https://zalo.me/0833399553",
 
   /* ── Cộng đồng & hỗ trợ ── */
   "join_testflight_enabled": "true",

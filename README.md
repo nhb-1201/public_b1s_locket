@@ -3,7 +3,7 @@
 # 👑 LocketGold — B1sTeam v3.0
 
 > **Mở khóa Locket Gold VIP vĩnh viễn — miễn phí 100% từ B1sTeam**
-> 🌐 Trang chủ: <https://b1s.id.vn/locketgold> · 📢 Telegram: [@b1steam](https://t.me/b1steam)
+> 🌐 Trang chủ: <https://b1s.id.vn/locketgold> · 📢 Zalo: 083.3399.553
 > 🛠 Phát triển bởi **B1sTeam — Nguyễn Hoàng Bách** · 📦 Repo: <https://github.com/nhb-1201/public_b1s_locket>
 > 🔢 Phiên bản: **3.0.0** (2026-11-09)
 
@@ -104,7 +104,7 @@ PROFILE_KEY_PEM=key.pem PROFILE_CERT_PEM=cert.pem node gen-profiles.cjs --sign  
 ## 🔗 Liên kết
 
 - 🌐 Website: <https://b1s.id.vn> · Trang công cụ: <https://b1s.id.vn/locketgold> · Về chúng tôi: <https://b1s.id.vn/about>
-- 📢 Telegram: [@b1steam](https://t.me/b1steam) · ✉️ Email: <nhb.b1steam@gmail.com>
+- 📢 Zalo: 083.3399.553 · ✉️ Email: <nhb.b1steam@gmail.com>
 - 💻 Repo: <https://github.com/nhb-1201/public_b1s_locket>
 
 **Giấy phép:** Phát hành miễn phí cho cộng đồng iOS/Android — xem [LICENSE.md](LICENSE.md). Nghiêm cấm mọi hành vi thương mại hóa trái phép.
