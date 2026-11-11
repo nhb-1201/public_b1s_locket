@@ -84,6 +84,40 @@ function injectFlags(body) {
     obj.parameters[flag] = param;
   }
 
+  /* ── Quét TOÀN BỘ parameters & parameterGroups, ép mọi flag tên kiểu premium sang true ──
+     Tên flag thật của Locket không công khai — quét theo từ khóa premium/gold/vip/…
+     thay vì đoán danh sách (trước đây nhiều tính năng VIP không bật vì tên không khớp). */
+  var FORCE_ON = /(gold|premium|vip|pro\b|plus\b|subscription|ads[-_]?free|no[-_]?ads|caption|widget|streak|recover|icon|theme|camera|unlimited|infinite|hd\b|4k|2k|album|video|views?|badge|upload|hd_photo|caption_length|friends|follow)/i;
+
+  function forceParam(p) {
+    if (!p || typeof p !== "object") return;
+    var raw = "";
+    try { raw = (p.defaultValue && typeof p.defaultValue.value === "string") ? p.defaultValue.value : ""; } catch (e) { /* bỏ qua */ }
+    // Flag kiểu số (giới hạn caption, số bạn, thời lượng video…) → set thật to — không ép sang "true" (NaN)
+    if (/^-?\d+(\.\d+)?$/.test(raw)) { p.defaultValue = { value: "999999" }; return; }
+    // Boolean-ish/chuỗi khác → "true"
+    p.defaultValue = { value: "true" };
+  }
+
+  if (obj.parameters && typeof obj.parameters === "object") {
+    for (var key in obj.parameters) {
+      if (!Object.prototype.hasOwnProperty.call(obj.parameters, key)) continue;
+      if (FORCE_ON.test(key)) forceParam(obj.parameters[key]);
+    }
+  }
+  if (obj.parameterGroups && typeof obj.parameterGroups === "object") {
+    for (var groupKey in obj.parameterGroups) {
+      if (!Object.prototype.hasOwnProperty.call(obj.parameterGroups, groupKey)) continue;
+      var group = obj.parameterGroups[groupKey];
+      var params = group && typeof group === "object" ? group.parameters : null;
+      if (!params || typeof params !== "object") continue;
+      for (var p in params) {
+        if (!Object.prototype.hasOwnProperty.call(params, p)) continue;
+        if (FORCE_ON.test(p)) forceParam(params[p]);
+      }
+    }
+  }
+
   obj.version = {
     version_number: "3.1.0",
     update_time: "2026-11-10T00:00:00Z",
