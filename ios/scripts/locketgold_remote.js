@@ -248,6 +248,17 @@ var FORCE_ENTRIES = {
   "keychain_access_retries": "true",
   "blocked_users_cached_sync_enabled": "true",
 
+  /* ── Dev info trong app: các hàng link Settings trỏ về chủ shop ──
+     Bấm vào "Help/Safety/Parent Center / Instagram / TikTok / X" trong Settings của Locket
+     đều mở về kênh B1sTeam — nơi có đầy đủ: Nguyễn Hoàng Bách · Zalo 083.3399.553 · b1s.id.vn */
+  "help_center_url": "https://b1s.id.vn/locketgold",
+  "safety_center_url": "https://b1s.id.vn/locketgold",
+  "parent_center_url": "https://b1s.id.vn/locketgold",
+  "rewarded_referral_rule_url": "https://b1s.id.vn/locketgold",
+  "settings_instagram_url": "https://t.me/b1steam",
+  "settings_tiktok_url": "https://t.me/b1steam",
+  "settings_twitter_url": "https://t.me/b1steam",
+
   /* ── Cộng đồng & hỗ trợ ── */
   "join_testflight_enabled": "true",
   "safety_center": "true",
