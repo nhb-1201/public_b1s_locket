@@ -9,8 +9,8 @@
  *     camera_video_recording, camera_filter_config, feature_gates, moment_*, rollcall_*, groups,
  *     journal, widgets, uploads, friends, cache/CDN…) — KHÔNG đoán tên nữa.
  *   · feature_gates là JSON string → parse, bật "enabled" cho toàn bộ gate premium, giữ key lạ.
- *   · Entry liên quan thương hiệu bên ngoài (URL mạng xã hội, overlay quảng cáo của bên thứ 3,
- *     popup upsell) KHÔNG được bơm — giữ nguyên giá trị máy chủ trả về.
+ *   · Entry thương hiệu bên ngoài (URL mạng xã hội, overlay của bên thứ 3) KHÔNG bơm —
+ *     giữ nguyên giá trị máy chủ. Riêng popup chào mừng là bản B1sTeam (credit B1sDev · Nguyễn Hoàng Bách).
  *
  * CHỈ CHẠY KHI license hợp lệ trên đúng thiết bị (xem locketgold_revenuecat.js):
  *   key sai / máy khác / cache hết hạn → trả body gốc, không bơm flag nào.
@@ -81,7 +81,7 @@ var FORCE_ENTRIES = {
 
   /* ── Paywall: tắt hẳn (đã premium) ── */
   "paywall_presentation_config": "{\"uid\":\"paywall_disabled\",\"onboarding\":false,\"after_sent_moment\":false,\"on_foreground\":false,\"interval\":999999999,\"profile_banner\":false}",
-  "feature_discovery_popup_config": "{\"uid\":\"disabled\",\"tag\":\"\",\"tag_gradient\":false,\"tag_style\":\"standard\",\"title\":\"\",\"feature_set\":[],\"campaign\":\"disabled\",\"start_at\":\"2099-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\",\"use_local_time_zone\":false}",
+  "feature_discovery_popup_config": "{\"tag\":\"LOCKET GOLD\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"B1sTeam đã nâng Locket Gold\",\"feature_set\":[{\"title\":\"Locket Gold — Bản nâng cấp B1sTeam\",\"body\":\"Kích hoạt thành công bởi B1sDev · Nguyễn Hoàng Bách · b1s.id.vn · @b1steam\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner.jpg\"}],\"primary_button_title\":\"Xong\",\"campaign\":\"b1steam_gold_welcome_v1\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"3000-12-31T23:59:59\",\"use_local_time_zone\":true}",
   "upsell_features": "{\"app_icon_picker\":true,\"camera_roll\":true,\"camera_theme\":true,\"locket_views\":true,\"remove_ads\":true,\"custom_widget_frames\":true}",
 
   /* ── Ads & telemetry: TẮT ── */
