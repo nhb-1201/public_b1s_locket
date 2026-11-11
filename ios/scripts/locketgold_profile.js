@@ -61,30 +61,40 @@ function gate(doAllow, doDeny) {
   if (Date.now() - lastVerifiedAt() < 259200000) return doAllow();
   var id = deviceId();
   if (!id) return doDeny();
-  if (typeof $httpClient !== "undefined" && $httpClient) {
+  // Thử lần lượt 2 endpoint — zone b1s.id.vn có thể chặn app proxy lạ (WAF),
+  // workers.dev luôn trả lời trực tiếp. Cả hai verify cùng 1 license.
+  function verifyWith(base, onDone) {
+    if (typeof $httpClient === "undefined" || !$httpClient) return onDone(false);
     $httpClient.get(
       {
-        url: "https://b1s.id.vn/api/locketgold/verify?key=" + encodeURIComponent(LICENSE_KEY) + "&device_id=" + encodeURIComponent(id),
+        url: base + "?key=" + encodeURIComponent(LICENSE_KEY) + "&device_id=" + encodeURIComponent(id),
         headers: { "Accept": "application/json", "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1" },
         timeout: 10
       },
       function (err, resp) {
-        if (err || !resp || !resp.body) return doDeny();
+        if (err || !resp || !resp.body) return onDone(false);
         try {
           var j = JSON.parse(resp.body);
-          if (j && j.valid === true) {
-            markVerified();
-            return doAllow();
-          }
-          return doDeny();
+          return onDone(Boolean(j && j.valid === true));
         } catch (e) {
-          return doDeny();
+          return onDone(false);
         }
       }
     );
-    return;
   }
-  return doDeny();
+  verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okPrimary) {
+    if (okPrimary) {
+      markVerified();
+      return doAllow();
+    }
+    verifyWith("https://locketgold-backend.nhb-120111.workers.dev/api/v2/locketgold/verify", function (okFallback) {
+      if (okFallback) {
+        markVerified();
+        return doAllow();
+      }
+      return doDeny();
+    });
+  });
 }
 
 /** Ép mọi object trong payload về Gold Badge (giữ nguyên các field khác). */
