@@ -86,10 +86,13 @@ async function raceQueryJson(name, type) {
     if (!res.ok) throw new Error(`upstream ${upstream} → HTTP ${res.status}`);
     return res;
   };
-  const settled = await Promise.allSettled(UPSTREAMS.map(attempt));
-  const ok = settled.find((s) => s.status === "fulfilled");
-  if (ok) return ok.value;
-  return null;
+  // Race THẬT: trả về upstream phản hồi ĐẦU TIÊN (không đợi cả 3).
+  // KHÔNG abort các request thua ngay khi resolve — sẽ hủy luôn body của response thắng (1101).
+  try {
+    return await Promise.any(UPSTREAMS.map((u) => attempt(u)));
+  } catch {
+    return null;
+  }
 }
 
 async function raceQueryMessage(body) {
@@ -103,10 +106,11 @@ async function raceQueryMessage(body) {
     if (!res.ok) throw new Error(`upstream ${upstream} → HTTP ${res.status}`);
     return res;
   };
-  const settled = await Promise.allSettled(UPSTREAMS.map(attempt));
-  const ok = settled.find((s) => s.status === "fulfilled");
-  if (ok) return ok.value;
-  return null;
+  try {
+    return await Promise.any(UPSTREAMS.map((u) => attempt(u)));
+  } catch {
+    return null;
+  }
 }
 
 /* ─── Hash cho POST cache key (base64url sha256) ─── */
@@ -171,16 +175,32 @@ export default {
       }
 
       const qname = readQName(body);
-      if (BLOCK_LOCKET && qname && isBlocked(qname)) {
-        return refusedDnsMessage(body);
+      if (BLOCK_LOCKET) {
+        if (qname && isBlocked(qname)) {
+          return refusedDnsMessage(body);
+        }
+        if (!qname) {
+          // Fail-closed: không đọc được tên → KHÔNG cho lọt (tránh lách blocklist bằng compression pointer).
+          const peek = peekQuestion(body);
+          if (peek && isBlocked(peek)) {
+            return refusedDnsMessage(body);
+          }
+        }
       }
 
       // ── POST cache (synthetic key từ hash body) — chống sập cả khi Google/CF/Quad9 đồng loạt lỗi
       const cache = caches.default;
-      const postKey = new Request(`https://doh.b1s.id.vn/__cache_post/${await hashBody(new Uint8Array(body))}`, { method: "GET" });
+      // Hash BỎ Transaction ID (byte 0-1) → cache key ổn định cho cùng 1 câu hỏi.
+      const postKey = new Request(`https://doh.b1s.id.vn/__cache_post/${await hashBody(new Uint8Array(body).slice(2))}`, { method: "GET" });
+      const staleKey = new Request(`https://doh.b1s.id.vn/__cache_post_stale/${await hashBody(new Uint8Array(body).slice(2))}`, { method: "GET" });
       const cached = await cache.match(postKey);
       if (cached) {
-        return new Response(cached.body, {
+        // Vá lại Transaction ID của query hiện tại vào gói trả về (client đòi TXID khớp).
+        const cachedBuf = await cached.arrayBuffer();
+        const out = new Uint8Array(cachedBuf.byteLength);
+        out.set(new Uint8Array(cachedBuf));
+        out.set(new Uint8Array(body).slice(0, 2), 0);
+        return new Response(out, {
           status: 200,
           headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_TTL}`, "X-Cache": "HIT", ...securityHeaders() }),
         });
@@ -195,15 +215,18 @@ export default {
         });
         const cachedCopy = resp.clone();
         cachedCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
-        cachedCopy.headers.set("X-Cache", "STORED");
-        try { cache.put(postKey, cachedCopy); } catch { /* bỏ qua */ }
+        try { await cache.put(staleKey, cachedCopy); } catch { /* bỏ qua */ }
         return resp;
       }
 
       // ── stale-if-error: dùng bản stale nếu có (kể cả khi upstream chết hàng loạt)
-      const stale = await cache.match(postKey, { ignoreMethod: false, ignoreSearch: false, ignoreVary: true }).catch(() => null);
+      const stale = await cache.match(staleKey).catch(() => null);
       if (stale) {
-        return new Response(stale.body, {
+        const staleBuf = await stale.arrayBuffer();
+        const out = new Uint8Array(staleBuf.byteLength);
+        out.set(new Uint8Array(staleBuf));
+        out.set(new Uint8Array(body).slice(0, 2), 0);
+        return new Response(out, {
           status: 200,
           headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_STALE}`, "X-Cache": "STALE", ...securityHeaders() }),
         });
@@ -218,17 +241,23 @@ export default {
 
     const cache = caches.default;
     const cacheKey = new Request(url.toString(), { method: "GET" });
+    const staleKey = new Request(`${url.toString()}__stale`, { method: "GET" });
     const cached = request.method === "GET" ? await cache.match(cacheKey) : null;
-    if (cached) return cached;
+    if (cached) {
+      // Trả client bản cached với TTL ngắn (bản lưu trong cache là bản STALE 24h cho stale-if-error).
+      const fresh = new Response(cached.body, cached);
+      fresh.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+      return fresh;
+    }
 
-    const respondGet = (response) => {
+    const respondGet = async (response) => {
       if (request.method === "GET" && response.status === 200) {
-        // Trả client bản max-age=TTL ngắn, LƯU cache bản stale dài (chống sập)
+        // Lưu bản STALE (24h) riêng key → dùng khi upstream chết (chống sập toàn hệ thống).
         const cachedCopy = response.clone();
         cachedCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
-        cachedCopy.headers.set("X-Cache", "STORED");
-        try { cache.put(cacheKey, cachedCopy); } catch { /* bỏ qua */ }
+        try { await cache.put(staleKey, cachedCopy); } catch { /* bỏ qua */ }
         const out = new Response(response.body, response);
+        out.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
         out.headers.set("X-Cache", "MISS");
         return out;
       }
@@ -256,7 +285,7 @@ export default {
 
     // ── Split DNS: REFUSED các domain anti-revoke / telemetry
     if (BLOCK_LOCKET && isBlocked(name)) {
-      return respondGet(new Response(dnsJson(5, question, { Comment: "Blocked by LocketGold anti-revoke policy (B1sTeam)" }), {
+      return await respondGet(new Response(dnsJson(5, question, { Comment: "Blocked by LocketGold anti-revoke policy (B1sTeam)" }), {
         status: 200, // dns-json convention: HTTP 200 + Status 5 (REFUSED)
         headers: corsHeaders({ "Content-Type": "application/dns-json", "Cache-Control": `public, max-age=${CACHE_STALE}`, ...securityHeaders() }),
       }));
@@ -265,14 +294,14 @@ export default {
     const upstream = await raceQueryJson(name, type);
     if (upstream) {
       const data = await upstream.json();
-      return respondGet(new Response(JSON.stringify(data), {
+      return await respondGet(new Response(JSON.stringify(data), {
         status: 200,
         headers: corsHeaders({ "Content-Type": "application/dns-json", "Cache-Control": `public, max-age=${CACHE_TTL}`, ...securityHeaders() }),
       }));
     }
 
-    // ── stale-if-error: phục vụ bản cũ nếu upstream chết hết
-    const stale = await cache.match(cacheKey).catch(() => null);
+    // ── stale-if-error: phục vụ bản cũ (24h) nếu upstream chết hết
+    const stale = await cache.match(staleKey).catch(() => null);
     if (stale) {
       return new Response(stale.body, {
         status: 200,
@@ -296,13 +325,40 @@ function readQName(buffer) {
     while (offset < buffer.byteLength) {
       const len = view.getUint8(offset);
       if (len === 0) break;
-      if ((len & 0xc0) === 0xc0) return null;
+      if ((len & 0xc0) === 0xc0) return null; // compression pointer — không đọc được tên (xử lý fail-closed ở caller)
       offset += 1;
       if (offset + len > buffer.byteLength) return null;
       labels.push(new TextDecoder().decode(new Uint8Array(buffer, offset, len)));
       offset += len;
     }
     return labels.join(".");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Đọc tên câu hỏi "mềm" hơn readQName: bỏ qua label không đọc được (compression pointer)
+ * thay vì trả null — dùng để fail-closed khi không chắc chắn query có bị chặn hay không.
+ */
+function peekQuestion(buffer) {
+  try {
+    const view = new DataView(buffer);
+    let offset = 12;
+    const labels = [];
+    while (offset < buffer.byteLength) {
+      const len = view.getUint8(offset);
+      if (len === 0) break;
+      if ((len & 0xc0) === 0xc0) {
+        offset += 2; // pointer — bỏ qua phần còn lại
+        break;
+      }
+      offset += 1;
+      if (offset + len > buffer.byteLength) break;
+      labels.push(new TextDecoder().decode(new Uint8Array(buffer, offset, len)));
+      offset += len;
+    }
+    return labels.length ? labels.join(".") : null;
   } catch {
     return null;
   }
