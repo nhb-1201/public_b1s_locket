@@ -209,6 +209,8 @@ var FORCE_ENTRIES = {
   "widget_frame_event": "{\"uid\":\"midautumn_2026\",\"url\":\"https://i.ibb.co/1Yt1Dzzy/Shin-chan-1.png\",\"use_local_time_zone\":true,\"placement\":\"below\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
   "widget_frame_event_max_images": "5",
   "android_widget_frame_event_enabled": "true",
+  "custom_widget_frames_enabled": "true",
+  "max_upload_bytes": "104857600",
   "widget_badge_enabled": "true",
   "widget_badge_v2": "true",
   "widget_stale_state_enabled": "false",
