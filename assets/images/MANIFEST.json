@@ -1,0 +1,46 @@
+{
+  "kawaii": {
+    "frame-01-thumb.webp": 38062,
+    "frame-01-trans.png": 1222510,
+    "frame-01.png": 1222215,
+    "frame-02-thumb.webp": 38010,
+    "frame-02-trans.png": 1874464,
+    "frame-02.png": 2026668,
+    "frame-03-thumb.webp": 28768,
+    "frame-03-trans.png": 869275,
+    "frame-03.png": 883203,
+    "frame-04-thumb.webp": 34004,
+    "frame-04-trans.png": 1956482,
+    "frame-04.png": 2217481,
+    "frame-05-thumb.webp": 41842,
+    "frame-05-trans.png": 1983749,
+    "frame-05.png": 2159704,
+    "frame-06-thumb.webp": 36576,
+    "frame-06-trans.png": 1766787,
+    "frame-06.png": 1926948,
+    "frame-07-thumb.webp": 36934,
+    "frame-07-trans.png": 1785729,
+    "frame-07.png": 1968948
+  },
+  "hexden": {
+    "banner-1024x369.png": 681563,
+    "step-1-download-app.jpg": 250601,
+    "step-2-add-config.jpg": 207730,
+    "step-3-enable-https.jpg": 212963,
+    "step-4-generate-ca.jpg": 166051,
+    "step-5-install-profile.jpg": 206210,
+    "step-6-trust-cert.jpg": 196331,
+    "step-7-connect-vpn.jpg": 172879,
+    "welcome-banner.jpg": 1242341,
+    "welcome-banner.png": 7631917
+  },
+  "teongweii": {
+    "filter-photobooth-473x1024.png": 100169,
+    "filter-tui-mu-473x1024.png": 74204,
+    "thumb-video-1.png": 340176,
+    "thumb-video-2.png": 312892
+  },
+  "misc": {
+    "zalo-intro.png": 280702
+  }
+}
