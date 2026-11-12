@@ -18,16 +18,31 @@ khác** — tất cả đã được viết lại (rewrite) để chạy trên e
 | `locketgold_filters.js` | LocketGold | Mở khoá AI Filter (paywall 402/403) + ép vùng US (header + query). |
 | `locketgold_deleteHeader.js` | LocketGold | Xoá header cache `x-revenuecat-etag` để app không nhận 304 (body rỗng). |
 
-## Cấu hình theo app
+## Cấu hình theo app — 2 đường (tương thích ngược)
 
-Cấu hình nằm trong **worker** (`locketgold-backend/src/app-configs.ts` → `APP_UNLOCK_CONFIGS`).
-Worker chèn vào script qua placeholder:
+**Module mới (≥ 2026-11-13) — CDN jsDelivr, self-contained:**
 
-```js
-var B1S_CONFIG = { "__B1S_CONFIG__" };
-```
+- Mọi script được Shadowrocket tải trực tiếp từ CDN GitHub:
+  `https://cdn.jsdelivr.net/gh/nhb-1201/public_b1s_locket@main/ios/scripts/<file>.js`
+  (hoặc raw: `https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/<file>.js`).
+  Script không nằm trên worker nữa → không dính rate-limit theo IP (CGNAT/proxy Vercel).
+- `b1s_unlock.js` nhúng sẵn toàn bộ `APP_UNLOCK_CONFIGS` (dòng `var B1S_CONFIGS = {...}`); `b1s_spotify.js` nhúng `spotify-premium`.
+- Key + slug app truyền qua `argument` (không chứa dấu phẩy — an toàn trong INI Shadowrocket), định dạng:
 
-và thay `var LICENSE_KEY = "__LICENSE_KEY__";` bằng key thật của user.
+  ```
+  argument=B1S-XXXX-XXXX-XXXX|<slug>        # vd: argument=B1S-AA1B-CC2D-EE3F|vsco
+  argument=B1S-XXXX-XXXX-XXXX               # script không cần slug (locketgold_remote…)
+  argument=B1S-XXXX-XXXX-XXXX|request       # locketgold_profile request-mode
+  argument=B1S-XXXX-XXXX-XXXX|response      # locketgold_profile response-mode
+  ```
+
+  Script đọc segment đầu làm `LICENSE_KEY`, segment thứ 2 làm slug; chọn config từ `B1S_CONFIGS[slug]`.
+
+**Module cũ (≤ 2026-11-12) — worker vá placeholder (giữ tương thích):**
+
+- `/api/v2/locketgold/script/<name>?key=KEY` trên worker vẫn chạy: worker thay đúng 2 dòng placeholder
+  `var LICENSE_KEY = "__LICENSE_KEY__";` và `var B1S_CONFIG = { "__B1S_CONFIG__": 1 };` rồi trả file ở dạng `no-store`.
+- Nếu script không thấy `$argument` hợp lệ → dùng giá trị placeholder đã vá (module cũ vẫn hoạt động bình thường).
 
 ## Quy tắc an toàn (B1sTeam tự áp)
 
@@ -44,7 +59,7 @@ và thay `var LICENSE_KEY = "__LICENSE_KEY__";` bằng key thật của user.
 - Nếu app phía hãng sửa/xoá endpoint tương ứng thì script có thể ngừng hoạt động tạm thời
   (B1sTeam sẽ cập nhật).
 - Khi B1sTeam cập nhật script, chỉ cần push file mới vào thư mục này — module tự lấy bản mới
-  (script-path trỏ raw URL, cache TTL ngắn).
+  (script-path trỏ CDN `cdn.jsdelivr.net/gh/...@main`, jsDelivr cache ~12h; module vẫn hoạt động khi worker chết).
 
 ---
 
