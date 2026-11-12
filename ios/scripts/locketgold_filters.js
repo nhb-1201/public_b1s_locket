@@ -200,6 +200,13 @@ if (IS_REQUEST_PHASE) {
 (function () {
   var body = $response.body;
   var status = $response.status || $response.statusCode || 200;
+  var _dbgUrl = "";
+  try { _dbgUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
+  try {
+    if (_dbgUrl.indexOf("generateFilteredImage") !== -1 || (typeof body === "string" && /error|paywall|gold/i.test(body.slice(0, 4000)))) {
+      console.log("[locketgold] filters-debug | url=" + _dbgUrl.slice(0, 80) + " | status=" + status + " | body=" + (typeof body === "string" ? body.slice(0, 600) : "(non-string)"));
+    }
+  } catch (e) { /* bỏ qua */ }
 
   /** Tìm URL ảnh đầu tiên trong payload (để app vẫn hiện ảnh khi server trả lỗi). */
   function findImageUrl(node, depth) {

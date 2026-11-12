@@ -377,7 +377,22 @@ var FORCE_ENTRIES = {
   "use_thumbnails_for_sharing": "true",
   "use_thumbnails_in_timeline": "true",
   "persist_onboarding_step": "true",
-  "onboarding_contact_permission_step": "true"
+  "onboarding_contact_permission_step": "true",
+  // B1sTeam 2026-11-12: standalone top-level flags — app co the doc truc tiep cac flag nay (khong nem trong JSON long) de gate paywall.
+  "is_subscriber": "true",
+  "is_gold": "true",
+  "is_premium": "true",
+  "is_subscribed": "true",
+  "subscribed": "true",
+  "membership": "true",
+  "gold_enabled": "true",
+  "premium_enabled": "true",
+  "pro_enabled": "true",
+  "has_gold": "true",
+  "has_premium": "true",
+  "has_access": "true",
+  "can_use_ai_filter": "true",
+  "can_generate_filtered_image": "true"
 };
 
 /* Các feature gate premium — Locket đọc JSON này từ entries.feature_gates */
