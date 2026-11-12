@@ -162,15 +162,15 @@ function deny() { $done({ body: rawBody }); }
       }
     );
   }
-  verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okPrimary) {
+  verifyWith("https://locket.b1s.id.vn/api/v2/locketgold/verify", function (okPrimary) {
     console.log("[locketgold] revenuecat: verify b1s.id.vn = " + okPrimary);
     if (okPrimary) {
       markVerified();
       console.log("[locketgold] revenuecat: UNLOCK (primary) — Gold sẽ được bơm");
       return unlock();
     }
-    verifyWith("https://locketgold-backend.nhb-120111.workers.dev/api/v2/locketgold/verify", function (okFallback) {
-      console.log("[locketgold] revenuecat: verify workers.dev = " + okFallback);
+    verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okFallback) {
+      
       if (okFallback) {
         markVerified();
         console.log("[locketgold] revenuecat: UNLOCK (fallback) — Gold sẽ được bơm");

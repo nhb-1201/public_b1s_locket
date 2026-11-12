@@ -86,7 +86,8 @@ var FORCE_ENTRIES = {
   /* ── Paywall: tắt hẳn (đã premium) ── */
   "paywall_presentation_config": "{\"uid\":\"paywall_disabled\",\"onboarding\":false,\"after_sent_moment\":false,\"on_foreground\":false,\"interval\":999999999,\"profile_banner\":false}",
   "feature_discovery_popup_config": "{\"tag\":\"LOCKET GOLD\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"B1sTeam đã nâng Locket Gold\",\"feature_set\":[{\"title\":\"Locket Gold — Bản nâng cấp B1sTeam\",\"body\":\"Kích hoạt thành công bởi B1sDev · Nguyễn Hoàng Bách · b1s.id.vn · @b1steam\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner_wide.jpg\"}],\"primary_button_title\":\"Xong\",\"campaign\":\"b1steam_gold_welcome_v1\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"3000-12-31T23:59:59\",\"use_local_time_zone\":true}",
-  "upsell_features": "{\"app_icon_picker\":true,\"camera_roll\":true,\"camera_theme\":true,\"locket_views\":true,\"remove_ads\":true,\"custom_widget_frames\":true}",
+  // Tất cả false → app KHÔNG hiện pop-up "nâng cấp Gold" (feature vẫn mở qua feature_gates).
+  "upsell_features": "{\"app_icon_picker\":false,\"camera_roll\":false,\"camera_theme\":false,\"locket_views\":false,\"remove_ads\":false,\"custom_widget_frames\":false,\"long_captions\":false,\"longer_video\":false,\"unlimited_friends\":false,\"priority_support\":false,\"profile_badge\":false,\"streak_recovery\":false,\"video\":false}",
 
   /* ── Ads & telemetry: TẮT ── */
   "history_ads_mode": "off",
@@ -210,6 +211,20 @@ var FORCE_ENTRIES = {
   "widget_frame_event_max_images": "5",
   "android_widget_frame_event_enabled": "true",
   "custom_widget_frames_enabled": "true",
+  // Cho phép thử filter AI không cần Gold (giảm tỷ lệ user bỏ app vì bị paywall)
+  "allows_try_filter": "true",
+  "allowsTryFilter": "true",
+  "tryButtonEnabled": "true",
+  "try_button_enabled": "true",
+  // 11 khung widget theo ngày trong tuần (trend Gen-Z Việt)
+  "custom_widget_frames_config": "[\"gold\",\"classic\",\"polaroid\",\"film\",\"vintage\",\"neon\",\"festive\",\"valentines\",\"halloween\",\"christmas\",\"frame_mon_galaxy_cat\",\"frame_tue_mecha_dragon\",\"frame_wed_bamboo_rabbit_v2\",\"frame_thu_baby_bear_v2\",\"frame_fri_astro_boy\",\"frame_sat_cyber_cat\",\"frame_sun_robot_gamer\",\"frame_berry_days\",\"frame_happy_snap\",\"frame_sky_diary\",\"frame_classic_pb\"]",
+  "widget_frames_config": "[\"gold\",\"classic\",\"polaroid\",\"film\",\"vintage\",\"neon\",\"festive\",\"valentines\",\"halloween\",\"christmas\"]",
+  "camera_themes_config": "[\"gold\",\"sakura\",\"snowflake\",\"sunset\",\"surfboard\",\"ootd\",\"neon\",\"classic\",\"minimal\"]",
+  // Streak: cho phép khôi phục + hiển thị gradient (người VN dễ mất streak 30-100 ngày)
+  "streak_config": "{\"minimum_recovery_count\":0,\"minimum_display_count\":0,\"streak_visualization\":true,\"streak_visualization_style\":\"gradient\",\"streak_header_minimum_count\":0,\"streak_visualization_minimum_count\":2}",
+  "streak_visualization": "true",
+  "streak_visualization_style": "gradient",
+  "streak_recovery": "enabled",
   "max_upload_bytes": "104857600",
   "widget_badge_enabled": "true",
   "widget_badge_v2": "true",
@@ -415,15 +430,15 @@ function deny() { $done({ body: rawBody }); }
       }
     );
   }
-  verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okPrimary) {
+  verifyWith("https://locket.b1s.id.vn/api/v2/locketgold/verify", function (okPrimary) {
     console.log("[locketgold] remote: verify b1s.id.vn = " + okPrimary);
     if (okPrimary) {
       markVerified();
       console.log("[locketgold] remote: UNLOCK (primary)");
       return unlock();
     }
-    verifyWith("https://locketgold-backend.nhb-120111.workers.dev/api/v2/locketgold/verify", function (okFallback) {
-      console.log("[locketgold] remote: verify workers.dev = " + okFallback);
+    verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okFallback) {
+      
       if (okFallback) {
         markVerified();
         console.log("[locketgold] remote: UNLOCK (fallback)");

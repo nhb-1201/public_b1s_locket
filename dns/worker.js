@@ -24,25 +24,86 @@
  * B1sTeam — b1s.id.vn · Zalo 083.3399.553 · Nguyễn Hoàng Bách
  */
 
-const VERSION = "4.0.0";
+const VERSION = "4.1.0";
 const UPSTREAMS = ["https://1.1.1.1/dns-query", "https://8.8.8.8/dns-query", "https://9.9.9.9/dns-query"];
 const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
 const CACHE_STALE = 86400; // giây — tuổi tối đa bản stale khi upstream chết
 /** true = từ chối truy vấn các domain trong BLOCKLIST */
 const BLOCK_LOCKET = true;
 
-const BLOCKED_DOMAINS = [
-  // Anti-revoke (BẮT BUỘC)
-  "revenuecat.com",
-  "rc-backup.com",
-  "rev.cat",
-  // Telemetry (theo yêu cầu chủ repo)
-  "app-measurement.com",
-  "firebaselogging-pa.googleapis.com",
-  "mixpanel.com",
-  "api.mixpanel.com",
-  "in.appcenter.ms",
-];
+/* ═══════════════════════════════════════════════════════════════════════════
+ *  B1sTeam — Blocklist theo nhóm
+ *  · anti-revoke  : chặn gốc RevenueCat (bắt buộc — app không hỏi server là mất Gold)
+ *  · telemetry    : SDK đo lườ/attribution/crash — chặn để app không "rò" dữ liệu người dùng
+ *  · ads-global  : mạng quảng cáo toàn cầu
+ *  · ads-vn      : quảng cáo Việt Nam (app VN hay gửi người dùng sang trang nhập tạo)
+ *  KHÔNG dùng wildcard — chỉ liệt kê domain cụ thể để không chặn nhầm dịch vụ.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+const BLOCK_GROUPS = {
+  "anti-revoke": [
+    "revenuecat.com",
+    "rc-backup.com",
+    "rev.cat",
+  ],
+  telemetry: [
+    "app-measurement.com",
+    "firebaselogging-pa.googleapis.com",
+    "firebaseremoteconfigrealtime.googleapis.com",
+    "mixpanel.com",
+    "api.mixpanel.com",
+    "in.appcenter.ms",
+    "amplitude.com",
+    "api.amplitude.com",
+    "sentry.io",
+    "bugsnag.com",
+    "instabug.com",
+    "crashlytics.com",
+    "crashlyticsreports-pa.googleapis.com",
+    "firebase-settings.crashlytics.com",
+    "appsflyer.com",
+    "adjust.com",
+    "adjust.io",
+    "kochava.com",
+    "datadoghq.com",
+    "api.segment.io",
+    "segment.io",
+  ],
+  "ads-global": [
+    "googlesyndication.com",
+    "doubleclick.net",
+    "googleadservices.com",
+    "admob.com",
+    "adservice.google.com",
+    "adsrvr.org",
+    "2mdn.net",
+    "adnxs.com",
+    "rubiconproject.com",
+    "pubmatic.com",
+    "openx.net",
+    "criteo.com",
+    "criteo.net",
+    "taboola.com",
+    "outbrain.com",
+    "bidswitch.net",
+    "casalemedia.com",
+    "adform.net",
+    "smartadserver.com",
+    "teads.tv",
+    "yieldmo.com",
+  ],
+  "ads-vn": [
+    "zing.vn",
+    "zingme.vn",
+    "fpt.vn",
+    "vnexpress.net",
+    "hara.vn",
+    "fado.vn",
+    "for88.vn",
+    "for88vn.com",
+  ],
+};
+
+const BLOCKED_DOMAINS = [...new Set(Object.values(BLOCK_GROUPS).flat())];
 
 function corsHeaders(extra = {}) {
   return {
@@ -135,7 +196,7 @@ export default {
           release: "B1sTeam",
           version: VERSION,
           doh: "https://doh.b1s.id.vn/dns-query",
-          policy: { blocked: BLOCKED_DOMAINS, upstreams: UPSTREAMS, staleIfError: true, singleFile: true },
+          policy: { blocked: BLOCKED_DOMAINS, groups: BLOCK_GROUPS, upstreams: UPSTREAMS, staleIfError: true, singleFile: true },
           ts: new Date().toISOString(),
         }),
         { status: 200, headers: corsHeaders({ "Content-Type": "application/json; charset=utf-8", ...securityHeaders() }) },

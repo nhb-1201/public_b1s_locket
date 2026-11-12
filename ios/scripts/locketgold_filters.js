@@ -84,9 +84,9 @@ function gate(doAllow, doDeny) {
     );
   }
 
-  verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okPrimary) {
+  verifyWith("https://locket.b1s.id.vn/api/v2/locketgold/verify", function (okPrimary) {
     if (okPrimary) { markVerified(); return doAllow(); }
-    verifyWith("https://locketgold-backend.nhb-120111.workers.dev/api/v2/locketgold/verify", function (okFallback) {
+    verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okFallback) {
       if (okFallback) { markVerified(); return doAllow(); }
       return doDeny();
     });
@@ -95,6 +95,33 @@ function gate(doAllow, doDeny) {
 
 /* ═══════════════ REQUEST — bỏ cache + giả vùng US ═══════════════ */
 var IS_REQUEST_PHASE = (typeof $response === "undefined");
+
+/** Ép tham số vùng (US) vào query string — Locket chỉ mở filter AI ở khu vực US. */
+function forceRegionParams(url) {
+  if (!url) return url;
+  var forced = {
+    country_code: "US",
+    time_zone: "America/Los_Angeles",
+    language_code: "en",
+  };
+  var q = url.indexOf("?");
+  var base = q === -1 ? url : url.slice(0, q);
+  var query = q === -1 ? "" : url.slice(q + 1);
+  var pairs = query.length ? query.split("&") : [];
+  for (var k in forced) {
+    if (!Object.prototype.hasOwnProperty.call(forced, k)) continue;
+    var found = false;
+    for (var i = 0; i < pairs.length; i++) {
+      if (pairs[i].split("=")[0] === k) {
+        pairs[i] = k + "=" + encodeURIComponent(forced[k]);
+        found = true;
+        break;
+      }
+    }
+    if (!found) pairs.push(k + "=" + encodeURIComponent(forced[k]));
+  }
+  return base + "?" + pairs.join("&");
+}
 
 if (IS_REQUEST_PHASE) {
   var headers = {};
@@ -113,8 +140,12 @@ if (IS_REQUEST_PHASE) {
   headers["X-Timezone"] = "America/Los_Angeles";
   headers["Accept-Language"] = "en-US,en;q=0.9";
 
+  var nextUrl = forceRegionParams(($request && $request.url) ? String($request.url) : "");
+  var out = { headers: headers };
+  if (nextUrl && $request && nextUrl !== String($request.url)) out.url = nextUrl;
+
   gate(
-    function () { $done({ headers: headers }); },
+    function () { $done(out); },
     function () { $done({}); }
   );
 } else {

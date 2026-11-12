@@ -110,12 +110,12 @@ function gate(doAllow, doDeny) {
       }
     );
   }
-  verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okPrimary) {
+  verifyWith("https://locket.b1s.id.vn/api/v2/locketgold/verify", function (okPrimary) {
     if (okPrimary) {
       markVerified();
       return doAllow();
     }
-    verifyWith("https://locketgold-backend.nhb-120111.workers.dev/api/v2/locketgold/verify", function (okFallback) {
+    verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okFallback) {
       if (okFallback) {
         markVerified();
         return doAllow();

@@ -72,9 +72,10 @@ android/                   ← cấu hình Android (chỉ giữ Gold đã kích 
 
 ## 5. Script tự host (không phụ thuộc repo bên thứ 3)
 
-- `ios/scripts/*.js` (4 file) + `ios/scripts/app/*.js` (25 file) — **tự host trong repo này**.
-- Nguồn gốc + giấy phép + quét an toàn: [`ios/scripts/app/NOTICE.md`](ios/scripts/app/NOTICE.md).
-- Không script nào phone-home; `youtube.response.js` có gọi `translate.google.com` (tính năng dịch phụ đề).
+- `ios/scripts/*.js` (8 file) — **100% do B1sTeam tự viết**: `b1s_unlock.js` (engine MITM chung cho 21 app), `b1s_youtube.js` (YouTube InnerTube), `b1s_spotify.js` (engine Protobuf tự viết) + 5 script LocketGold.
+- Nguồn gốc + giấy phép + quét an toàn: [`ios/scripts/NOTICE.md`](ios/scripts/NOTICE.md).
+- **Không còn file JS nào của repo khác** — toàn bộ script đã được rewrite sang engine của B1sTeam.
+- Không script nào phone-home, không gọi `translate.google.com`, không telemetry.
 
 ---
 
