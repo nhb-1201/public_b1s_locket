@@ -1,19 +1,19 @@
-// author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
+﻿// author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * LocketGold B1sTeam — Profile & Badge Gold (DEVICE-LOCKED)
+ * LocketGold B1sTeam â€” Profile & Badge Gold (DEVICE-LOCKED)
  *
- * 1) REQUEST changeProfileInfo  → giả lập phản hồi thành công Gold Badge (chỉ khi license hợp lệ).
- * 2) RESPONSE mọi API Locket    → ép badge/is_gold = gold (chỉ khi license hợp lệ).
- * Key sai/khác máy/offline >72h → trả body gốc, không đụng gì.
+ * 1) REQUEST changeProfileInfo  â†’ giáº£ láº­p pháº£n há»“i thÃ nh cÃ´ng Gold Badge (chá»‰ khi license há»£p lá»‡).
+ * 2) RESPONSE má»i API Locket    â†’ Ã©p badge/is_gold = gold (chá»‰ khi license há»£p lá»‡).
+ * Key sai/khÃ¡c mÃ¡y/offline (grace 30 ngày; cache 7 ngày) â†’ tráº£ body gá»‘c, khÃ´ng Ä‘á»¥ng gÃ¬.
  *
- * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
+ * B1sTeam â€” b1s.id.vn Â· @b1steam Â· Nguyá»…n HoÃ ng BÃ¡ch
  */
 "use strict";
 
 var LICENSE_KEY = "__LICENSE_KEY__";
 
-/* B1S-CDN-ARG: module mới (CDN jsDelivr) truyền "KEY|slug" qua $argument — không chứa dấu phẩy.
-   Module cũ: worker vá 2 dòng placeholder ở trên — giữ tương thích ngược. */
+/* B1S-CDN-ARG: module má»›i (CDN jsDelivr) truyá»n "KEY|slug" qua $argument â€” khÃ´ng chá»©a dáº¥u pháº©y.
+   Module cÅ©: worker vÃ¡ 2 dÃ²ng placeholder á»Ÿ trÃªn â€” giá»¯ tÆ°Æ¡ng thÃ­ch ngÆ°á»£c. */
 try {
   var _rawArg = (typeof $argument !== "undefined" && $argument) ? String($argument) : "";
   var _argParts = _rawArg.split("|");
@@ -23,9 +23,9 @@ try {
   if (typeof B1S_CONFIGS !== "undefined" && _argSlug && Object.prototype.hasOwnProperty.call(B1S_CONFIGS, _argSlug)) {
     B1S_CONFIG = B1S_CONFIGS[_argSlug];
   }
-} catch (_e) { /* giữ giá trị worker chèn (module cũ) */ }
+} catch (_e) { /* giá»¯ giÃ¡ trá»‹ worker chÃ¨n (module cÅ©) */ }
 
-var CREDIT = "B1sTeam: Nguyễn Hoàng Bách - Zalo: 083.3399.553";
+var CREDIT = "B1sTeam: Nguyá»…n HoÃ ng BÃ¡ch - Zalo: 083.3399.553";
 
 var GOLD_PROFILE = {
   badge: "gold",
@@ -54,7 +54,7 @@ var GOLD_PROFILE = {
   success: true
 };
 
-/* ── License gate (giống hệt locketgold_revenuecat.js) + fallback in-memory ── */
+/* â”€â”€ License gate (giá»‘ng há»‡t locketgold_revenuecat.js) + fallback in-memory â”€â”€ */
 var memDeviceId = null;
 function deviceId() {
   try {
@@ -65,7 +65,7 @@ function deviceId() {
       $prefs.setValueForKey(id1, "b1s_lg_device_id");
       return id1;
     }
-  } catch (e) { /* tiếp tục */ }
+  } catch (e) { /* tiáº¿p tá»¥c */ }
   try {
     if (typeof $persistentStore !== "undefined" && $persistentStore) {
       var id2 = $persistentStore.read("b1s_lg_device_id");
@@ -74,8 +74,8 @@ function deviceId() {
       $persistentStore.write(id2, "b1s_lg_device_id");
       return id2;
     }
-  } catch (e) { /* tiếp tục */ }
-  // Fallback in-memory khi store lỗi — KHÔNG deny cứng
+  } catch (e) { /* tiáº¿p tá»¥c */ }
+  // Fallback in-memory khi store lá»—i â€” KHÃ”NG deny cá»©ng
   if (!memDeviceId) memDeviceId = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
   return memDeviceId;
 }
@@ -83,22 +83,28 @@ function deviceId() {
 function lastVerifiedAt() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) return Number($prefs.valueForKey("b1s_lg_ok_at") || 0);
-  } catch (e) { /* bỏ qua */ }
+  } catch (e) { /* bá» qua */ }
   return 0;
+}
+/** OFFLINE-GRACE: mÃ¡y tá»«ng verify OK trong â‰¤30 ngÃ y nhÆ°ng láº§n nÃ y verify lá»—i (máº¥t máº¡ng/mÃ¡y chá»§ táº¡m thá»i) â†’ váº«n cho má»Ÿ, trÃ¡nh "máº¥t key" giá»¯a chá»«ng. */
+var OFFLINE_GRACE_MS = 2592000000;
+function offlineGraceActive() {
+  var last = lastVerifiedAt();
+  return last > 0 && Date.now() - last < OFFLINE_GRACE_MS;
 }
 function markVerified() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_lg_ok_at");
-  } catch (e) { /* bỏ qua */ }
+  } catch (e) { /* bá» qua */ }
 }
 
 function gate(doAllow, doDeny) {
   if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) return doDeny();
-  if (Date.now() - lastVerifiedAt() < 259200000) return doAllow();
+  if (Date.now() - lastVerifiedAt() < 604800000) return doAllow();
   var id = deviceId();
   if (!id) return doDeny();
-  // Thử lần lượt 2 endpoint — zone b1s.id.vn có thể chặn app proxy lạ (WAF),
-  // workers.dev luôn trả lời trực tiếp. Cả hai verify cùng 1 license.
+  // Thá»­ láº§n lÆ°á»£t 2 endpoint â€” zone b1s.id.vn cÃ³ thá»ƒ cháº·n app proxy láº¡ (WAF),
+  // workers.dev luÃ´n tráº£ lá»i trá»±c tiáº¿p. Cáº£ hai verify cÃ¹ng 1 license.
   function verifyWith(base, onDone) {
     if (typeof $httpClient === "undefined" || !$httpClient) return onDone(false);
     $httpClient.get(
@@ -112,7 +118,7 @@ function gate(doAllow, doDeny) {
         var body = "";
         if (typeof data === "string") body = data;
         else if (typeof data !== "undefined" && data !== null) { try { body = String(data); } catch (e) { return onDone(false); } }
-        else if (response && typeof response.body === "string") body = response.body; // tương thích ngược
+        else if (response && typeof response.body === "string") body = response.body; // tÆ°Æ¡ng thÃ­ch ngÆ°á»£c
         if (!body) return onDone(false);
         try {
           var j = JSON.parse(body);
@@ -133,29 +139,30 @@ function gate(doAllow, doDeny) {
         markVerified();
         return doAllow();
       }
+      if (offlineGraceActive()) { try { console.log("[locketgold] profile: OFFLINE-GRACE"); } catch (e) {} return doAllow(); }
       return doDeny();
     });
   });
 }
 
-/* Các key chứng thực tích xanh — ép true khi license hợp lệ (client-side view) */
+/* CÃ¡c key chá»©ng thá»±c tÃ­ch xanh â€” Ã©p true khi license há»£p lá»‡ (client-side view) */
 var VERIFIED_KEYS = /^(verified|is_verified|verified_badge|verified_user|badge_verified|has_verified|checkmark|has_checkmark|is_official|official|celebrity|is_celebrity|is_star|verified_check)$/i;
 
-/* Các key bio/subtitle dưới username — ép về credit B1sTeam (client-side view) */
+/* CÃ¡c key bio/subtitle dÆ°á»›i username â€” Ã©p vá» credit B1sTeam (client-side view) */
 var BIO_LIKE_KEYS = /^(bio|biography|about|about_me|subtitle|tagline|headline|status_message|status_text|profile_bio|profile_subtitle|profile_description)$/i;
 var CREDIT_FIELDS = ["bio", "biography", "about", "about_me", "subtitle", "tagline", "headline", "status_message", "status_text", "profile_bio", "profile_subtitle", "profile_description"];
 
-/* MỌI key chứa "badge" (trừ key url/icon/path) — ép Gold; giữ số/string đúng kiểu */
+/* Má»ŒI key chá»©a "badge" (trá»« key url/icon/path) â€” Ã©p Gold; giá»¯ sá»‘/string Ä‘Ãºng kiá»ƒu */
 function isBadgeKey(k) { return /badge/i.test(k); }
 function isBadgeUrlKey(k) { return /_url($|_)|url$|image|icon|_src($|_)|path|asset/i.test(k); }
 function badgeValueFor(k) {
   var s = String(k).toLowerCase();
   if (/number|count|level|rank|order|index/.test(s)) return 1;
   if (/_name($|_)/.test(s)) return "Gold";
-  return "gold"; // badge / badge_tier / badge_type / badge_color — "gold" là màu CSS hợp lệ
+  return "gold"; // badge / badge_tier / badge_type / badge_color â€” "gold" lÃ  mÃ u CSS há»£p lá»‡
 }
 
-/** Ép mọi object trong payload về Gold Badge + credit (giữ nguyên các field khác). */
+/** Ã‰p má»i object trong payload vá» Gold Badge + credit (giá»¯ nguyÃªn cÃ¡c field khÃ¡c). */
 function injectBadge(node, depth) {
   if (!node || typeof node !== "object" || (depth || 0) > 24) return;
 
@@ -176,7 +183,7 @@ function injectBadge(node, depth) {
         ? (keys[j].toLowerCase().indexOf("badge_number") !== -1 ? 1 : (keys[j].toLowerCase().indexOf("badge_name") !== -1 ? "Gold" : "gold"))
         : (/^(is_|has_)/i.test(keys[j]) ? true : "gold");
     } else if (isBadgeKey(keys[j]) && !isBadgeUrlKey(keys[j])) {
-      // Toggle/badge keys server có thể trả false — ép về Gold (boolean giữ boolean, string giữ string)
+      // Toggle/badge keys server cÃ³ thá»ƒ tráº£ false â€” Ã©p vá» Gold (boolean giá»¯ boolean, string giá»¯ string)
       if (typeof value === "boolean" || /_enabled|_active|_visible|_on$|^use_|^show_/i.test(keys[j])) {
         node[keys[j]] = true;
       } else {
@@ -191,7 +198,7 @@ function injectBadge(node, depth) {
 
   var looksLikeProfile = ("badge" in node) || ("is_gold" in node) || ("badge_tier" in node) ||
                          ("display_name" in node || "username" in node || "user_id" in node);
-  // Ép TOÀN BỘ profile-like (bản thân + danh sách bạn bè, tin nhắn…) lên Gold + tích xanh + credit
+  // Ã‰p TOÃ€N Bá»˜ profile-like (báº£n thÃ¢n + danh sÃ¡ch báº¡n bÃ¨, tin nháº¯nâ€¦) lÃªn Gold + tÃ­ch xanh + credit
   if (looksLikeProfile) {
     node.badge = "gold";
     node.badge_tier = "gold";
@@ -209,7 +216,7 @@ function injectBadge(node, depth) {
   }
 }
 
-/** Ép cờ "đã mở khoá" ở mọi node (filter, moment, camera template) — requires_gold=false, is_locked=false. */
+/** Ã‰p cá» "Ä‘Ã£ má»Ÿ khoÃ¡" á»Ÿ má»i node (filter, moment, camera template) â€” requires_gold=false, is_locked=false. */
 function unlockFlags(node, depth) {
   if (!node || typeof node !== "object" || (depth || 0) > 24) return;
   if (Array.isArray(node)) {
@@ -254,8 +261,8 @@ if (typeof $argument !== "undefined" && $argument) {
   mode = "request";
 }
 
-/* Cho changeProfileInfo chứa field bio đi thẳng lên server (chủ profile muốn LƯU bio thật);
-   response trả về vẫn được response-mode ép badge/credit sau đó. */
+/* Cho changeProfileInfo chá»©a field bio Ä‘i tháº³ng lÃªn server (chá»§ profile muá»‘n LÆ¯U bio tháº­t);
+   response tráº£ vá» váº«n Ä‘Æ°á»£c response-mode Ã©p badge/credit sau Ä‘Ã³. */
 function containsBioValue(node, depth) {
   if (!node || typeof node !== "object" || (depth || 0) > 10) return false;
   for (var k in node) {
@@ -277,12 +284,12 @@ if (mode === "request") {
     passthrough = false;
   }
   if (passthrough) {
-    console.log("[locketgold] profile: mode=request → PASSTHROUGH (bio edit — server se luu)");
-    $done({}); // request đi tiếp lên server nguyên trạng
+    console.log("[locketgold] profile: mode=request â†’ PASSTHROUGH (bio edit â€” server se luu)");
+    $done({}); // request Ä‘i tiáº¿p lÃªn server nguyÃªn tráº¡ng
   } else {
   gate(
     function () {
-      console.log("[locketgold] profile: mode=request → 200 Gold+Verified (changeProfileInfo)");
+      console.log("[locketgold] profile: mode=request â†’ 200 Gold+Verified (changeProfileInfo)");
       $done({
         response: {
           status: 200,
@@ -300,17 +307,17 @@ if (mode === "request") {
       });
     },
     function () {
-      console.log("[locketgold] profile: mode=request → DENY (license invalid) → passthrough");
-      $done({}); // không license → để request đi tiếp bình thường
+      console.log("[locketgold] profile: mode=request â†’ DENY (license invalid) â†’ passthrough");
+      $done({}); // khÃ´ng license â†’ Ä‘á»ƒ request Ä‘i tiáº¿p bÃ¬nh thÆ°á»ng
     }
   );
   }
 } else {
   gate(
     function () {
-      console.log("[locketgold] profile: mode=response → inject Gold+Verified badge");
+      console.log("[locketgold] profile: mode=response â†’ inject Gold+Verified badge");
       var body = (typeof $response !== "undefined" && $response) ? $response.body : null;
-      // Bỏ qua mọi response không phải JSON text — file tải về/nhị phân phải đi nguyên vẹn
+      // Bá» qua má»i response khÃ´ng pháº£i JSON text â€” file táº£i vá»/nhá»‹ phÃ¢n pháº£i Ä‘i nguyÃªn váº¹n
       try {
         var ct = "";
         if ($response && $response.headers) {
@@ -322,14 +329,14 @@ if (mode === "request") {
           }
         }
         if (ct && ct.indexOf("json") === -1 && ct.indexOf("text") === -1 && ct.indexOf("x-www-form-urlencoded") === -1) {
-          return $done({ body: body }); // nhị phân/media — giữ nguyên
+          return $done({ body: body }); // nhá»‹ phÃ¢n/media â€” giá»¯ nguyÃªn
         }
-      } catch (e) { /* không đọc được header → xử lý như text */ }
+      } catch (e) { /* khÃ´ng Ä‘á»c Ä‘Æ°á»£c header â†’ xá»­ lÃ½ nhÆ° text */ }
       if (body) {
         try {
           var obj = JSON.parse(body);
           injectBadge(obj, 0);
-          // ── MỞ KHOÁ PAYWALL FILTER (402/403/400) — filter AI/Camera bị khoá theo vùng hoặc theo gói
+          // â”€â”€ Má»ž KHOÃ PAYWALL FILTER (402/403/400) â€” filter AI/Camera bá»‹ khoÃ¡ theo vÃ¹ng hoáº·c theo gÃ³i
           var rstatus = ($response && ($response.status || $response.statusCode)) || 200;
           if (rstatus === 402 || rstatus === 403 || rstatus === 400 || (obj && obj.error)) {
             var details = (obj && obj.error && obj.error.details) ? obj.error.details : {};
@@ -363,14 +370,14 @@ if (mode === "request") {
           }
           unlockFlags(obj, 0);
           body = JSON.stringify(obj);
-        } catch (e) { /* body không phải JSON hợp lệ — giữ nguyên */ }
+        } catch (e) { /* body khÃ´ng pháº£i JSON há»£p lá»‡ â€” giá»¯ nguyÃªn */ }
       }
       $done({ headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: body });
     },
     function () {
-      console.log("[locketgold] profile: mode=response → DENY (license invalid) → nguyên vẹn");
+      console.log("[locketgold] profile: mode=response â†’ DENY (license invalid) â†’ nguyÃªn váº¹n");
       var body = (typeof $response !== "undefined" && $response) ? $response.body : null;
-      $done({ body: body }); // không license → nguyên vẹn
+      $done({ body: body }); // khÃ´ng license â†’ nguyÃªn váº¹n
     }
   );
 }

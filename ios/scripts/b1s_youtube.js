@@ -52,6 +52,12 @@ function lastVerifiedAt() {
   } catch (e) {}
   return 0;
 }
+/** OFFLINE-GRACE: máy từng verify OK trong ≤30 ngày nhưng lần này verify lỗi (mất mạng/máy chủ tạm thời) → vẫn cho mở, tránh "mất key" giữa chừng. */
+var OFFLINE_GRACE_MS = 2592000000;
+function offlineGraceActive() {
+  var last = lastVerifiedAt();
+  return last > 0 && Date.now() - last < OFFLINE_GRACE_MS;
+}
 function markVerified() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_lg_ok_at");
@@ -59,7 +65,7 @@ function markVerified() {
 }
 function gate(allow, deny) {
   if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) return deny();
-  if (Date.now() - lastVerifiedAt() < 259200000) return allow();
+  if (Date.now() - lastVerifiedAt() < 604800000) return allow();
   var id = deviceId();
   if (!id) return deny();
   function verifyWith(base, onDone) {
@@ -91,6 +97,7 @@ function gate(allow, deny) {
     if (okPrimary) { markVerified(); return allow(); }
     verifyWith("https://locket.b1s.id.vn/api/v2/locketgold/verify", function (okFallback) {
       if (okFallback) { markVerified(); return allow(); }
+      if (offlineGraceActive()) { try { console.log("[b1syoutube] OFFLINE-GRACE"); } catch (e) {} return allow(); }
       return deny();
     });
   });

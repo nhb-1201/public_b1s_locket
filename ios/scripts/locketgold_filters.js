@@ -1,23 +1,23 @@
-// author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
+﻿// author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * LocketGold B1sTeam — AI Filter Unlock + Camera Filter Gold (DEVICE-LOCKED)
+ * LocketGold B1sTeam â€” AI Filter Unlock + Camera Filter Gold (DEVICE-LOCKED)
  *
- * 1) REQUEST  → xoá header cache (chặn 304 Not Modified) + giả vùng US để mở filter
- *               AI bị khoá theo khu vực (Locket chỉ bật filter thử nghiệm ở US).
- * 2) RESPONSE → lỗi 402/403/400 từ server (paywall filter) → đổi thành 200 "unlocked",
+ * 1) REQUEST  â†’ xoÃ¡ header cache (cháº·n 304 Not Modified) + giáº£ vÃ¹ng US Ä‘á»ƒ má»Ÿ filter
+ *               AI bá»‹ khoÃ¡ theo khu vá»±c (Locket chá»‰ báº­t filter thá»­ nghiá»‡m á»Ÿ US).
+ * 2) RESPONSE â†’ lá»—i 402/403/400 tá»« server (paywall filter) â†’ Ä‘á»•i thÃ nh 200 "unlocked",
  *               requires_gold=false / is_locked=false.
  *
- * KHÔNG phone-home, KHÔNG gửi uid/username ra ngoài — toàn bộ xử lý trên máy.
- * Key sai / khác máy / offline > 72h → trả nguyên body gốc (fail-closed).
+ * KHÃ”NG phone-home, KHÃ”NG gá»­i uid/username ra ngoÃ i â€” toÃ n bá»™ xá»­ lÃ½ trÃªn mÃ¡y.
+ * Key sai / khÃ¡c mÃ¡y / offline (grace 30 ngày; cache 7 ngày) â†’ tráº£ nguyÃªn body gá»‘c (fail-closed).
  *
- * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách · Zalo 083.3399.553
+ * B1sTeam â€” b1s.id.vn Â· @b1steam Â· Nguyá»…n HoÃ ng BÃ¡ch Â· Zalo 083.3399.553
  */
 "use strict";
 
 var LICENSE_KEY = "__LICENSE_KEY__";
 
-/* B1S-CDN-ARG: module mới (CDN jsDelivr) truyền "KEY|slug" qua $argument — không chứa dấu phẩy.
-   Module cũ: worker vá 2 dòng placeholder ở trên — giữ tương thích ngược. */
+/* B1S-CDN-ARG: module má»›i (CDN jsDelivr) truyá»n "KEY|slug" qua $argument â€” khÃ´ng chá»©a dáº¥u pháº©y.
+   Module cÅ©: worker vÃ¡ 2 dÃ²ng placeholder á»Ÿ trÃªn â€” giá»¯ tÆ°Æ¡ng thÃ­ch ngÆ°á»£c. */
 try {
   var _rawArg = (typeof $argument !== "undefined" && $argument) ? String($argument) : "";
   var _argParts = _rawArg.split("|");
@@ -27,9 +27,9 @@ try {
   if (typeof B1S_CONFIGS !== "undefined" && _argSlug && Object.prototype.hasOwnProperty.call(B1S_CONFIGS, _argSlug)) {
     B1S_CONFIG = B1S_CONFIGS[_argSlug];
   }
-} catch (_e) { /* giữ giá trị worker chèn (module cũ) */ }
+} catch (_e) { /* giá»¯ giÃ¡ trá»‹ worker chÃ¨n (module cÅ©) */ }
 
-/* ── License gate (giống locketgold_profile.js) — fail-closed ── */
+/* â”€â”€ License gate (giá»‘ng locketgold_profile.js) â€” fail-closed â”€â”€ */
 var memDeviceId = null;
 function deviceId() {
   try {
@@ -40,7 +40,7 @@ function deviceId() {
       $prefs.setValueForKey(id1, "b1s_lg_device_id");
       return id1;
     }
-  } catch (e) { /* tiếp tục */ }
+  } catch (e) { /* tiáº¿p tá»¥c */ }
   try {
     if (typeof $persistentStore !== "undefined" && $persistentStore) {
       var id2 = $persistentStore.read("b1s_lg_device_id");
@@ -49,7 +49,7 @@ function deviceId() {
       $persistentStore.write(id2, "b1s_lg_device_id");
       return id2;
     }
-  } catch (e) { /* tiếp tục */ }
+  } catch (e) { /* tiáº¿p tá»¥c */ }
   if (!memDeviceId) memDeviceId = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
   return memDeviceId;
 }
@@ -57,18 +57,24 @@ function deviceId() {
 function lastVerifiedAt() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) return Number($prefs.valueForKey("b1s_lg_ok_at") || 0);
-  } catch (e) { /* bỏ qua */ }
+  } catch (e) { /* bá» qua */ }
   return 0;
+}
+/** OFFLINE-GRACE: mÃ¡y tá»«ng verify OK trong â‰¤30 ngÃ y nhÆ°ng láº§n nÃ y verify lá»—i (máº¥t máº¡ng/mÃ¡y chá»§ táº¡m thá»i) â†’ váº«n cho má»Ÿ, trÃ¡nh "máº¥t key" giá»¯a chá»«ng. */
+var OFFLINE_GRACE_MS = 2592000000;
+function offlineGraceActive() {
+  var last = lastVerifiedAt();
+  return last > 0 && Date.now() - last < OFFLINE_GRACE_MS;
 }
 function markVerified() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_lg_ok_at");
-  } catch (e) { /* bỏ qua */ }
+  } catch (e) { /* bá» qua */ }
 }
 
 function gate(doAllow, doDeny) {
   if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) return doDeny();
-  if (Date.now() - lastVerifiedAt() < 259200000) return doAllow();
+  if (Date.now() - lastVerifiedAt() < 604800000) return doAllow();
   var id = deviceId();
   if (!id) return doDeny();
 
@@ -101,15 +107,16 @@ function gate(doAllow, doDeny) {
     if (okPrimary) { markVerified(); return doAllow(); }
     verifyWith("https://b1s.id.vn/api/locketgold/verify", function (okFallback) {
       if (okFallback) { markVerified(); return doAllow(); }
+      if (offlineGraceActive()) { try { console.log("[locketgold] filters: OFFLINE-GRACE"); } catch (e) {} return doAllow(); }
       return doDeny();
     });
   });
 }
 
-/* ═══════════════ REQUEST — bỏ cache + giả vùng US ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• REQUEST â€” bá» cache + giáº£ vÃ¹ng US â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 var IS_REQUEST_PHASE = (typeof $response === "undefined");
 
-/** URL media/CDN (ảnh, video) — KHÔNG được inject region params (ký URL sẽ 403 → feed trắng). */
+/** URL media/CDN (áº£nh, video) â€” KHÃ”NG Ä‘Æ°á»£c inject region params (kÃ½ URL sáº½ 403 â†’ feed tráº¯ng). */
 var MEDIA_EXT = /\.(jpe?g|png|webp|heic|heif|gif|mp4|mov|m4v|avi|mkv|mp3|m4a|pdf|zip)(\?|#|$)/i;
 function isMediaRequest(url) {
   if (!url) return false;
@@ -117,15 +124,15 @@ function isMediaRequest(url) {
   if (MEDIA_EXT.test(u)) return true;
   var m = /^https?:\/\/([^\/]+)/.exec(u);
   var host = m ? m[1] : "";
-  // CDN / bucket ảnh công khai của Locket
+  // CDN / bucket áº£nh cÃ´ng khai cá»§a Locket
   if (host.indexOf("cdn.") === 0 || host.indexOf("public.") === 0 || host.indexOf("media.") === 0) return true;
-  // Bucket Firebase Storage của Locket
+  // Bucket Firebase Storage cá»§a Locket
   if (host.indexOf("firebasestorage.") !== -1) return true;
   if (host.indexOf("storage.googleapis.com") !== -1) return true;
   return false;
 }
 
-/** Ép tham số vùng (US) vào query string — Locket chỉ mở filter AI ở khu vực US. */
+/** Ã‰p tham sá»‘ vÃ¹ng (US) vÃ o query string â€” Locket chá»‰ má»Ÿ filter AI á»Ÿ khu vá»±c US. */
 function forceRegionParams(url) {
   if (!url) return url;
   var forced = {
@@ -153,7 +160,7 @@ function forceRegionParams(url) {
 }
 
 if (IS_REQUEST_PHASE) {
-  // Media/CDN — engine không làm gì (giữ nguyên chữ ký URL)
+  // Media/CDN â€” engine khÃ´ng lÃ m gÃ¬ (giá»¯ nguyÃªn chá»¯ kÃ½ URL)
   var _reqUrl = ($request && $request.url) ? String($request.url) : "";
   if (!isMediaRequest(_reqUrl)) {
   var headers = {};
@@ -161,11 +168,11 @@ if (IS_REQUEST_PHASE) {
   for (var k in src) {
     if (!Object.prototype.hasOwnProperty.call(src, k)) continue;
     var lk = String(k).toLowerCase();
-    // Bỏ header cache để server KHÔNG trả 304 (304 là body rỗng → filter không render)
+    // Bá» header cache Ä‘á»ƒ server KHÃ”NG tráº£ 304 (304 lÃ  body rá»—ng â†’ filter khÃ´ng render)
     if (lk === "if-none-match" || lk === "if-modified-since" || lk === "x-revenuecat-etag") continue;
     headers[k] = src[k];
   }
-  // Mở filter AI bị khoá theo vùng (Locket chỉ mở filter thử nghiệm ở US)
+  // Má»Ÿ filter AI bá»‹ khoÃ¡ theo vÃ¹ng (Locket chá»‰ má»Ÿ filter thá»­ nghiá»‡m á»Ÿ US)
   headers["X-App-Region"] = "US";
   headers["X-Country-Code"] = "US";
   headers["X-Device-Country"] = "US";
@@ -181,16 +188,16 @@ if (IS_REQUEST_PHASE) {
     function () { $done({}); }
   );
   } else {
-    $done({}); // media/CDN — giữ nguyên, không đụng vào request
+    $done({}); // media/CDN â€” giá»¯ nguyÃªn, khÃ´ng Ä‘á»¥ng vÃ o request
   }
 } else {
 
-/* ═══════════════ RESPONSE — mở khoá paywall filter (402/403/400) ═══════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• RESPONSE â€” má»Ÿ khoÃ¡ paywall filter (402/403/400) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 (function () {
   var body = $response.body;
   var status = $response.status || $response.statusCode || 200;
 
-  /** Tìm URL ảnh đầu tiên trong payload (để app vẫn hiện ảnh khi server trả lỗi). */
+  /** TÃ¬m URL áº£nh Ä‘áº§u tiÃªn trong payload (Ä‘á»ƒ app váº«n hiá»‡n áº£nh khi server tráº£ lá»—i). */
   function findImageUrl(node, depth) {
     if (!node || typeof node !== "object" || (depth || 0) > 8) return null;
     if (Array.isArray(node)) {
@@ -217,9 +224,9 @@ if (IS_REQUEST_PHASE) {
   }
 
   /**
-   * Xử lý lỗi paywall (402/403/400) — "phẫu thuật" thay vì thay toàn bộ body.
-   * Lý do: nếu thay body, danh sách filter/khung trong response bị XOÁ ⇒ sheet rỗng
-   * và app hiện màn hình "Mở khóa bằng Locket Gold".
+   * Xá»­ lÃ½ lá»—i paywall (402/403/400) â€” "pháº«u thuáº­t" thay vÃ¬ thay toÃ n bá»™ body.
+   * LÃ½ do: náº¿u thay body, danh sÃ¡ch filter/khung trong response bá»‹ XOÃ â‡’ sheet rá»—ng
+   * vÃ  app hiá»‡n mÃ n hÃ¬nh "Má»Ÿ khÃ³a báº±ng Locket Gold".
    */
   function unlockPayload(original) {
     if (!original || typeof original !== "object") {
@@ -232,11 +239,11 @@ if (IS_REQUEST_PHASE) {
     var details = null;
     try {
       if (original.error && original.error.details) details = original.error.details;
-    } catch (e) { /* bỏ qua */ }
+    } catch (e) { /* bá» qua */ }
 
-    // GIỮ NGUYÊN toàn bộ field gốc (danh sách filter, cấu hình…) — chỉ bỏ phần lỗi.
-    try { if (original.error) delete original.error; } catch (e) { /* bỏ qua */ }
-    try { if (original.errors) delete original.errors; } catch (e) { /* bỏ qua */ }
+    // GIá»® NGUYÃŠN toÃ n bá»™ field gá»‘c (danh sÃ¡ch filter, cáº¥u hÃ¬nhâ€¦) â€” chá»‰ bá» pháº§n lá»—i.
+    try { if (original.error) delete original.error; } catch (e) { /* bá» qua */ }
+    try { if (original.errors) delete original.errors; } catch (e) { /* bá» qua */ }
 
     var result = original.result && typeof original.result === "object" ? original.result : (original.result = {});
     result.status = 200;
@@ -250,7 +257,7 @@ if (IS_REQUEST_PHASE) {
     result.is_premium = true;
     if (details) result.data = details;
 
-    // Nếu server trả kèm URL ảnh (mờ/blur) → đưa lên để app vẫn hiện ảnh.
+    // Náº¿u server tráº£ kÃ¨m URL áº£nh (má»/blur) â†’ Ä‘Æ°a lÃªn Ä‘á»ƒ app váº«n hiá»‡n áº£nh.
     var img = findImageUrl(original, 0);
     if (img) {
       result.outputUrl = img;
@@ -295,10 +302,10 @@ if (IS_REQUEST_PHASE) {
     }
   }
 
-  /* ── GỠ CHE MỜ ẢNH (unblur) ──────────────────────────────────────────────
-     Server trả `blurred_url` khi tài khoản chưa có Gold → app hiện ảnh mờ.
-     Ta chuyển mọi URL ảnh về bản THẬT (unblurred_url / result_url / image_url…)
-     và xoá cờ blur. Toàn bộ xử lý cục bộ, không đổi dữ liệu trên server. */
+  /* â”€â”€ Gá»  CHE Má»œ áº¢NH (unblur) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+     Server tráº£ `blurred_url` khi tÃ i khoáº£n chÆ°a cÃ³ Gold â†’ app hiá»‡n áº£nh má».
+     Ta chuyá»ƒn má»i URL áº£nh vá» báº£n THáº¬T (unblurred_url / result_url / image_urlâ€¦)
+     vÃ  xoÃ¡ cá» blur. ToÃ n bá»™ xá»­ lÃ½ cá»¥c bá»™, khÃ´ng Ä‘á»•i dá»¯ liá»‡u trÃªn server. */
   var URL_FIELDS = ["outputUrl", "output_url", "url", "imageUrl", "image_url", "result_url", "transformed_image_url"];
   function unblur(node, depth) {
     if (!node || typeof node !== "object" || (depth || 0) > 12) return false;
@@ -334,17 +341,17 @@ if (IS_REQUEST_PHASE) {
 
       var changed = false;
 
-      // 1) Lỗi paywall (402/403/400) → mở khoá
+      // 1) Lá»—i paywall (402/403/400) â†’ má»Ÿ khoÃ¡
       if (status === 402 || status === 403 || status === 400 || (obj && obj.error)) {
         status = 200;
         obj = unlockPayload(obj);
         changed = true;
       }
 
-      // 3) Gỡ che mờ ảnh TRƯỚC (walk sẽ set is_blurred=false → preview_url phải dò blurred trước)
+      // 3) Gá»¡ che má» áº£nh TRÆ¯á»šC (walk sáº½ set is_blurred=false â†’ preview_url pháº£i dÃ² blurred trÆ°á»›c)
       if (obj && unblur(obj, 0)) changed = true;
 
-      // 2) Ép cờ mở khoá ở mọi node con (filter, moment, camera template…)
+      // 2) Ã‰p cá» má»Ÿ khoÃ¡ á»Ÿ má»i node con (filter, moment, camera templateâ€¦)
       if (obj) {
         var before = JSON.stringify(obj);
         walk(obj, 0);
@@ -352,7 +359,7 @@ if (IS_REQUEST_PHASE) {
       }
 
       if (!changed) { $done({}); return; }
-      // Headers sạch — KHÔNG giữ Content-Length/Content-Encoding gốc (body mới khác độ dài)
+      // Headers sáº¡ch â€” KHÃ”NG giá»¯ Content-Length/Content-Encoding gá»‘c (body má»›i khÃ¡c Ä‘á»™ dÃ i)
       $done({ status: status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify(obj) });
     },
     function () { $done({}); }

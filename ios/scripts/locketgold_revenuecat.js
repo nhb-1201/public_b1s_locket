@@ -71,6 +71,12 @@ function lastVerifiedAt() {
   } catch (e) { /* bỏ qua */ }
   return 0;
 }
+/** OFFLINE-GRACE: máy từng verify OK trong ≤30 ngày nhưng lần này verify lỗi (mất mạng/máy chủ tạm thời) → vẫn cho mở, tránh "mất key" giữa chừng. */
+var OFFLINE_GRACE_MS = 2592000000;
+function offlineGraceActive() {
+  var last = lastVerifiedAt();
+  return last > 0 && Date.now() - last < OFFLINE_GRACE_MS;
+}
 function markVerified() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_lg_ok_at");
@@ -142,8 +148,8 @@ function deny() { $done({ body: rawBody }); }
   console.log("[locketgold] revenuecat: fired | key len=" + String(LICENSE_KEY || "").length);
   if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) { console.log("[locketgold] revenuecat: DENY (bad key)"); return deny(); }
 
-  console.log("[locketgold] revenuecat: gate | cache=" + (Date.now() - lastVerifiedAt() < 259200000 ? "HIT" : "MISS"));
-  if (Date.now() - lastVerifiedAt() < 259200000) { console.log("[locketgold] revenuecat: UNLOCK via cache"); return unlock(); }
+  console.log("[locketgold] revenuecat: gate | cache=" + (Date.now() - lastVerifiedAt() < 604800000 ? "HIT" : "MISS"));
+  if (Date.now() - lastVerifiedAt() < 604800000) { console.log("[locketgold] revenuecat: UNLOCK via cache"); return unlock(); }
 
   var id = deviceId();
   if (!id) { console.log("[locketgold] revenuecat: DENY (no device id)"); return deny(); }
@@ -189,6 +195,7 @@ function deny() { $done({ body: rawBody }); }
         console.log("[locketgold] revenuecat: UNLOCK (fallback) — Gold sẽ được bơm");
         return unlock();
       }
+      if (offlineGraceActive()) { console.log("[locketgold] revenuecat: OFFLINE-GRACE (verify unavailable)"); return unlock(); }
       console.log("[locketgold] revenuecat: DENY (verify failed)");
       return deny();
     });
