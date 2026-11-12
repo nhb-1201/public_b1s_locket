@@ -200,8 +200,43 @@ if (IS_REQUEST_PHASE) {
         node[key] = false;
       } else if (lk === "is_gold" || lk === "is_premium" || lk === "unlocked" || lk === "is_subscribed" || lk === "premium" || lk === "has_access") {
         node[key] = true;
+      } else if (lk === "has_ai_access" || lk === "ai_access_enabled" || lk === "can_use_ai" || lk === "allow_ai_filter") {
+        node[key] = true;
+      } else if (lk === "is_blurred" || lk === "blurred" || lk === "needs_gold" || lk === "has_blur") {
+        node[key] = false;
       }
     }
+  }
+
+  /* ── GỠ CHE MỜ ẢNH (unblur) ──────────────────────────────────────────────
+     Server trả `blurred_url` khi tài khoản chưa có Gold → app hiện ảnh mờ.
+     Ta chuyển mọi URL ảnh về bản THẬT (unblurred_url / result_url / image_url…)
+     và xoá cờ blur. Toàn bộ xử lý cục bộ, không đổi dữ liệu trên server. */
+  var URL_FIELDS = ["outputUrl", "output_url", "url", "imageUrl", "image_url", "result_url", "transformed_image_url"];
+  function unblur(node, depth) {
+    if (!node || typeof node !== "object" || (depth || 0) > 12) return false;
+    if (Array.isArray(node)) {
+      var any = false;
+      for (var i = 0; i < node.length; i++) { if (unblur(node[i], (depth || 0) + 1)) any = true; }
+      return any;
+    }
+    var changed = false;
+    var clearUrl = node.unblurred_url || node.unlocked_url || node.result_url || node.image_url ||
+      node.transformed_image_url || node.output_url || node.outputUrl;
+    if (clearUrl && typeof clearUrl === "string") {
+      for (var f = 0; f < URL_FIELDS.length; f++) {
+        var key = URL_FIELDS[f];
+        if (Object.prototype.hasOwnProperty.call(node, key) && node[key] !== clearUrl) { node[key] = clearUrl; changed = true; }
+      }
+      if (Object.prototype.hasOwnProperty.call(node, "blurred_url")) { node.blurred_url = clearUrl; changed = true; }
+      if (Object.prototype.hasOwnProperty.call(node, "blurred_image_url")) { node.blurred_image_url = clearUrl; changed = true; }
+      if (Object.prototype.hasOwnProperty.call(node, "preview_url") && node.is_blurred) { node.preview_url = clearUrl; changed = true; }
+    }
+    for (var k in node) {
+      if (!Object.prototype.hasOwnProperty.call(node, k)) continue;
+      if (node[k] && typeof node[k] === "object") { if (unblur(node[k], (depth || 0) + 1)) changed = true; }
+    }
+    return changed;
   }
 
   gate(
@@ -225,6 +260,9 @@ if (IS_REQUEST_PHASE) {
         walk(obj, 0);
         if (JSON.stringify(obj) !== before) changed = true;
       }
+
+      // 3) Gỡ che mờ ảnh (server trả blurred_* khi chưa có Gold)
+      if (obj && unblur(obj, 0)) changed = true;
 
       if (!changed) { $done({}); return; }
       $done({ status: status, body: JSON.stringify(obj) });

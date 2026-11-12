@@ -86,6 +86,64 @@ var FORCE_ENTRIES = {
   /* ── Paywall: tắt hẳn (đã premium) ── */
   "paywall_presentation_config": "{\"uid\":\"paywall_disabled\",\"onboarding\":false,\"after_sent_moment\":false,\"on_foreground\":false,\"interval\":999999999,\"profile_banner\":false}",
   "feature_discovery_popup_config": "{\"tag\":\"LOCKET GOLD\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"B1sTeam đã nâng Locket Gold\",\"feature_set\":[{\"title\":\"Locket Gold — Bản nâng cấp B1sTeam\",\"body\":\"Kích hoạt thành công bởi B1sDev · Nguyễn Hoàng Bách · b1s.id.vn · @b1steam\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner_wide.jpg\"}],\"primary_button_title\":\"Xong\",\"campaign\":\"b1steam_gold_welcome_v1\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"3000-12-31T23:59:59\",\"use_local_time_zone\":true}",
+
+  // ── B1sTeam: GATE + CAMERA/THEME/FILTER (đối chiếu 2 nguồn tham khảo) ──
+  "camera_filter": "enabled",
+  "camera_filters": "enabled",
+  "filters": "enabled",
+  "camera_filter_sheet": "enabled",
+  "camera_filters_sheet": "enabled",
+  "camera_filter_picker": "enabled",
+  "camera_theme": "enabled",
+  "camera_themes": "enabled",
+  "camera_themes_config": "enabled",
+  "camera_theme_sheet": "enabled",
+  "camera_themes_sheet": "enabled",
+  "camera_theme_picker": "enabled",
+  "camera_color": "enabled",
+  "camera_colors": "enabled",
+  "widget_frames": "enabled",
+  "widget_frame": "enabled",
+  "app_icon_picker": "enabled",
+  "app_icons": "enabled",
+  "ai_filter": "enabled",
+  "ai_filters": "enabled",
+  "ai_camera_filter": "enabled",
+  "locket_views": "enabled",
+  "long_captions": "enabled",
+  "longer_video": "enabled",
+  "unlimited_friends": "enabled",
+  "priority_support": "enabled",
+  "profile_badge": "enabled",
+  "remove_ads": "enabled",
+  "video": "enabled",
+  "custom_widget_frames": "enabled",
+  // ── B1sTeam: cờ bật riêng (tên flag Locket thật) ──
+  "camera_filters_enabled": "true",
+  "camera_filter_enabled": "true",
+  "camera_filter_sheet_enabled": "true",
+  "camera_filter_picker_enabled": "true",
+  "holiday_filters_enabled": "true",
+  "holiday_filters_free": "true",
+  "camera_theme_enabled": "true",
+  "camera_themes_enabled": "true",
+  "camera_theme_sheet_enabled": "true",
+  "camera_theme_picker_enabled": "true",
+  "camera_color_enabled": "true",
+  "camera_colors_enabled": "true",
+  "widget_frames_enabled": "true",
+  "widget_frame_enabled": "true",
+  "app_icon_picker_enabled": "true",
+  "app_icons_enabled": "true",
+  "allows_custom_filters": "true",
+  "camera_theme_config": "{\"enabled\":true,\"themes\":[\"gold\",\"sakura\",\"snowflake\",\"sunset\",\"surfboard\",\"ootd\",\"neon\",\"classic\",\"minimal\",\"film\"]}",
+  // ── B1sTeam: CDN + STORAGE (Locket tự phục vụ ảnh qua cdn.locketcamera.com) ──
+  "cdn_domain_replacements": "{\"firebasestorage.googleapis.com\":\"cdn.locketcamera.com\"}",
+  "cdn_domain_replacements_video": "true",
+  "storage_bucket": "gs://locket-img",
+  "storage_bucket_video": "gs://locket-video",
+  // ── B1sTeam: liên kết trong app trỏ về kênh B1sTeam (không trỏ tới người khác) ──
+  "settings_facebook_url": "https://zalo.me/0833399553",
   // Tất cả false → app KHÔNG hiện pop-up "nâng cấp Gold" (feature vẫn mở qua feature_gates).
   "upsell_features": "{\"app_icon_picker\":false,\"camera_roll\":false,\"camera_theme\":false,\"locket_views\":false,\"remove_ads\":false,\"custom_widget_frames\":false,\"long_captions\":false,\"longer_video\":false,\"unlimited_friends\":false,\"priority_support\":false,\"profile_badge\":false,\"streak_recovery\":false,\"video\":false}",
 
@@ -110,7 +168,7 @@ var FORCE_ENTRIES = {
   "camera": "{\"gold_max_duration\":60,\"goldMaxDuration\":60,\"max_duration\":60,\"maxDuration\":60,\"ultra_wide\":true,\"ultraWide\":true,\"volume_button\":true,\"volumeButton\":true,\"flash_button\":true,\"telephoto\":true,\"srgb\":true,\"lanczos\":true,\"quality_mbps\":0.6,\"qualityMbps\":0.6}",
   "camera_roll": "{\"gold_max_duration\":30,\"goldMaxDuration\":30,\"video_max_duration\":30,\"videoMaxDuration\":30,\"max_duration\":30,\"maxDuration\":30,\"trim_max_duration\":30,\"trimMaxDuration\":30,\"camera_roll_max_duration\":30,\"quality_mbps\":0.6,\"qualityMbps\":0.6,\"flash_button\":true}",
   "live_photos": "{\"capture\":true,\"video\":true,\"viewing\":true,\"catch_up\":true,\"widget_looping_mode\":\"never\"}",
-  "camera_filter_config": "{\"allows_custom_filters\":true,\"show_filter_button\":true,\"sheet_enabled\":true,\"open_sheet_immediately\":false,\"sheet_filters\":[{\"title\":{\"en\":\"Goofy\"},\"filter_ids\":[\"okay_wig\",\"influencer\",\"looks_maxxing\",\"toothless\",\"bye_brows\"]},{\"title\":{\"en\":\"Looks\"},\"filter_ids\":[\"bowling_ball\",\"blonde_bleached\",\"beard\",\"bob_cut\",\"buns\",\"tatted\",\"mohawk\",\"braces\",\"bye_brows\"]},{\"title\":{\"en\":\"Celebrate\"},\"filter_ids\":[\"slimed\",\"princess\",\"disco_lights\",\"cash_money\",\"happy_birthday\"]},{\"title\":{\"en\":\"Cute\"},\"filter_ids\":[\"cutesy\",\"sticker_face\",\"flower_crown\",\"love_bug\"]},{\"title\":{\"en\":\"Costumes\"},\"filter_ids\":[\"wedding\",\"cowboy_cowgirl\",\"giraffe\",\"clown\"]},{\"title\":{\"en\":\"Holidays\"},\"filter_ids\":[\"easter_bunney_cutout\",\"easter_chick_cutout\",\"bearded\",\"leprechaun\",\"lucky_face\",\"sweet_hearts\",\"elf_cutout\",\"santa_cutout\",\"frosty\"]}],\"picker_filters\":[\"okay_wig\",\"influencer\",\"looks_maxxing\",\"toothless\",\"bye_brows\",\"bowling_ball\",\"blonde_bleached\",\"beard\",\"bob_cut\",\"buns\",\"tatted\",\"mohawk\",\"braces\",\"slimed\",\"princess\",\"disco_lights\",\"cash_money\",\"happy_birthday\",\"cutesy\",\"sticker_face\",\"flower_crown\",\"love_bug\",\"wedding\",\"cowboy_cowgirl\",\"giraffe\",\"clown\",\"easter_bunney_cutout\",\"easter_chick_cutout\",\"bearded\",\"leprechaun\",\"lucky_face\",\"sweet_hearts\",\"elf_cutout\",\"santa_cutout\",\"frosty\"]}",
+  "camera_filter_config": "{\"allows_custom_filters\":true,\"show_filter_button\":true,\"sheet_enabled\":true,\"open_sheet_immediately\":true,\"sheet_filters\":[{\"title\":{\"en\":\"Goofy\"},\"filter_ids\":[\"okay_wig\",\"influencer\",\"looks_maxxing\",\"toothless\",\"bye_brows\"]},{\"title\":{\"en\":\"Looks\"},\"filter_ids\":[\"bowling_ball\",\"blonde_bleached\",\"beard\",\"bob_cut\",\"buns\",\"tatted\",\"mohawk\",\"braces\",\"bye_brows\"]},{\"title\":{\"en\":\"Celebrate\"},\"filter_ids\":[\"slimed\",\"princess\",\"disco_lights\",\"cash_money\",\"happy_birthday\"]},{\"title\":{\"en\":\"Cute\"},\"filter_ids\":[\"cutesy\",\"sticker_face\",\"flower_crown\",\"love_bug\"]},{\"title\":{\"en\":\"Costumes\"},\"filter_ids\":[\"wedding\",\"cowboy_cowgirl\",\"giraffe\",\"clown\"]},{\"title\":{\"en\":\"Holidays\"},\"filter_ids\":[\"easter_bunney_cutout\",\"easter_chick_cutout\",\"bearded\",\"leprechaun\",\"lucky_face\",\"sweet_hearts\",\"elf_cutout\",\"santa_cutout\",\"frosty\"]}],\"picker_filters\":[\"okay_wig\",\"influencer\",\"looks_maxxing\",\"toothless\",\"bye_brows\",\"bowling_ball\",\"blonde_bleached\",\"beard\",\"bob_cut\",\"buns\",\"tatted\",\"mohawk\",\"braces\",\"slimed\",\"princess\",\"disco_lights\",\"cash_money\",\"happy_birthday\",\"cutesy\",\"sticker_face\",\"flower_crown\",\"love_bug\",\"wedding\",\"cowboy_cowgirl\",\"giraffe\",\"clown\",\"easter_bunney_cutout\",\"easter_chick_cutout\",\"bearded\",\"leprechaun\",\"lucky_face\",\"sweet_hearts\",\"elf_cutout\",\"santa_cutout\",\"frosty\"]}",
   "camera_roll_preview_enabled": "true",
   "camera_video_recording": "{\"default\":{\"maximum_duration\":30000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"},\"gold\":{\"maximum_duration\":60000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"}}",
   "android_camera_video_recording": "{\"default\":{\"maximum_duration\":30000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"},\"gold\":{\"maximum_duration\":60000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"}}",
@@ -305,9 +363,20 @@ var FORCE_ENTRIES = {
 
 /* Các feature gate premium — Locket đọc JSON này từ entries.feature_gates */
 var KNOWN_PREMIUM_GATES = [
+  // Nhóm gốc
   "app_icon_picker", "camera_roll", "camera_theme", "locket_views", "long_captions",
   "longer_video", "unlimited_friends", "priority_support", "profile_badge",
-  "remove_ads", "video", "custom_widget_frames", "streak_recovery"
+  "remove_ads", "video", "custom_widget_frames", "streak_recovery",
+  // Nhóm camera / filter / theme (bổ sung)
+  "camera_filter", "camera_filters", "filters", "camera_filter_sheet",
+  "camera_filters_sheet", "camera_filter_picker", "camera_theme_sheet",
+  "camera_themes_sheet", "camera_theme_picker", "camera_themes_config",
+  "camera_color", "camera_colors", "holiday_filters", "ai_filter", "ai_filters",
+  "ai_camera_filter",
+  // Nhóm widget / icon / view
+  "widget_frames", "widget_frame", "app_icons", "moment_views", "groups",
+  "rollcall", "time_travel_rewind", "conversation_drafts", "chat_hyperlinks",
+  "unsend_message", "celebrity_inbox", "user_data_export"
 ];
 
 function featureGatesJSON(raw) {
