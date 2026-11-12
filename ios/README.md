@@ -1,62 +1,48 @@
-<!-- author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket -->
+# LocketGold — iOS (Shadowrocket) — B1sTeam · v6.0
 
-# 🍎 Locket Gold — iOS (Shadowrocket) · B1sTeam v3.0
+> B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
 
-> B1sTeam — b1s.id.vn · Telegram @b1steam · Nguyễn Hoàng Bách
+## Cách cài hiện tại (khuyến nghị)
 
-## Cấu trúc thư mục
+1. Vào **[b1s.id.vn/alfretro](https://b1s.id.vn/alfretro)** → Đăng nhập tài khoản B1sTeam.
+2. Vào **[b1s.id.vn/da-kich-hoat](https://b1s.id.vn/da-kich-hoat)** → bấm **Kích hoạt miễn phí** (0₫, vĩnh viễn).
+3. Bấm **Cài module duy nhất** — Shadowrocket tự mở file `.module` có nhúng key của bạn.
+4. Bấm **Dùng (Use)** cho module → xoay lại Locket → **Gold VIP ✦**.
+
+> Module chứa sẵn: script **LocketGold VIP** + **23 App Premium** + **DNS chống thu hồi** (DoH B1sTeam) + chặn quảng cáo/telemetry — **một file duy nhất**, không cần cài thêm gì.
+
+## File trong thư mục này
 
 ```
 ios/
-├── locketgold.conf           # Cấu hình Shadowrocket (.conf) — routing + MITM
-├── locketgold.sgmodule       # Module Shadowrocket (.sgmodule) — bản khuyên dùng
-├── locketgold.mobileconfig   # Profile DNS chống thu hồi (.mobileconfig · iOS 14+)
-├── module.html               # Trang chuyển hướng → cài Module 1-Click (noindex)
-├── conf.html                 # Trang chuyển hướng → thêm Config 1-Click (noindex)
-├── .htaccess                 # Apache: CORS + MIME types + cache headers
+├── locketgold.mobileconfig   # Profile DNS chống thu hồi (Split DNS qua doh.b1s.id.vn, iOS 14+)
+├── locketgold.conf         # Config Shadowrocket tĩnh (phiên bản mở khóa LocketGold — script từ repo tự host)
+├── module.html             # Trang chuyển hướng → cài Module (noindex)
+├── conf.html               # Trang chuyển hướng → cài Config (noindex)
+├── .htaccess               # Apache: CORS + MIME types + cache headers
 └── scripts/
-    ├── locketgold_revenuecat.js   # LICENSE-GATED: entitlement locket_gold (chỉ máy đã verify key)
-    ├── locketgold_deleteHeader.js # Xóa ETag/If-None-Match → luôn nhận bản mới
-    ├── locketgold_remote.js       # LICENSE-GATED: Remote Config premium flags
-    └── locketgold_profile.js      # LICENSE-GATED: giữ badge Gold trên api.locketcamera.com
+    ├── locketgold_revenuecat.js   # entitlement Gold (chỉ máy đã verify key)
+    ├── locketgold_deleteHeader.js # Xoá ETag/If-None-Match → luôn nhận entitlement mới nhất
+    ├── locketgold_remote.js       # Remote Config premium flags (248 entries)
+    ├── locketgold_profile.js      # badge Gold + mở khoá paywall filter + unblur
+    ├── locketgold_filters.js      # ép vùng US + unblur ảnh + xóa cache
+    ├── b1s_unlock.js              # engine MITM chung cho 21 app Premium
+    ├── b1s_youtube.js             # YouTube (InnerTube) của B1sTeam
+    └── b1s_spotify.js             # Spotify (Protobuf engine tự viết)
 ```
 
-> **License-gated:** scripts tự gọi <https://b1s.id.vn/api/locketgold/verify?key=…&device_id=…>
-> (device id lưu bền trong `$prefs`). Sai key / khác máy / offline >72h → không bơm Gold.
-> Module/config tải từ b1s.id.vn/locketgold chứa đích danh license key của bạn — **không chia sẻ**.
+> **v6.0 (2026-11-12):** config/static files đồng bộ với module do worker sinh:
+> `#hostname` scoping, DNS DoH B1sTeam, `[Host]` chặn Firebase realtime RC, **không còn `FINAL,DIRECT`**
+> (mọi traffic cần MITM sẽ qua PROXY — từ đây script mới chạy được).
 
-## Cài đặt — 7 bước (A → Z)
+## Hướng dẫn cài từng bước
 
-1. **Cài Shadowrocket** từ App Store (trả phí; có thể dùng tài khoản chia sẻ hoặc IPA).
-2. **Cài Module 1-Click**: bấm nút *Cài Module* trên [b1s.id.vn/locketgold](https://b1s.id.vn/locketgold) → iPhone mở Shadowrocket → bấm **Used** cho module `locketgold.sgmodule`.
-3. **Bật Giải mã HTTPS**: tab *Cấu hình* → biểu tượng **(i)** cạnh config → gạt **Giải mã HTTPS** sang BẬT.
-4. **Tạo Chứng chỉ CA**: mục *Chứng chỉ CA* → **Tạo Chứng chỉ CA mới** → **Cài đặt CA vào hệ thống** → Safari mở, bấm **Cho phép**.
-5. **Cài hồ sơ chứng chỉ**: *Cài đặt → Đã tải về hồ sơ* → chọn hồ sơ Shadowrocket → **Cài đặt** → nhập mật mã máy.
-6. **Tin cậy chứng nhận gốc** ⚠️ BẮT BUỘC: *Cài đặt → Cài đặt chung → Giới thiệu → Cài đặt tin cậy chứng nhận* → gạt chứng chỉ Shadowrocket sang BẬT → **Tiếp tục**.
-7. **Bật VPN & tận hưởng**: tab *Nhà* → gạt kết nối BẬT → **vuốt tắt hẳn Locket** khỏi đa nhiệm → mở lại → **Gold VIP ✦**.
+1. **Cài Shadowrocket** từ App Store (~72.000₫ mua 1 lần — app của bên thứ ba, B1sTeam không phát hành lại).
+2. **HTTP Decryption**: *Cấu hình* → nút **(i)** cạnh config → bật **HTTPS Decrypt**.
+3. **Tạo CA**: *CA Certificate* → **Generate New CA** → **Install CA to system** → Safari mở, bấm **Allow**.
+4. **Cài profile**: *Settings → Downloaded Profile* → chọn profile Shadowrocket → **Install** → nhập passcode.
+5. **Tin cậy root**: *Settings → General → About → Certificate Trust Settings* → bật shadowrocket → **Continue**.
+6. **Bật VPN & mở app**: tab **Home** → gạt kết nối **ON** → vuốt tắt Locket khỏi đa nhiệm → mở lại → **Gold VIP ✦**.
 
-## Chống thu hồi vĩnh viễn (không cần bật VPN)
-
-Sau khi Locket đã lên Gold:
-
-1. Tắt VPN Shadowrocket.
-2. Mở Safari → vào [locketgold.mobileconfig](https://b1s.id.vn/locketgold/ios/locketgold.mobileconfig).
-3. *Cài đặt → Đã tải về hồ sơ* → **Cài đặt**.
-4. *Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị → DNS* → chọn **Locket Gold DNS — B1sTeam**.
-
-Split DNS chỉ định tuyến truy vấn Locket/RevenueCat qua DoH riêng (`https://doh.b1s.id.vn/dns-query`) — mọi app khác vẫn dùng mạng gốc, tốc độ 100%.
-
-## Link cài đặt nhanh
-
-| Mục | Link |
-|---|---|
-| Cài Module | `shadowrocket://install?module=https://b1s.id.vn/locketgold/ios/locketgold.sgmodule` |
-| Thêm Config | `shadowrocket://config/add/https://b1s.id.vn/locketgold/ios/locketgold.conf` |
-| Tải Profile DNS | <https://b1s.id.vn/locketgold/ios/locketgold.mobileconfig> |
-| Hướng dẫn đầy đủ | <https://b1s.id.vn/locketgold> |
-
-## Bảo mật & Minh bạch
-
-- Chỉ 4 domain được MITM: `api.revenuecat.com`, `api.rc-backup.com`, `firebaseremoteconfig.googleapis.com`, `api.locketcamera.com`.
-- Script không thu thập dữ liệu cá nhân, không gửi thông tin ra ngoài.
-- `.htaccess` chặn hotlink, chỉ cho phép `GET/OPTIONS` + CORS `*` cho file cấu hình công khai.
+> **Module/config do b1s.id.vn/da-kich-hoat sinh** chứa sẵn license key của bạn — **không chia sẻ**.
+> Script cũng tự verify key khi chạy (không license → trả nguyên body, không bơm cờ).

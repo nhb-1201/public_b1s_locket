@@ -1,6 +1,6 @@
 <!-- author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket -->
 
-# 🤖 Locket Gold — Android (V2RayNG / Sing-Box) · B1sTeam v3.0
+# 🤖 Locket Gold — Android (V2RayNG / Sing-Box) · B1sTeam v6.0
 
 > B1sTeam — b1s.id.vn · Telegram @b1steam · Nguyễn Hoàng Bách
 
@@ -34,10 +34,10 @@ android/
 
 | Mục | Link |
 |---|---|
-| V2RayNG / NekoBox | <https://b1s.id.vn/locketgold/android/v2rayng.json> |
-| Sing-Box | <https://b1s.id.vn/locketgold/android/singbox.json> |
-| Thông số DNS | <https://b1s.id.vn/locketgold/android/locketgold.dns> |
-| Hướng dẫn đầy đủ | <https://b1s.id.vn/locketgold> |
+| V2RayNG / NekoBox | <https://b1s.id.vn/alfretro/android/v2rayng.json> |
+| Sing-Box | <https://b1s.id.vn/alfretro/android/singbox.json> |
+| Thông số DNS | <https://b1s.id.vn/alfretro/android/locketgold.dns> |
+| Hướng dẫn đầy đủ | <https://b1s.id.vn/alfretro> |
 
 ## Bảo mật & Minh bạch
 

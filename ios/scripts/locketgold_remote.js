@@ -265,7 +265,7 @@ var FORCE_ENTRIES = {
   "rollcall_tap_to_tag_enabled": "false",
 
   /* ── Widget & Live Activity ── */
-  "widget_frame_event": "{\"uid\":\"midautumn_2026\",\"url\":\"https://i.ibb.co/1Yt1Dzzy/Shin-chan-1.png\",\"use_local_time_zone\":true,\"placement\":\"below\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
+  "widget_frame_event": "{\"uid\":\"midautumn_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner_wide.jpg\",\"use_local_time_zone\":true,\"placement\":\"below\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
   "widget_frame_event_max_images": "5",
   "android_widget_frame_event_enabled": "true",
   "custom_widget_frames_enabled": "true",
@@ -331,10 +331,10 @@ var FORCE_ENTRIES = {
   /* ── Dev info trong app: các hàng link Settings trỏ về chủ shop ──
      Bấm vào "Help/Safety/Parent Center / Instagram / TikTok / X" trong Settings của Locket
      đều mở về kênh B1sTeam — nơi có đầy đủ: Nguyễn Hoàng Bách · Zalo 083.3399.553 · b1s.id.vn */
-  "help_center_url": "https://b1s.id.vn/locketgold",
-  "safety_center_url": "https://b1s.id.vn/locketgold",
-  "parent_center_url": "https://b1s.id.vn/locketgold",
-  "rewarded_referral_rule_url": "https://b1s.id.vn/locketgold",
+  "help_center_url": "https://b1s.id.vn/alfretro",
+  "safety_center_url": "https://b1s.id.vn/alfretro",
+  "parent_center_url": "https://b1s.id.vn/alfretro",
+  "rewarded_referral_rule_url": "https://b1s.id.vn/alfretro",
   "settings_instagram_url": "https://zalo.me/0833399553",
   "settings_tiktok_url": "https://zalo.me/0833399553",
   "settings_twitter_url": "https://zalo.me/0833399553",

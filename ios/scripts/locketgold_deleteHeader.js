@@ -1,6 +1,6 @@
 // author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * LocketGold B1sTeam v3.0 — Strip Conditional/ETag headers
+ * LocketGold B1sTeam v6.0 — Strip Conditional/ETag headers
  * Xóa toàn bộ ETag / If-None-Match / If-Match trên request tới RevenueCat
  * để server luôn trả về bản entitlement mới nhất (không 304, không cache lỗi thời).
  * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách

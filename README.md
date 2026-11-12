@@ -8,7 +8,7 @@
 
 ## 1. Sản phẩm: AlFreToU (All Free To Use) — 0₫, vĩnh viễn
 
-1 key duy nhất mở khóa **toàn bộ**: LocketGold VIP (20 tính năng) + **23 App Premium**.
+1 key duy nhất mở khóa **toàn bộ**: LocketGold VIP (24 tính năng) + **23 App Premium**.
 
 | Nhóm | App |
 |---|---|
@@ -21,11 +21,10 @@
 | PDF | Smallpdf Pro · iLovePDF Pro |
 | Tiện ích | Truecaller Premium · CamScanner |
 
-**2 cách cài:**
-- **1 module All In One** — chứa script của mọi app + LocketGold. Bấm 1 lần là xong.
-- **Tách riêng từng app** — mỗi app 1 module riêng (nhẹ, bật/tắt độc lập). Nút "Cài module 1-Click" ngay trên từng trang app + `/app-premium/guide`.
+**1 module duy nhất** (b1s.id.vn → AlFreToU → Đã kích hoạt):
+- Chứa script của **tất cả** app + LocketGold + **DNS chống thu hồi** (DoH B1sTeam) trong 1 file.
+- **Không** phải cài từng module riêng, **không** cần hồ sơ DNS riêng.
 
-> 3 app dùng chung endpoint RevenueCat (VSCO · PhotoRoom · Mojo) **phải cài module riêng** — Shadowrocket chỉ chạy 1 script http-response cho mỗi URL.
 
 ---
 
@@ -33,16 +32,19 @@
 
 ```
 ios/
-  scripts/                 ← script MITM CỦA B1STEAM (tự host, có license gate)
+  scripts/                 ← script MITM CỦA B1STEAM (tự host, có license gate — 100% tự viết)
     locketgold_revenuecat.js   ← ghi entitlement Gold vĩnh viễn vào response RevenueCat
-    locketgold_remote.js       ← ép 186 entry Remote Config (feature premium + 163 caption tiếng Việt)
-    locketgold_profile.js      ← badge Gold + tích xanh + mở paywall filter (402/403/400)
-    locketgold_filters.js      ← AI Filter Unlock: giả vùng US + xoá cache 304
-    app/                       ← 25 script app của cộng đồng (vendor, có NOTICE.md)
-  locketgold.mobileconfig  ← hồ sơ DNS DoH (iOS) — chỉ route domain Locket
-  locketgold.conf          ← config Shadowrocket legacy (KHÔNG có key → không dùng, xem README)
+    locketgold_remote.js       ← ép 248 entry Remote Config (feature premium + 240 caption tiếng Việt)
+    locketgold_profile.js      ← badge Gold + tích xanh + mở paywall filter (402/403/400) + unblur
+    locketgold_filters.js      ← AI Filter Unlock: giả vùng US + unblur ảnh + xoá cache 304 + can_use_filters
+    b1s_unlock.js              ← engine MITM chung cho 21 app Premium
+    b1s_youtube.js             ← YouTube InnerTube
+    b1s_spotify.js             ← engine Protobuf tự viết (Spotify bootstrap)
+    locketgold_deleteHeader.js ← xoá ETag/If-None-Match (không cần license gate — chỉ xoá header)
+  locketgold.mobileconfig  ← hồ sơ Split DNS (iOS) — chỉ route Locket + RC + Firebase RC
+  locketgold.conf          ← config Shadowrocket tĩnh (phiên bản LocketGold) — có #hostname scoping, DNS
 dns/
-  worker.js                ← DoH Worker: REFUSED anti-revoke + race 3 upstream + cache stale 24h
+  worker.js                ← DoH Worker: REFUSED anti-revoke + telemetry + ads global + ads VN (4 nhóm) + race 3 upstream + stale 24h
 android/                   ← cấu hình Android (chỉ giữ Gold đã kích hoạt)
 ```
 
@@ -52,10 +54,10 @@ android/                   ← cấu hình Android (chỉ giữ Gold đã kích 
 
 1. **Shadowrocket** (App Store, ~72.000₫ mua 1 lần).
 2. **HTTPS解密**: ⓘ → HTTPS解密 → bật → *生成新的 CA 证书* → Cài đặt → tin cậy chứng chỉ gốc.
-3. **Kích hoạt miễn phí**: vào `b1s.id.vn/locketgold` → đăng nhập → "Kích hoạt miễn phí" → nhận key `B1S-XXXX-XXXX-XXXX`.
-4. **Cài module**: bấm "Cài module" (1 module All In One) hoặc "Cài module 1-Click" ở từng app.
+3. **Kích hoạt miễn phí**: vào `b1s.id.vn/alfretro` → đăng nhập → "Kích hoạt miễn phí" → nhận key `B1S-XXXX-XXXX-XXXX`.
+4. **Cài module**: vào `b1s.id.vn/da-kich-hoat` → bấm **"Cài module duy nhất"** — Shadowrocket tự mở file `.module` có nhúng key của bạn.
 5. **Bật Shadowrocket** → mở app → Premium hoạt động.
-6. *(Tuỳ chọn)* **DNS dự phòng**: cài `locketgold.mobileconfig` — chặn thu hồi Gold khi tắt Shadowrocket.
+6. *(Tuỳ chọn)* **DNS dự phòng**: cài `locketgold.mobileconfig` — Split DNS chặn thu hồi Gold khi tắt Shadowrocket (không bắt buộc — module đã gộp DNS DoH).
 
 ---
 

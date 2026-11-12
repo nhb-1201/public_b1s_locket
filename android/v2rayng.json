@@ -1,6 +1,6 @@
 {
   "v": "2",
-  "ps": "Locket Gold VIP — B1sTeam v3.0",
+  "ps": "Locket Gold VIP — B1sTeam v6.0",
   "add": "doh.b1s.id.vn",
   "port": 443,
   "id": "locketgold-b1steam",
@@ -91,7 +91,7 @@
     "doh_server": "https://doh.b1s.id.vn/dns-query",
     "developer": "Nguyễn Hoàng Bách",
     "organization": "B1sTeam",
-    "website": "https://b1s.id.vn/locketgold",
+    "website": "https://b1s.id.vn/alfretro",
     "telegram": "@b1steam",
     "updated_at": "2026-11-09"
   }

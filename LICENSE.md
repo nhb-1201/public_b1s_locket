@@ -2,7 +2,7 @@
 
 # 📜 Giấy phép phát hành — LocketGold B1sTeam
 
-**LocketGold B1sTeam v3.0** — © 2026 Nguyễn Hoàng Bách — B1sTeam (b1s.id.vn).
+**LocketGold B1sTeam v6.0** — © 2026 Nguyễn Hoàng Bách — B1sTeam (b1s.id.vn).
 
 ## Bạn ĐƯỢC PHÉP
 

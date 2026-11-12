@@ -2,7 +2,20 @@
 
 # 📜 Changelog — LocketGold B1sTeam
 
-## v3.0.0 — B1sTeam Edition (2026-11-09)
+## v6.1.0 — 1 module duy nhất (2026-11-12)
+
+- **1 module duy nhất** (sinh bởi worker): LocketGold + 23 app + DNS DoH trong 1 file — xoá module từng app.
+- **Không còn `FINAL,DIRECT`/`dns-server = system`** trong module — mọi host MITM đi PROXY + `#hostname` scoping.
+- **DNS DoH gộp trong module** — không cần cài hồ sơ DNS riêng.
+- Bỏ 25 script repo thứ ba — 100% viết lại bằng `b1s_unlock.js` (engine MITM).
+- RC: **248 entries / 41 gates**.
+- Filter paywall: ép đủ 15 cờ `can_use_filters`/`has_ai_access`/… + giữ nguyên body khi 402/403 (danh sách filter không bị xoá).
+- `widget_frame_event` dùng asset của B1sTeam (không hotlink ảnh bên thứ ba).
+- `locketgold.sgmodule` xoá (module sinh bởi worker tại b1s.id.vn).
+- Static `ios/locketgold.conf` đồng bộ với module: PROXY rules + `#hostname` + DNS + `[Host]` chặn Firebase realtime RC.
+- Toàn bộ link `b1s.id.vn/locketgold` → `b1s.id.vn/alfretro`.
+
+## v6.0.0 — B1sTeam Edition (2026-11-09)
 
 - **Rewrite toàn bộ từ gốc**: thiết kế "Dark Luxe" cho static assets; brand đồng nhất B1sTeam.
 - Toàn bộ link tải chuyển sang `raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/...` (không giới hạn băng thông, không chặn).

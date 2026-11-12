@@ -24,7 +24,7 @@
  * B1sTeam — b1s.id.vn · Zalo 083.3399.553 · Nguyễn Hoàng Bách
  */
 
-const VERSION = "4.1.0";
+const VERSION = "6.1.0";
 const UPSTREAMS = ["https://1.1.1.1/dns-query", "https://8.8.8.8/dns-query", "https://9.9.9.9/dns-query"];
 const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
 const CACHE_STALE = 86400; // giây — tuổi tối đa bản stale khi upstream chết
