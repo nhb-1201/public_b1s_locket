@@ -328,6 +328,18 @@ if (mode === "request") {
   gate(
     function () {
       console.log("[locketgold] profile: mode=response â†’ inject Gold+Verified badge");
+      // AI filter (createFilter/generateFilteredImage) bị entitlement server-side: bơm Gold giả KHÔNG giúp được —
+      // app sẽ treo "ĐANG RỬA ẢNH" vô hạn. Trả lỗi fail-fast CHỈ khi server không 200 (user free).
+      // User trả phí (server 200) đi tiếp bình thường qua unlock flow.
+      const uAI = ($request && $request.url) ? String($request.url) : "";
+      if (uAI.indexOf("/createFilter") !== -1 || uAI.indexOf("/generateFilteredImage") !== -1) {
+        const rs0 = ($response && ($response.status || $response.statusCode)) || 200;
+        if (rs0 !== 200) {
+          console.log("[locketgold] profile: AI filter từ chối (status=" + rs0 + ") — fail-fast, app hiện lỗi ngay");
+          $done({ status: rs0, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify({ error: { message: "Entitlement required", code: "ENTITLEMENT_REQUIRED" } }) });
+          return;
+        }
+      }
       var body = (typeof $response !== "undefined" && $response) ? $response.body : null;
       // Bá» qua má»i response khÃ´ng pháº£i JSON text â€” file táº£i vá»/nhá»‹ phÃ¢n pháº£i Ä‘i nguyÃªn váº¹n
       try {

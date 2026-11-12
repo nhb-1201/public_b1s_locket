@@ -185,6 +185,17 @@ async function hashBody(body) {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+/** base64url → ArrayBuffer (RFC 4648 §5) — iOS/Android DoH client dùng ?dns=<...>. */
+function base64UrlToArrayBuffer(b64) {
+  const padded = String(b64).replace(/-/g, "+").replace(/_/g, "/");
+  const pad = padded.length % 4;
+  const normalized = pad ? padded + "=".repeat(4 - pad) : padded;
+  const bin = atob(normalized);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out.buffer;
+}
+
 export default {
   async fetch(request) {
     const url = new URL(request.url);
@@ -237,6 +248,10 @@ export default {
         return new Response("Bad Request", { status: 400, headers: corsHeaders({ ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" }) });
       }
 
+      return await handleDnsMessage(body);
+    }
+
+async function handleDnsMessage(body) {
       // ── POST cache (synthetic key từ hash body) — tính trước để cả nhánh blocked cũng cache được
       const cache = caches.default;
       // Hash BỎ Transaction ID (byte 0-1) → cache key ổn định cho cùng 1 câu hỏi.
@@ -311,6 +326,21 @@ export default {
         });
       }
       return new Response("Upstream Unavailable", { status: 502, headers: corsHeaders({ ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" }) });
+
+}
+
+    /* ════════ RFC 8484 GET — ?dns=<base64url wire message> (iOS/Android system DoH client) ════════ */
+    const dnsParam = url.searchParams.get("dns");
+    if (dnsParam) {
+      try {
+        const buf = base64UrlToArrayBuffer(dnsParam);
+        if (!buf || buf.byteLength === 0 || buf.byteLength > 512) {
+          return new Response(dnsJson(1, [], { Comment: "Invalid dns param" }), { status: 400, headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }) });
+        }
+        return await handleDnsMessage(buf);
+      } catch {
+        return new Response(dnsJson(1, [], { Comment: "Invalid base64url dns param" }), { status: 400, headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }) });
+      }
     }
 
     /* ════════ GET — application/dns-json (edge-cached + race + stale-if-error) ════════ */
