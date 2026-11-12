@@ -392,13 +392,54 @@ function resolveConfig() {
   return B1S_CONFIG;
 }
 
+/**
+ * Tổng hợp payload subscriber "đang trả phí" HOÀN CHỈNH — dùng khi server trả rỗng/lỗi/thiếu cấu trúc
+ * (đây là lý do user free không thấy paywall biến mất dù đã bật Gold).
+ * Trả về object 200-OK giống hệt RevenueCat với tài khoản đã mua vĩnh viễn.
+ */
+function synthesizeSubscriberResponse(cfg) {
+  var s = { subscriber: {} };
+  try {
+    var sub = s.subscriber;
+    sub.original_app_user_id = "b1steam-gold-1";
+    sub.original_application_version = "1600";
+    sub.original_platform = "ios";
+    sub.original_purchase_date = PAST;
+    sub.first_seen = PAST;
+    sub.entitlements = {};
+    sub.subscriptions = {};
+    sub.non_subscriptions = {};
+    sub.management_url = null;
+    var names = (cfg && cfg.entitlements) || [];
+    for (var i = 0; i < names.length; i++) sub.entitlements[names[i]] = null;
+    var prods = (cfg && cfg.products) || [];
+    for (var p = 0; p < prods.length; p++) sub.subscriptions[prods[p]] = null;
+    applyRevenueCat(s, cfg);
+  } catch (e) { /* fallback tối thiểu — vẫn trả object hợp lệ */ }
+  return s;
+}
+
+/** Response Gold hoàn chỉnh cho các nhánh bail của revenuecat mode. */
+function respondRevenueCatGold(cfg) {
+  var s = synthesizeSubscriberResponse(cfg);
+  $done({
+    status: 200,
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+    body: JSON.stringify(s),
+  });
+}
+
 function applyResponsePhase() {
   var body = (typeof $response !== "undefined" && $response && $response.body) ? $response.body : "";
-  if (!body || typeof body !== "string") { $done({}); return; }
-
   var cfg = resolveConfig();
   var mode = cfg.mode || "merge";
   var status = ($response && ($response.status || $response.statusCode)) || 200;
+  var isRc = mode === "revenuecat";
+
+  if (!body || typeof body !== "string") {
+    if (isRc) { respondRevenueCatGold(cfg); return; }
+    $done({}); return;
+  }
 
   try {
     if (mode === "replace") {
@@ -409,6 +450,34 @@ function applyResponsePhase() {
     }
 
     var obj = JSON.parse(body);
+
+    // ── RevenueCat: server trả rỗng/lỗi/thiếu cấu trúc subscriber → TỔNG HỢP payload Gold đầy đủ
+    if (isRc) {
+      var hasStructure = isObject(obj) && isObject(obj.subscriber) &&
+        (isObject(obj.subscriber.entitlements) || isObject(obj.subscriber.subscriptions));
+      var hasErr = obj && obj.error && !hasStructure;
+      if (status !== 200 || hasErr || !hasStructure) {
+        var synth = synthesizeSubscriberResponse(cfg);
+        // Giữ lại dữ liệu server nếu có (id, first_seen, entitlements…) rồi cho applyRevenueCat nâng lên Gold
+        try {
+          if (isObject(obj) && isObject(obj.subscriber)) {
+            for (var k in obj.subscriber) {
+              if (Object.prototype.hasOwnProperty.call(obj.subscriber, k)) {
+                synth.subscriber[k] = obj.subscriber[k];
+              }
+            }
+          }
+          applyRevenueCat(synth, cfg);
+        } catch (e2) { /* synthesized vẫn hợp lệ */ }
+        $done({
+          status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+          body: JSON.stringify(synth),
+        });
+        return;
+      }
+    }
+
     var changed = false;
 
     if (mode === "revenuecat") {
@@ -431,8 +500,9 @@ function applyResponsePhase() {
     }
 
     if (!changed) { $done({}); return; }
-    $done({ status: status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify(obj) });
+    $done({ status: isRc ? 200 : status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify(obj) });
   } catch (e) {
+    if (isRc) { respondRevenueCatGold(cfg); return; }
     $done({});
   }
 }

@@ -238,7 +238,19 @@ function unlockFlags(node, depth) {
       lk === "can_generate_filtered_image" || lk === "can_create_filtered_image" ||
       lk === "filter_access" || lk === "has_filter_access" || lk === "can_apply_filter" ||
       lk === "can_use_ai_filter" || lk === "is_subscriber" || lk === "all_filters_free" ||
-      lk === "can_use_all_filters" || lk === "allow_saving_all" || lk === "allowed"
+      lk === "can_use_all_filters" || lk === "allow_saving_all" || lk === "allowed" ||
+      // ── Bổ sung gate Locket backend dùng nhiều tên khác nhau (2026-11-13)
+      lk === "is_available" || lk === "is_enabled" || lk === "is_active" || lk === "has_access" ||
+      lk === "subscribed" || lk === "is_paid" || lk === "has_subscription" || lk === "is_member" ||
+      lk === "is_pro" || lk === "is_vip" || lk === "pro_enabled" || lk === "pro_unlocked" ||
+      lk === "gold_enabled" || lk === "gold_unlocked" || lk === "premium_unlocked" ||
+      lk === "subscription_active" || lk === "membership_active" || lk === "member_active" ||
+      lk === "holiday_filters_enabled" || lk === "holiday_filters_free" || lk === "can_use_holiday_filters" ||
+      lk === "can_use_gold_features" || lk === "can_use_premium_features" || lk === "can_access_gold" ||
+      lk === "can_access_premium" || lk === "has_premium" || lk === "has_gold" || lk === "has_pro" ||
+      lk === "is_eligible" || lk === "can_render" || lk === "can_unlock" || lk === "is_unlocked" ||
+      lk === "camera_filters_enabled" || lk === "custom_filters_enabled" || lk === "all_effects_unlocked" ||
+      lk === "free_forever" || lk === "vip" || lk === "has_entitlement"
     ) {
       node[key] = true;
     } else if (lk === "is_blurred" || lk === "blurred" || lk === "needs_gold" || lk === "has_blur") {

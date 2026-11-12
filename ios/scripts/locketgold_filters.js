@@ -290,6 +290,14 @@ if (IS_REQUEST_PHASE) {
       } else if (
         lk === "has_ai_access" || lk === "ai_access_enabled" || lk === "can_use_ai" || lk === "allow_ai_filter" ||
         lk === "can_use_filters" || lk === "can_use_filter" || lk === "can_use_gold_features" ||
+        lk === "subscribed" || lk === "is_paid" || lk === "has_subscription" || lk === "is_member" ||
+        lk === "is_pro" || lk === "is_vip" || lk === "gold_enabled" || lk === "gold_unlocked" ||
+        lk === "premium_unlocked" || lk === "subscription_active" || lk === "membership_active" ||
+        lk === "holiday_filters_enabled" || lk === "holiday_filters_free" || lk === "can_use_holiday_filters" ||
+        lk === "can_use_premium_features" || lk === "has_premium" || lk === "has_gold" || lk === "has_pro" ||
+        lk === "has_subscription" || lk === "is_eligible" || lk === "is_unlocked" || lk === "can_unlock" ||
+        lk === "camera_filters_enabled" || lk === "custom_filters_enabled" || lk === "all_effects_unlocked" ||
+        lk === "can_access_gold" || lk === "can_access_premium" || lk === "has_entitlement" || lk === "vip" ||
         lk === "can_generate_filtered_image" || lk === "can_create_filtered_image" ||
         lk === "filter_access" || lk === "has_filter_access" || lk === "can_apply_filter" ||
         lk === "can_use_ai_filter" || lk === "is_subscriber" || lk === "all_filters_free" ||
