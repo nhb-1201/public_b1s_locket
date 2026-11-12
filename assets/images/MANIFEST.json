@@ -1,161 +1,129 @@
 {
-  "generated_at": "2026-11-12T08:37:56.316Z",
+  "generated_at": "2026-11-12T08:42:38.919Z",
   "files": [
     {
-      "path": "assets/images/hexden/welcome-banner.png",
-      "bytes": 7631917
-    },
-    {
-      "path": "assets/images/kawaii/frame-04.png",
+      "path": "images/kawaii/frame-04.png",
       "bytes": 2217481
     },
     {
-      "path": "assets/images/kawaii/frame-05.png",
+      "path": "images/kawaii/frame-05.png",
       "bytes": 2159704
     },
     {
-      "path": "assets/images/kawaii/frame-02.png",
+      "path": "images/kawaii/frame-02.png",
       "bytes": 2026668
     },
     {
-      "path": "assets/images/kawaii/frame-05-trans.png",
+      "path": "images/kawaii/frame-05-trans.png",
       "bytes": 1983749
     },
     {
-      "path": "assets/images/kawaii/frame-07.png",
+      "path": "images/kawaii/frame-07.png",
       "bytes": 1968948
     },
     {
-      "path": "assets/images/kawaii/frame-04-trans.png",
+      "path": "images/kawaii/frame-04-trans.png",
       "bytes": 1956482
     },
     {
-      "path": "assets/images/kawaii/frame-06.png",
+      "path": "welcome_banner.png",
+      "bytes": 1936151
+    },
+    {
+      "path": "images/kawaii/frame-06.png",
       "bytes": 1926948
     },
     {
-      "path": "assets/images/kawaii/frame-02-trans.png",
+      "path": "images/kawaii/frame-02-trans.png",
       "bytes": 1874464
     },
     {
-      "path": "assets/images/kawaii/frame-07-trans.png",
+      "path": "images/kawaii/frame-07-trans.png",
       "bytes": 1785729
     },
     {
-      "path": "assets/images/kawaii/frame-06-trans.png",
+      "path": "images/kawaii/frame-06-trans.png",
       "bytes": 1766787
     },
     {
-      "path": "assets/images/hexden/welcome-banner.jpg",
-      "bytes": 1242341
-    },
-    {
-      "path": "assets/images/kawaii/frame-01-trans.png",
+      "path": "images/kawaii/frame-01-trans.png",
       "bytes": 1222510
     },
     {
-      "path": "assets/images/kawaii/frame-01.png",
+      "path": "images/kawaii/frame-01.png",
       "bytes": 1222215
     },
     {
-      "path": "assets/images/kawaii/frame-03.png",
+      "path": "images/kawaii/frame-03.png",
       "bytes": 883203
     },
     {
-      "path": "assets/images/kawaii/frame-03-trans.png",
+      "path": "images/kawaii/frame-03-trans.png",
       "bytes": 869275
     },
     {
-      "path": "assets/images/hexden/banner-1024x369.png",
-      "bytes": 681563
+      "path": "welcome_banner_wide.jpg",
+      "bytes": 253573
     },
     {
-      "path": "assets/images/teongweii/thumb-video-1.png",
-      "bytes": 340176
+      "path": "icon-doh-locketgold-1024.png",
+      "bytes": 252815
     },
     {
-      "path": "assets/images/teongweii/thumb-video-2.png",
-      "bytes": 312892
+      "path": "welcome_banner.jpg",
+      "bytes": 210544
     },
     {
-      "path": "assets/images/misc/zalo-intro.png",
-      "bytes": 280702
-    },
-    {
-      "path": "assets/images/hexden/step-1-download-app.jpg",
-      "bytes": 250601
-    },
-    {
-      "path": "assets/images/hexden/step-3-enable-https.jpg",
-      "bytes": 212963
-    },
-    {
-      "path": "assets/images/hexden/step-2-add-config.jpg",
-      "bytes": 207730
-    },
-    {
-      "path": "assets/images/hexden/step-5-install-profile.jpg",
-      "bytes": 206210
-    },
-    {
-      "path": "assets/images/hexden/step-6-trust-cert.jpg",
-      "bytes": 196331
-    },
-    {
-      "path": "assets/images/hexden/step-7-connect-vpn.jpg",
-      "bytes": 172879
-    },
-    {
-      "path": "assets/images/hexden/step-4-generate-ca.jpg",
-      "bytes": 166051
-    },
-    {
-      "path": "assets/images/forgotten_island_bg.png",
+      "path": "images/forgotten_island_bg.png",
       "bytes": 130171
     },
     {
-      "path": "assets/images/teongweii/filter-photobooth-473x1024.png",
-      "bytes": 100169
+      "path": "icon-locketgold-512.png",
+      "bytes": 66854
     },
     {
-      "path": "assets/images/teongweii/filter-tui-mu-473x1024.png",
-      "bytes": 74204
-    },
-    {
-      "path": "assets/images/kawaii/frame-05-thumb.webp",
+      "path": "images/kawaii/frame-05-thumb.webp",
       "bytes": 41842
     },
     {
-      "path": "assets/images/kawaii/frame-01-thumb.webp",
+      "path": "images/kawaii/frame-01-thumb.webp",
       "bytes": 38062
     },
     {
-      "path": "assets/images/kawaii/frame-02-thumb.webp",
+      "path": "images/kawaii/frame-02-thumb.webp",
       "bytes": 38010
     },
     {
-      "path": "assets/images/kawaii/frame-07-thumb.webp",
+      "path": "images/kawaii/frame-07-thumb.webp",
       "bytes": 36934
     },
     {
-      "path": "assets/images/kawaii/frame-06-thumb.webp",
+      "path": "images/kawaii/frame-06-thumb.webp",
       "bytes": 36576
     },
     {
-      "path": "assets/images/kawaii/frame-04-thumb.webp",
+      "path": "images/kawaii/frame-04-thumb.webp",
       "bytes": 34004
     },
     {
-      "path": "assets/images/kawaii/frame-03-thumb.webp",
+      "path": "images/kawaii/frame-03-thumb.webp",
       "bytes": 28768
     },
     {
-      "path": "assets/images/halloween_indicator.png",
+      "path": "banner.svg",
+      "bytes": 3571
+    },
+    {
+      "path": "icon-doh-locketgold.svg",
+      "bytes": 3281
+    },
+    {
+      "path": "images/halloween_indicator.png",
       "bytes": 2523
     },
     {
-      "path": "assets/images/MANIFEST.json",
-      "bytes": 1317
+      "path": "icon-locketgold.svg",
+      "bytes": 1694
     }
   ]
 }
