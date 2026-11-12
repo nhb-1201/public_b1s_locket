@@ -190,6 +190,14 @@ function applyRevenueCat(obj, cfg) {
     if (!cur.original_purchase_date) cur.original_purchase_date = PAST;
     cur.is_active = true;
     cur.active = true;
+    cur.ownership_type = "PURCHASED";
+    cur.store = "app_store";
+    cur.period_type = "normal";
+    cur.is_sandbox = false;
+    cur.unsubscribe_detected_at = null;
+    cur.billing_issues_detected_at = null;
+    cur.grace_period_expires_date = null;
+    if (!cur.product_identifier) cur.product_identifier = name;
     ents[name] = cur;
   }
   function activateProduct(pid) {
@@ -200,10 +208,22 @@ function applyRevenueCat(obj, cfg) {
     s.expires_date = far;
     if (!s.purchase_date) s.purchase_date = PAST;
     if (!s.original_purchase_date) s.original_purchase_date = PAST;
+    s.period_type = "normal";
+    s.display_name = pid;
+    s.auto_resume_date = null;
+    s.refunded_at = null;
     s.billing_issues_detected_at = null;
     s.unsubscribe_detected_at = null;
+    s.grace_period_expires_date = null;
     subs[pid] = s;
-    non[pid] = { purchase_date: s.purchase_date, original_purchase_date: s.original_purchase_date, expires_date: far };
+    non[pid] = {
+      purchase_date: s.purchase_date,
+      original_purchase_date: s.original_purchase_date,
+      expires_date: far,
+      ownership_type: "PURCHASED",
+      store: "app_store",
+      is_sandbox: false,
+    };
   }
 
   // 1) Bật mọi entitlement đang có trong response
