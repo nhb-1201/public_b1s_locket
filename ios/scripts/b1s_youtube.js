@@ -64,10 +64,14 @@ function markVerified() {
   } catch (e) {}
 }
 function gate(allow, deny) {
-  if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) return deny();
+  if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) { noteFailed(); return deny(); }
   if (Date.now() - lastVerifiedAt() < 604800000) return allow();
+  var _failAt = 0;
+  try { if (typeof $prefs !== "undefined" && $prefs) _failAt = Number($prefs.valueForKey("b1s_lg_fail_at") || 0); } catch (e) {}
+  if (_failAt > 0 && (Date.now() - _failAt) < 300000) { try { console.log("[b1syoutube] verify cooldown 5p (sau khi FAIL)"); } catch (e) {} return deny(); }
+  function noteFailed() { try { if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_lg_fail_at"); } catch (e) {} }
   var id = deviceId();
-  if (!id) return deny();
+  if (!id) { noteFailed(); return deny(); }
   function verifyWith(base, onDone) {
     if (typeof $httpClient === "undefined" || !$httpClient) return onDone(false);
     $httpClient.get(
@@ -98,7 +102,7 @@ function gate(allow, deny) {
     verifyWith("https://locket.b1s.id.vn/api/v2/locketgold/verify", function (okFallback) {
       if (okFallback) { markVerified(); return allow(); }
       if (offlineGraceActive()) { try { console.log("[b1syoutube] OFFLINE-GRACE"); } catch (e) {} return allow(); }
-      return deny();
+      noteFailed(); return deny();
     });
   });
 }

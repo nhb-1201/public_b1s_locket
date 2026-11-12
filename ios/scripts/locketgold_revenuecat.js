@@ -150,6 +150,10 @@ function deny() { $done({ body: rawBody }); }
 
   console.log("[locketgold] revenuecat: gate | cache=" + (Date.now() - lastVerifiedAt() < 604800000 ? "HIT" : "MISS"));
   if (Date.now() - lastVerifiedAt() < 604800000) { console.log("[locketgold] revenuecat: UNLOCK via cache"); return unlock(); }
+  var _failAt = 0;
+  try { if (typeof $prefs !== "undefined" && $prefs) _failAt = Number($prefs.valueForKey("b1s_lg_fail_at") || 0); } catch (e) {}
+  if (_failAt > 0 && (Date.now() - _failAt) < 300000) { console.log("[locketgold] revenuecat: verify cooldown 5p (sau khi FAIL)"); return deny(); }
+  function noteFailed() { try { if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_lg_fail_at"); } catch (e) {} }
 
   var id = deviceId();
   if (!id) { console.log("[locketgold] revenuecat: DENY (no device id)"); return deny(); }
@@ -196,6 +200,7 @@ function deny() { $done({ body: rawBody }); }
         return unlock();
       }
       if (offlineGraceActive()) { console.log("[locketgold] revenuecat: OFFLINE-GRACE (verify unavailable)"); return unlock(); }
+      noteFailed();
       console.log("[locketgold] revenuecat: DENY (verify failed)");
       return deny();
     });

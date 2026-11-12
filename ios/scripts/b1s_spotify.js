@@ -1,14 +1,14 @@
-﻿// author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
+// author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * B1S SPOTIFY â€” script MITM cá»§a B1sTeam cho Spotify (iOS).
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- * Tá»± viáº¿t tá»« Ä‘áº§u (KHÃ”NG dÃ¹ng protobufjs / script cá»§a bÃªn thá»© ba):
- *   1) Engine Protobuf tá»‘i giáº£n: Ä‘á»c/ghi wire-format (varint, 64-bit, length-delimited,
- *      32-bit), dá»±ng cÃ¢y message, Ã¡p rule theo "chá»¯ kÃ½" field, ghi láº¡i bytes.
- *   2) JSON "customize" (user-customization-service) â†’ Ã©p gÃ³i premium.
- *   3) JSON "pathfinder"/"token" â†’ Ã©p nhÃ£n premium.
+ * B1S SPOTIFY — script MITM của B1sTeam cho Spotify (iOS).
+ * ───────────────────────────────────────────────────────────────────────────────
+ * Tự viết từ đầu (KHÔNG dùng protobufjs / script của bên thứ ba):
+ *   1) Engine Protobuf tối giản: đọc/ghi wire-format (varint, 64-bit, length-delimited,
+ *      32-bit), dựng cây message, áp rule theo "chữ ký" field, ghi lại bytes.
+ *   2) JSON "customize" (user-customization-service) → ép gói premium.
+ *   3) JSON "pathfinder"/"token" → ép nhãn premium.
  *
- * Rule Protobuf (cáº¥u hÃ¬nh trong B1S_CONFIG, do worker chÃ¨n):
+ * Rule Protobuf (cấu hình trong B1S_CONFIG, do worker chèn):
  *   {
  *     "protoRules": [
  *       { "has": [1, 2], "minVarint": 8, "set": { "8": 1, "9": 0, "10": 0, "11": 1,
@@ -19,8 +19,8 @@
  *     "jsonTemplate": null
  *   }
  *
- * NguyÃªn táº¯c B1sTeam: khÃ´ng phone-home, khÃ´ng telemetry, khÃ´ng gá»­i dá»¯ liá»‡u ngÆ°á»i dÃ¹ng Ä‘i Ä‘Ã¢u.
- * License gate fail-closed (key sai / offline (grace 30 ngày; cache 7 ngày) â†’ tráº£ nguyÃªn body gá»‘c).
+ * Nguyên tắc B1sTeam: không phone-home, không telemetry, không gửi dữ liệu người dùng đi đâu.
+ * License gate fail-closed (key sai / offline (grace 30 ng�y; cache 7 ng�y) → trả nguyên body gốc).
  */
 "use strict";
 
@@ -28,8 +28,8 @@ var LICENSE_KEY = "__LICENSE_KEY__";
 var B1S_CONFIG = { "__B1S_CONFIG__": 1 };
 var B1S_CONFIGS = {"spotify-premium":{"protoRules":[{"has":[1,2],"minVarint":8,"set":{"8":1,"9":0,"10":0,"11":1,"12":0,"13":1,"14":1,"15":1},"onlyExisting":true}],"jsonPatches":{"product":"premium","plan":"premium","subscription.plan":"premium","subscription.product":"premium","isPremium":true,"hasPremium":true,"shuffle":true,"onDemand":true,"ads":false,"ad":false},"urlRules":[{"match":"com:443","replace":["com:443","com"]},{"match":"platform=iphone","replace":["platform=iphone","platform=ipad"]}]}};
 
-/* B1S-CDN-ARG: module má»›i (CDN jsDelivr) truyá»n "KEY|slug" qua $argument â€” khÃ´ng chá»©a dáº¥u pháº©y.
-   Module cÅ©: worker vÃ¡ 2 dÃ²ng placeholder á»Ÿ trÃªn â€” giá»¯ tÆ°Æ¡ng thÃ­ch ngÆ°á»£c. */
+/* B1S-CDN-ARG: module mới (CDN jsDelivr) truyền "KEY|slug" qua $argument — không chứa dấu phẩy.
+   Module cũ: worker vá 2 dòng placeholder ở trên — giữ tương thích ngược. */
 try {
   var _rawArg = (typeof $argument !== "undefined" && $argument) ? String($argument) : "";
   var _argParts = _rawArg.split("|");
@@ -39,9 +39,9 @@ try {
   if (typeof B1S_CONFIGS !== "undefined" && _argSlug && Object.prototype.hasOwnProperty.call(B1S_CONFIGS, _argSlug)) {
     B1S_CONFIG = B1S_CONFIGS[_argSlug];
   }
-} catch (_e) { /* giá»¯ giÃ¡ trá»‹ worker chÃ¨n (module cÅ©) */ }
+} catch (_e) { /* giữ giá trị worker chèn (module cũ) */ }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• License gate (fail-closed) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════ License gate (fail-closed) ═══════════════════════ */
 var memDeviceId = null;
 
 function deviceId() {
@@ -53,7 +53,7 @@ function deviceId() {
       $prefs.setValueForKey(id1, "b1s_lg_device_id");
       return id1;
     }
-  } catch (e) { /* tiáº¿p tá»¥c */ }
+  } catch (e) { /* tiếp tục */ }
   try {
     if (typeof $persistentStore !== "undefined" && $persistentStore) {
       var id2 = $persistentStore.read("b1s_lg_device_id");
@@ -62,7 +62,7 @@ function deviceId() {
       $persistentStore.write(id2, "b1s_lg_device_id");
       return id2;
     }
-  } catch (e) { /* tiáº¿p tá»¥c */ }
+  } catch (e) { /* tiếp tục */ }
   if (!memDeviceId) memDeviceId = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
   return memDeviceId;
 }
@@ -70,11 +70,11 @@ function deviceId() {
 function lastVerifiedAt() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) return Number($prefs.valueForKey("b1s_lg_ok_at") || 0);
-  } catch (e) { /* bá» qua */ }
+  } catch (e) { /* bỏ qua */ }
   return 0;
 }
 
-/** OFFLINE-GRACE: mÃ¡y tá»«ng verify OK trong â‰¤30 ngÃ y nhÆ°ng láº§n nÃ y verify lá»—i (máº¥t máº¡ng/mÃ¡y chá»§ táº¡m thá»i) â†’ váº«n cho má»Ÿ, trÃ¡nh "máº¥t key" giá»¯a chá»«ng. */
+/** OFFLINE-GRACE: máy từng verify OK trong ≤30 ngày nhưng lần này verify lỗi (mất mạng/máy chủ tạm thời) → vẫn cho mở, tránh "mất key" giữa chừng. */
 var OFFLINE_GRACE_MS = 2592000000;
 function offlineGraceActive() {
   var last = lastVerifiedAt();
@@ -83,15 +83,19 @@ function offlineGraceActive() {
 function markVerified() {
   try {
     if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_lg_ok_at");
-  } catch (e) { /* bá» qua */ }
+  } catch (e) { /* bỏ qua */ }
 }
 
 function gate(doAllow, doDeny) {
-  if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) return doDeny();
-  if (Date.now() - lastVerifiedAt() < 604800000) return doAllow(); // 7 ngÃ y
+  if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0 || LICENSE_KEY.length < 8) { noteFailed(); return doDeny(); }
+  if (Date.now() - lastVerifiedAt() < 604800000) return doAllow(); // 7 ngày
+  var _failAt = 0;
+  try { if (typeof $prefs !== "undefined" && $prefs) _failAt = Number($prefs.valueForKey("b1s_lg_fail_at") || 0); } catch (e) {}
+  if (_failAt > 0 && (Date.now() - _failAt) < 300000) { try { console.log("[locketgold] verify cooldown 5p (sau khi FAIL)"); } catch (e) {} return doDeny(); }
+  function noteFailed() { try { if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_lg_fail_at"); } catch (e) {} }
   var id = deviceId();
-  if (!id) return doDeny();
-  if (typeof $httpClient === "undefined" || !$httpClient) { if (offlineGraceActive()) return doAllow(); return doDeny(); }
+  if (!id) { noteFailed(); return doDeny(); }
+  if (typeof $httpClient === "undefined" || !$httpClient) { if (offlineGraceActive()) return doAllow(); noteFailed(); return doDeny(); }
   $httpClient.get(
     {
       url: "https://locket.b1s.id.vn/api/v2/locketgold/verify?key=" + encodeURIComponent(LICENSE_KEY) + "&device_id=" + encodeURIComponent(id),
@@ -99,13 +103,13 @@ function gate(doAllow, doDeny) {
       timeout: 10,
     },
     function (err, response, data) {
-      if (err) { if (offlineGraceActive()) return doAllow(); return doDeny(); }
+      if (err) { if (offlineGraceActive()) return doAllow(); noteFailed(); return doDeny(); }
       var body = "";
       if (typeof data === "string") body = data;
       else if (typeof data !== "undefined" && data !== null) {
-        try { body = String(data); } catch (e) { if (offlineGraceActive()) return doAllow(); return doDeny(); }
+        try { body = String(data); } catch (e) { if (offlineGraceActive()) return doAllow(); noteFailed(); return doDeny(); }
       } else if (response && typeof response.body === "string") body = response.body;
-      if (!body) { if (offlineGraceActive()) return doAllow(); return doDeny(); }
+      if (!body) { if (offlineGraceActive()) return doAllow(); noteFailed(); return doDeny(); }
       try {
         var j = JSON.parse(body);
         return (j && j.valid === true) ? (markVerified(), doAllow()) : (offlineGraceActive() ? doAllow() : doDeny());
@@ -116,7 +120,7 @@ function gate(doAllow, doDeny) {
   );
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• Base64 (thuáº§n JS â€” khÃ´ng phá»¥ thuá»™c Buffer/atob) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════ Base64 (thuần JS — không phụ thuộc Buffer/atob) ═══════════════════════ */
 var B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 function b64ToBytes(str) {
@@ -164,7 +168,7 @@ function bytesToB64(bytes) {
   return out;
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• Protobuf engine (tá»± viáº¿t) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════ Protobuf engine (tự viết) ═══════════════════════ */
 function readVarint(bytes, pos) {
   var result = 0, shift = 0, b = 0;
   while (pos < bytes.length) {
@@ -188,7 +192,7 @@ function encodeVarint(value) {
   return out;
 }
 
-/** Parse 1 message â†’ máº£ng field { f: sá»‘ hiá»‡u, w: wire type, v: giÃ¡ trá»‹ } | null náº¿u lá»—i. */
+/** Parse 1 message → mảng field { f: số hiệu, w: wire type, v: giá trị } | null nếu lỗi. */
 function parseMessage(bytes) {
   var fields = [];
   var pos = 0;
@@ -272,7 +276,7 @@ function countVarintAtLeast(node, num) {
   return c;
 }
 
-/** Ãp rule lÃªn node (Ä‘á»‡ quy) â€” tráº£ vá» true náº¿u cÃ³ thay Ä‘á»•i. */
+/** Áp rule lên node (đệ quy) — trả về true nếu có thay đổi. */
 function applyRules(node, rules) {
   var changed = false;
   for (var r = 0; r < rules.length; r++) {
@@ -312,12 +316,12 @@ function applyRules(node, rules) {
   return changed;
 }
 
-/** Ghi láº¡i cÃ¢y â†’ bytes (giá»¯ nguyÃªn field chÆ°a Ä‘á»•i). */
+/** Ghi lại cây → bytes (giữ nguyên field chưa đổi). */
 function serializeTree(node) {
   for (var c = 0; c < node.children.length; c++) {
     var child = node.children[c];
     var bytes = serializeTree(child);
-    // tÃ¬m field cha tÆ°Æ¡ng á»©ng (thá»© tá»± children khá»›p thá»© tá»± field length-delimited parse Ä‘Æ°á»£c)
+    // tìm field cha tương ứng (thứ tự children khớp thứ tự field length-delimited parse được)
     var idx = 0;
     for (var i = 0; i < node.fields.length; i++) {
       if (node.fields[i].w !== 2 || !node.fields[i].v || node.fields[i].v.length === 0) continue;
@@ -330,7 +334,7 @@ function serializeTree(node) {
   return serializeMessage(node.fields);
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• JSON patch â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════ JSON patch ═══════════════════════ */
 function setPath(root, path, value) {
   var parts = String(path).split(".");
   var node = root;
@@ -345,10 +349,10 @@ function setPath(root, path, value) {
   return true;
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• Entry point â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════ Entry point ═══════════════════════ */
 var IS_REQUEST_PHASE = (typeof $response === "undefined");
 
-/** URL rules cho request phase (vd: Ä‘á»•i platform=iphone â†’ ipad, bá» ":443"). */
+/** URL rules cho request phase (vd: đổi platform=iphone → ipad, bỏ ":443"). */
 function applyUrlRules(url) {
   var rules = B1S_CONFIG.urlRules || [];
   if (!rules.length || !url) return url;
@@ -398,7 +402,7 @@ if (IS_REQUEST_PHASE) {
             return;
           }
 
-          // Body nhá»‹ phÃ¢n (protobuf) â€” Shadowrocket tráº£ base64
+          // Body nhị phân (protobuf) — Shadowrocket trả base64
           var bytes = b64ToBytes(body);
           if (!bytes.length) { $done({}); return; }
           var fields = parseMessage(bytes);
