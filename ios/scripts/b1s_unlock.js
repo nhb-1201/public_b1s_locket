@@ -429,6 +429,37 @@ function respondRevenueCatGold(cfg) {
   });
 }
 
+/**
+ * TỰ XIN CẤP GOLD THẬT (RevenueCat restore) — Locket kiểm tra entitlement ở SERVER
+ * (Firebase custom claim) nên MITM không mở được AI filter / camera roll nếu entitlement
+ * thật chưa tồn tại. Gọi endpoint của B1sTeam (worker) để restore → RC cấp entitlement Gold thật.
+ * Chỉ gọi 1 lần / 6 giờ / app_user_id (cache trong $prefs).
+ */
+function requestRealGold() {
+  try {
+    if (typeof $httpClient === "undefined" || !$httpClient) return;
+    if (!LICENSE_KEY || LICENSE_KEY.indexOf("__LICENSE_KEY__") === 0) return;
+    var url = ($request && $request.url) ? String($request.url) : "";
+    var m = url.match(/\/v1\/subscribers\/([A-Za-z0-9]{20,40})/);
+    if (!m) return;
+    var uid = m[1];
+    var cacheKey = "b1s_rcg_" + uid;
+    var last = 0;
+    try { if (typeof $prefs !== "undefined" && $prefs) last = Number($prefs.valueForKey(cacheKey) || 0); } catch (e) {}
+    if (last && (Date.now() - last) < 21600000) return;
+    try { if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), cacheKey); } catch (e) {}
+    var payload = JSON.stringify({ license_key: LICENSE_KEY, app_user_id: uid });
+    $httpClient.post({
+      url: "https://locket.b1s.id.vn/api/v2/locketgold/rc/grant",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: payload,
+      timeout: 20,
+    }, function (err, response, data) {
+      try { console.log("[b1sunlock] grant Gold thật →", data ? String(data).slice(0, 200) : (err ? String(err) : "?")); } catch (e) {}
+    });
+  } catch (e) { /* bỏ qua — không được làm hỏng flow */ }
+}
+
 function applyResponsePhase() {
   var body = (typeof $response !== "undefined" && $response && $response.body) ? $response.body : "";
   var cfg = resolveConfig();
@@ -482,6 +513,8 @@ function applyResponsePhase() {
 
     if (mode === "revenuecat") {
       if (applyRevenueCat(obj, cfg)) changed = true;
+      // Ngoài MITM: xin B1sTeam cấp entitlement Gold THẬT cho app_user_id này (server-side).
+      try { requestRealGold(); } catch (e) { /* ignore */ }
     }
 
     var patches = cfg.patches || {};
