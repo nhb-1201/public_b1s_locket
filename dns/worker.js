@@ -201,7 +201,7 @@ export default {
           policy: { blocked: BLOCKED_DOMAINS, groups: BLOCK_GROUPS, upstreams: UPSTREAMS, staleIfError: true, singleFile: true },
           ts: new Date().toISOString(),
         }),
-        { status: 200, headers: corsHeaders({ "Content-Type": "application/json; charset=utf-8", ...securityHeaders() }) },
+        { status: 200, headers: corsHeaders({ "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60", ...securityHeaders() }) },
       );
     }
 
@@ -237,25 +237,23 @@ export default {
         return new Response("Bad Request", { status: 400, headers: corsHeaders({ ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" }) });
       }
 
-      const qname = readQName(body);
-      if (BLOCK_LOCKET) {
-        if (qname && isBlocked(qname)) {
-          return refusedDnsMessage(body);
-        }
-        if (!qname) {
-          // Fail-closed: không đọc được tên → KHÔNG cho lọt (tránh lách blocklist bằng compression pointer).
-          const peek = peekQuestion(body);
-          if (peek && isBlocked(peek)) {
-            return refusedDnsMessage(body);
-          }
-        }
-      }
-
-      // ── POST cache (synthetic key từ hash body) — chống sập cả khi Google/CF/Quad9 đồng loạt lỗi
+      // ── POST cache (synthetic key từ hash body) — tính trước để cả nhánh blocked cũng cache được
       const cache = caches.default;
       // Hash BỎ Transaction ID (byte 0-1) → cache key ổn định cho cùng 1 câu hỏi.
       const postKey = new Request(`https://doh.b1s.id.vn/__cache_post/${await hashBody(new Uint8Array(body).slice(2))}`, { method: "GET" });
       const staleKey = new Request(`https://doh.b1s.id.vn/__cache_post_stale/${await hashBody(new Uint8Array(body).slice(2))}`, { method: "GET" });
+
+      const refuseAndCache = async () => {
+        const refused = refusedDnsMessage(body);
+        try {
+          const refusedCopy = refused.clone();
+          refusedCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
+          await cache.put(postKey, refusedCopy);
+        } catch { /* bỏ qua */ }
+        return refused;
+      };
+
+      // ── POST cache HIT — kiểm tra TRƯỚC cả blocklist/upstream: cache đủ cả REFUSED lẫn câu trả lời thường
       const cached = await cache.match(postKey);
       if (cached) {
         // Vá lại Transaction ID của query hiện tại vào gói trả về (client đòi TXID khớp).
@@ -269,6 +267,20 @@ export default {
         });
       }
 
+      const qname = readQName(body);
+      if (BLOCK_LOCKET) {
+        if (qname && isBlocked(qname)) {
+          return await refuseAndCache();
+        }
+        if (!qname) {
+          // Fail-closed: không đọc được tên → KHÔNG cho lọt (tránh lách blocklist bằng compression pointer).
+          const peek = peekQuestion(body);
+          if (peek && isBlocked(peek)) {
+            return await refuseAndCache();
+          }
+        }
+      }
+
       const upstream = await raceQueryMessage(body);
       if (upstream && upstream.ok) {
         const buf = await upstream.arrayBuffer();
@@ -279,6 +291,10 @@ export default {
         const cachedCopy = resp.clone();
         cachedCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
         try { await cache.put(staleKey, cachedCopy); } catch { /* bỏ qua */ }
+        // Bản FRESH cho lần truy vấn trùng trong 5 phút → HIT, không gọi upstream.
+        const freshCopy = resp.clone();
+        freshCopy.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+        try { await cache.put(postKey, freshCopy); } catch { /* bỏ qua */ }
         return resp;
       }
 
@@ -307,18 +323,23 @@ export default {
     const staleKey = new Request(`${url.toString()}__stale`, { method: "GET" });
     const cached = request.method === "GET" ? await cache.match(cacheKey) : null;
     if (cached) {
-      // Trả client bản cached với TTL ngắn (bản lưu trong cache là bản STALE 24h cho stale-if-error).
       const fresh = new Response(cached.body, cached);
       fresh.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+      fresh.headers.set("X-Cache", "HIT");
       return fresh;
     }
 
     const respondGet = async (response) => {
       if (request.method === "GET" && response.status === 200) {
-        // Lưu bản STALE (24h) riêng key → dùng khi upstream chết (chống sập toàn hệ thống).
+        // Bản STALE (24h) — dùng khi upstream chết (chống sập toàn hệ thống).
         const cachedCopy = response.clone();
         cachedCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
         try { await cache.put(staleKey, cachedCopy); } catch { /* bỏ qua */ }
+        // Bản FRESH (5 phút) — thiết bị sau truy vấn trùng query sẽ HIT, không đụng upstream (chống sập khi hàng nghìn thiết bị).
+        const freshCopy = response.clone();
+        freshCopy.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+        freshCopy.headers.set("X-Cache", "MISS");
+        try { await cache.put(cacheKey, freshCopy); } catch { /* bỏ qua */ }
         const out = new Response(response.body, response);
         out.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
         out.headers.set("X-Cache", "MISS");
