@@ -462,7 +462,7 @@ function injectEntries(body) {
 
 function unlock() {
   var out = injectEntries(rawBody);
-  $done({ body: (out === null) ? rawBody : out });
+  $done({ headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: (out === null) ? rawBody : out });
 }
 function deny() { $done({ body: rawBody }); }
 

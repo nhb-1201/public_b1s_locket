@@ -397,7 +397,7 @@ function applyResponsePhase() {
     if (mode === "replace") {
       var tpl = cfg.template;
       if (!isObject(tpl)) { $done({}); return; }
-      $done({ status: status, body: JSON.stringify(tpl) });
+      $done({ status: status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify(tpl) });
       return;
     }
 
@@ -424,7 +424,7 @@ function applyResponsePhase() {
     }
 
     if (!changed) { $done({}); return; }
-    $done({ status: status, body: JSON.stringify(obj) });
+    $done({ status: status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify(obj) });
   } catch (e) {
     $done({});
   }

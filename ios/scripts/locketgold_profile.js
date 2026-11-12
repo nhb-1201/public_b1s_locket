@@ -358,14 +358,14 @@ if (mode === "request") {
             };
             injectBadge(obj, 0);
             body = JSON.stringify(obj);
-            $done({ status: 200, body: body });
+            $done({ status: 200, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: body });
             return;
           }
           unlockFlags(obj, 0);
           body = JSON.stringify(obj);
         } catch (e) { /* body không phải JSON hợp lệ — giữ nguyên */ }
       }
-      $done({ body: body });
+      $done({ headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: body });
     },
     function () {
       console.log("[locketgold] profile: mode=response → DENY (license invalid) → nguyên vẹn");

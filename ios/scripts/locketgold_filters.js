@@ -109,6 +109,22 @@ function gate(doAllow, doDeny) {
 /* ═══════════════ REQUEST — bỏ cache + giả vùng US ═══════════════ */
 var IS_REQUEST_PHASE = (typeof $response === "undefined");
 
+/** URL media/CDN (ảnh, video) — KHÔNG được inject region params (ký URL sẽ 403 → feed trắng). */
+var MEDIA_EXT = /\.(jpe?g|png|webp|heic|heif|gif|mp4|mov|m4v|avi|mkv|mp3|m4a|pdf|zip)(\?|#|$)/i;
+function isMediaRequest(url) {
+  if (!url) return false;
+  var u = String(url).toLowerCase();
+  if (MEDIA_EXT.test(u)) return true;
+  var m = /^https?:\/\/([^\/]+)/.exec(u);
+  var host = m ? m[1] : "";
+  // CDN / bucket ảnh công khai của Locket
+  if (host.indexOf("cdn.") === 0 || host.indexOf("public.") === 0 || host.indexOf("media.") === 0) return true;
+  // Bucket Firebase Storage của Locket
+  if (host.indexOf("firebasestorage.") !== -1) return true;
+  if (host.indexOf("storage.googleapis.com") !== -1) return true;
+  return false;
+}
+
 /** Ép tham số vùng (US) vào query string — Locket chỉ mở filter AI ở khu vực US. */
 function forceRegionParams(url) {
   if (!url) return url;
@@ -137,6 +153,9 @@ function forceRegionParams(url) {
 }
 
 if (IS_REQUEST_PHASE) {
+  // Media/CDN — engine không làm gì (giữ nguyên chữ ký URL)
+  var _reqUrl = ($request && $request.url) ? String($request.url) : "";
+  if (!isMediaRequest(_reqUrl)) {
   var headers = {};
   var src = ($request && $request.headers) ? $request.headers : {};
   for (var k in src) {
@@ -153,14 +172,17 @@ if (IS_REQUEST_PHASE) {
   headers["X-Timezone"] = "America/Los_Angeles";
   headers["Accept-Language"] = "en-US,en;q=0.9";
 
-  var nextUrl = forceRegionParams(($request && $request.url) ? String($request.url) : "");
+  var nextUrl = forceRegionParams(_reqUrl);
   var out = { headers: headers };
-  if (nextUrl && $request && nextUrl !== String($request.url)) out.url = nextUrl;
+  if (nextUrl && $request && _reqUrl && nextUrl !== _reqUrl) out.url = nextUrl;
 
   gate(
     function () { $done(out); },
     function () { $done({}); }
   );
+  } else {
+    $done({}); // media/CDN — giữ nguyên, không đụng vào request
+  }
 } else {
 
 /* ═══════════════ RESPONSE — mở khoá paywall filter (402/403/400) ═══════════════ */
@@ -330,7 +352,8 @@ if (IS_REQUEST_PHASE) {
       }
 
       if (!changed) { $done({}); return; }
-      $done({ status: status, body: JSON.stringify(obj) });
+      // Headers sạch — KHÔNG giữ Content-Length/Content-Encoding gốc (body mới khác độ dài)
+      $done({ status: status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify(obj) });
     },
     function () { $done({}); }
   );
