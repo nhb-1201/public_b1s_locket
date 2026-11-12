@@ -142,6 +142,7 @@ async function raceQueryJson(name, type) {
     target.searchParams.set("type", String(type || "A"));
     const res = await fetch(target.toString(), {
       headers: { Accept: "application/dns-json" },
+      signal: AbortSignal.timeout(4000),
       cf: { cacheTtl: CACHE_TTL, cacheEverything: true },
     });
     if (!res.ok) throw new Error(`upstream ${upstream} → HTTP ${res.status}`);
@@ -162,6 +163,7 @@ async function raceQueryMessage(body) {
       method: "POST",
       headers: { "Content-Type": "application/dns-message", Accept: "application/dns-message" },
       body,
+      signal: AbortSignal.timeout(4000),
       cf: { cacheTtl: CACHE_TTL, cacheEverything: true },
     });
     if (!res.ok) throw new Error(`upstream ${upstream} → HTTP ${res.status}`);
