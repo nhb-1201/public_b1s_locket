@@ -212,6 +212,17 @@ function unlockFlags(node, depth) {
       node[key] = false;
     } else if (lk === "is_gold" || lk === "is_premium" || lk === "unlocked" || lk === "is_subscribed" || lk === "has_access") {
       node[key] = true;
+    } else if (
+      lk === "has_ai_access" || lk === "ai_access_enabled" || lk === "can_use_ai" || lk === "allow_ai_filter" ||
+      lk === "can_use_filters" || lk === "can_use_filter" || lk === "can_use_gold_features" ||
+      lk === "can_generate_filtered_image" || lk === "can_create_filtered_image" ||
+      lk === "filter_access" || lk === "has_filter_access" || lk === "can_apply_filter" ||
+      lk === "can_use_ai_filter" || lk === "is_subscriber" || lk === "all_filters_free" ||
+      lk === "can_use_all_filters" || lk === "allow_saving_all" || lk === "allowed"
+    ) {
+      node[key] = true;
+    } else if (lk === "is_blurred" || lk === "blurred" || lk === "needs_gold" || lk === "has_blur") {
+      node[key] = false;
     }
   }
 }

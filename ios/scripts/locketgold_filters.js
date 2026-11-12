@@ -155,34 +155,79 @@ if (IS_REQUEST_PHASE) {
   var body = $response.body;
   var status = $response.status || $response.statusCode || 200;
 
+  /** Tìm URL ảnh đầu tiên trong payload (để app vẫn hiện ảnh khi server trả lỗi). */
+  function findImageUrl(node, depth) {
+    if (!node || typeof node !== "object" || (depth || 0) > 8) return null;
+    if (Array.isArray(node)) {
+      for (var i = 0; i < node.length; i++) {
+        var u = findImageUrl(node[i], (depth || 0) + 1);
+        if (u) return u;
+      }
+      return null;
+    }
+    var preferred = ["outputUrl", "output_url", "imageUrl", "image_url", "result_url", "transformed_image_url", "unblurred_url", "url"];
+    for (var p = 0; p < preferred.length; p++) {
+      var v = node[preferred[p]];
+      if (typeof v === "string" && /^https?:\/\//.test(v)) return v;
+    }
+    for (var k in node) {
+      if (!Object.prototype.hasOwnProperty.call(node, k)) continue;
+      var val = node[k];
+      if (val && typeof val === "object") {
+        var found = findImageUrl(val, (depth || 0) + 1);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Xử lý lỗi paywall (402/403/400) — "phẫu thuật" thay vì thay toàn bộ body.
+   * Lý do: nếu thay body, danh sách filter/khung trong response bị XOÁ ⇒ sheet rỗng
+   * và app hiện màn hình "Mở khóa bằng Locket Gold".
+   */
   function unlockPayload(original) {
+    if (!original || typeof original !== "object") {
+      return {
+        result: { status: 200, is_gold: true, is_locked: false, requires_gold: false, requires_subscription: false, is_subscribed: true, unlocked: true, premium: true, is_premium: true, data: {} },
+        data: { status: 200, is_locked: false, requires_gold: false, unlocked: true, is_gold: true, is_premium: true },
+        error: null
+      };
+    }
     var details = null;
     try {
-      if (original && original.error && original.error.details) details = original.error.details;
+      if (original.error && original.error.details) details = original.error.details;
     } catch (e) { /* bỏ qua */ }
-    return {
-      result: {
-        status: 200,
-        is_gold: true,
-        is_locked: false,
-        requires_gold: false,
-        requires_subscription: false,
-        is_subscribed: true,
-        unlocked: true,
-        premium: true,
-        is_premium: true,
-        data: details || {}
-      },
-      data: {
-        status: 200,
-        is_locked: false,
-        requires_gold: false,
-        unlocked: true,
-        is_gold: true,
-        is_premium: true
-      },
-      error: null
-    };
+
+    // GIỮ NGUYÊN toàn bộ field gốc (danh sách filter, cấu hình…) — chỉ bỏ phần lỗi.
+    try { if (original.error) delete original.error; } catch (e) { /* bỏ qua */ }
+    try { if (original.errors) delete original.errors; } catch (e) { /* bỏ qua */ }
+
+    var result = original.result && typeof original.result === "object" ? original.result : (original.result = {});
+    result.status = 200;
+    result.is_gold = true;
+    result.is_locked = false;
+    result.requires_gold = false;
+    result.requires_subscription = false;
+    result.is_subscribed = true;
+    result.unlocked = true;
+    result.premium = true;
+    result.is_premium = true;
+    if (details) result.data = details;
+
+    // Nếu server trả kèm URL ảnh (mờ/blur) → đưa lên để app vẫn hiện ảnh.
+    var img = findImageUrl(original, 0);
+    if (img) {
+      result.outputUrl = img;
+      result.output_url = img;
+      result.imageUrl = img;
+      result.image_url = img;
+    }
+    if (!original.data || typeof original.data !== "object") {
+      original.data = { status: 200, is_locked: false, requires_gold: false, unlocked: true, is_gold: true, is_premium: true };
+    }
+    original.error = null;
+    return original;
   }
 
   function walk(node, depth) {
@@ -200,7 +245,14 @@ if (IS_REQUEST_PHASE) {
         node[key] = false;
       } else if (lk === "is_gold" || lk === "is_premium" || lk === "unlocked" || lk === "is_subscribed" || lk === "premium" || lk === "has_access") {
         node[key] = true;
-      } else if (lk === "has_ai_access" || lk === "ai_access_enabled" || lk === "can_use_ai" || lk === "allow_ai_filter") {
+      } else if (
+        lk === "has_ai_access" || lk === "ai_access_enabled" || lk === "can_use_ai" || lk === "allow_ai_filter" ||
+        lk === "can_use_filters" || lk === "can_use_filter" || lk === "can_use_gold_features" ||
+        lk === "can_generate_filtered_image" || lk === "can_create_filtered_image" ||
+        lk === "filter_access" || lk === "has_filter_access" || lk === "can_apply_filter" ||
+        lk === "can_use_ai_filter" || lk === "is_subscriber" || lk === "all_filters_free" ||
+        lk === "can_use_all_filters" || lk === "allow_saving_all" || lk === "allowed"
+      ) {
         node[key] = true;
       } else if (lk === "is_blurred" || lk === "blurred" || lk === "needs_gold" || lk === "has_blur") {
         node[key] = false;
@@ -254,15 +306,15 @@ if (IS_REQUEST_PHASE) {
         changed = true;
       }
 
+      // 3) Gỡ che mờ ảnh TRƯỚC (walk sẽ set is_blurred=false → preview_url phải dò blurred trước)
+      if (obj && unblur(obj, 0)) changed = true;
+
       // 2) Ép cờ mở khoá ở mọi node con (filter, moment, camera template…)
       if (obj) {
         var before = JSON.stringify(obj);
         walk(obj, 0);
         if (JSON.stringify(obj) !== before) changed = true;
       }
-
-      // 3) Gỡ che mờ ảnh (server trả blurred_* khi chưa có Gold)
-      if (obj && unblur(obj, 0)) changed = true;
 
       if (!changed) { $done({}); return; }
       $done({ status: status, body: JSON.stringify(obj) });
