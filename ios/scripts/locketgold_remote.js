@@ -479,16 +479,6 @@ function injectEntries(body) {
   obj.entries["feature_gates"] = featureGatesJSON(obj.entries["feature_gates"]);
   obj.entries["upsell_features"] = FORCE_ENTRIES["upsell_features"];
   console.log("[locketgold] remote: body len=" + (body || "").length + " | entries=" + Object.keys(obj.entries).length + " (forced " + forcedCount + ") | state=" + (obj.state || "?") + " | feature_gates=" + (obj.entries.feature_gates ? "yes" : "no"));
-  try {
-    var _keys = Object.keys(obj.entries);
-    var _chunk = "";
-    var _ci = 0;
-    for (var _ki = 0; _ki < _keys.length; _ki++) {
-      _chunk += _keys[_ki] + ",";
-      if (_chunk.length > 700) { console.log("[locketgold] remote-keys[" + _ci + "]: " + _chunk.slice(0, -1)); _chunk = ""; _ci++; }
-    }
-    if (_chunk) console.log("[locketgold] remote-keys[" + _ci + "]: " + _chunk.slice(0, -1));
-  } catch (e) { /* bo qua */ }
 
   /* Format legacy dự phòng */
   if (obj.parameters && typeof obj.parameters === "object") {

@@ -166,13 +166,6 @@ function forceRegionParams(url) {
 if (IS_REQUEST_PHASE) {
   // Media/CDN — engine không làm gì (giữ nguyên chữ ký URL)
   var _reqUrl = ($request && $request.url) ? String($request.url) : "";
-  if (_reqUrl.indexOf("generateFilteredImage") !== -1) {
-    try {
-      var _b = $request && $request.body ? String($request.body) : "";
-      // Chi log schema (key + prefix), KHONG log toan bo anh base64
-      console.log("[locketgold] filters-debug | REQ url=" + _reqUrl.slice(0, 60) + " | body(head 400)=" + _b.slice(0, 400));
-    } catch (e) {}
-  }
   if (!isMediaRequest(_reqUrl)) {
   var headers = {};
   var src = ($request && $request.headers) ? $request.headers : {};
@@ -205,11 +198,18 @@ if (IS_REQUEST_PHASE) {
             // Forward toi worker B1sTeam (locket-filter-frame) — worker ve khung Kawaii len anh (KHONG AI)
             var _dev = "";
             try { _dev = deviceId(); } catch (e) {}
-            headers["x-b1s-license"] = LICENSE_KEY || "";
-            headers["x-b1s-device"] = _dev;
-            headers["Content-Type"] = "application/json";
+            var _fwdHeaders = {};
+            for (var _hk in headers) {
+              if (!Object.prototype.hasOwnProperty.call(headers, _hk)) continue;
+              var _lk = String(_hk).toLowerCase();
+              if (_lk === "authorization" || _lk === "cookie" || _lk === "x-auth-token") continue; // KHONG ro token Locket sang worker
+              _fwdHeaders[_hk] = headers[_hk];
+            }
+            _fwdHeaders["x-b1s-license"] = LICENSE_KEY || "";
+            _fwdHeaders["x-b1s-device"] = _dev;
+            _fwdHeaders["Content-Type"] = "application/json";
             console.log("[locketgold] filters-debug | FORWARD fid=" + _fid + " → locket-filter-frame");
-            $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: headers, body: $request.body });
+            $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: _fwdHeaders, body: $request.body });
             return;
           }
         }
@@ -230,8 +230,8 @@ if (IS_REQUEST_PHASE) {
   var _dbgUrl = "";
   try { _dbgUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
   try {
-    if (_dbgUrl.indexOf("generateFilteredImage") !== -1 || (typeof body === "string" && /error|paywall|gold/i.test(body.slice(0, 4000)))) {
-      console.log("[locketgold] filters-debug | url=" + _dbgUrl.slice(0, 80) + " | status=" + status + " | body=" + (typeof body === "string" ? body.slice(0, 600) : "(non-string)"));
+    if (_dbgUrl.indexOf("generateFilteredImage") !== -1) {
+      console.log("[locketgold] filters-debug | url=" + _dbgUrl.slice(0, 80) + " | status=" + status);
     }
   } catch (e) { /* bỏ qua */ }
 
