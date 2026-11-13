@@ -104,7 +104,7 @@ var FORCE_ENTRIES = {
 
   /* ── Paywall: tắt hẳn (đã premium) ── */
   "paywall_presentation_config": "{\"uid\":\"paywall_disabled\",\"onboarding\":false,\"after_sent_moment\":false,\"on_foreground\":false,\"interval\":999999999,\"profile_banner\":false}",
-  "feature_discovery_popup_config": "{\"tag\":\"LOCKET GOLD\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"B1sTeam Gold 💛\",\"feature_set\":[{\"title\":\"Locket Gold - B1sTeam\",\"body\":\"Chúc mừng! Bạn đã nâng cấp Locket Gold thành công bởi B1sTeam — Nguyễn Hoàng Bách · b1s.id.vn · @b1steam. Khung Kawaii đã có trong caption picker!\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner_wide.jpg\"}]}",
+  "feature_discovery_popup_config": "{\"tag\":\"LOCKET GOLD\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"B1sTeam Gold 💛\",\"feature_set\":[{\"title\":\"Locket Gold - B1sTeam\",\"body\":\"Chúc mừng! Bạn đã nâng cấp Locket Gold thành công bởi B1sTeam — Nguyễn Hoàng Bách · b1s.id.vn · @b1steam. Chụp ảnh cùng khung Kawaii đang có trong caption picker!\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner_wide.jpg\"}],\"primary_button_title\":\"Xong\",\"campaign\":\"b1steam_gold_welcome_v2\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\",\"use_local_time_zone\":true}",
 
   // ── B1sTeam: GATE + CAMERA/THEME/FILTER (đối chiếu 2 nguồn tham khảo) ──
   "camera_filter": "enabled",
