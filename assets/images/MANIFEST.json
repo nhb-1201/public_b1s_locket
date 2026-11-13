@@ -1,129 +1,233 @@
 {
-  "generated_at": "2026-11-12T08:42:38.919Z",
+  "generated_at": "2026-11-13T04:04:48.698Z",
   "files": [
     {
-      "path": "images/kawaii/frame-04.png",
-      "bytes": 2217481
-    },
-    {
-      "path": "images/kawaii/frame-05.png",
-      "bytes": 2159704
-    },
-    {
-      "path": "images/kawaii/frame-02.png",
-      "bytes": 2026668
-    },
-    {
-      "path": "images/kawaii/frame-05-trans.png",
-      "bytes": 1983749
-    },
-    {
-      "path": "images/kawaii/frame-07.png",
-      "bytes": 1968948
-    },
-    {
-      "path": "images/kawaii/frame-04-trans.png",
-      "bytes": 1956482
-    },
-    {
-      "path": "welcome_banner.png",
-      "bytes": 1936151
-    },
-    {
-      "path": "images/kawaii/frame-06.png",
-      "bytes": 1926948
-    },
-    {
-      "path": "images/kawaii/frame-02-trans.png",
-      "bytes": 1874464
-    },
-    {
-      "path": "images/kawaii/frame-07-trans.png",
-      "bytes": 1785729
-    },
-    {
-      "path": "images/kawaii/frame-06-trans.png",
-      "bytes": 1766787
-    },
-    {
-      "path": "images/kawaii/frame-01-trans.png",
-      "bytes": 1222510
-    },
-    {
-      "path": "images/kawaii/frame-01.png",
-      "bytes": 1222215
-    },
-    {
-      "path": "images/kawaii/frame-03.png",
-      "bytes": 883203
-    },
-    {
-      "path": "images/kawaii/frame-03-trans.png",
-      "bytes": 869275
-    },
-    {
-      "path": "welcome_banner_wide.jpg",
-      "bytes": 253573
-    },
-    {
-      "path": "icon-doh-locketgold-1024.png",
-      "bytes": 252815
-    },
-    {
-      "path": "welcome_banner.jpg",
-      "bytes": 210544
-    },
-    {
-      "path": "images/forgotten_island_bg.png",
-      "bytes": 130171
-    },
-    {
-      "path": "icon-locketgold-512.png",
-      "bytes": 66854
-    },
-    {
-      "path": "images/kawaii/frame-05-thumb.webp",
-      "bytes": 41842
-    },
-    {
-      "path": "images/kawaii/frame-01-thumb.webp",
-      "bytes": 38062
-    },
-    {
-      "path": "images/kawaii/frame-02-thumb.webp",
-      "bytes": 38010
-    },
-    {
-      "path": "images/kawaii/frame-07-thumb.webp",
-      "bytes": 36934
-    },
-    {
-      "path": "images/kawaii/frame-06-thumb.webp",
-      "bytes": 36576
-    },
-    {
-      "path": "images/kawaii/frame-04-thumb.webp",
-      "bytes": 34004
-    },
-    {
-      "path": "images/kawaii/frame-03-thumb.webp",
-      "bytes": 28768
-    },
-    {
-      "path": "banner.svg",
+      "path": "assets/banner.svg",
       "bytes": 3571
     },
     {
-      "path": "icon-doh-locketgold.svg",
+      "path": "assets/fonts/fonts.css",
+      "bytes": 10824
+    },
+    {
+      "path": "assets/fonts/QdVMSTAyLFyeg_IDWvOJmVES_HSQI281Rb0JcBao.woff2",
+      "bytes": 13380
+    },
+    {
+      "path": "assets/fonts/QdVMSTAyLFyeg_IDWvOJmVES_HSQI286Rb0JcBaoUUU.woff2",
+      "bytes": 5144
+    },
+    {
+      "path": "assets/fonts/QdVMSTAyLFyeg_IDWvOJmVES_HSQI287Rb0JcBaoUUU.woff2",
+      "bytes": 7144
+    },
+    {
+      "path": "assets/fonts/QdVMSTAyLFyeg_IDWvOJmVES_HToIW81Rb0JcBao.woff2",
+      "bytes": 13428
+    },
+    {
+      "path": "assets/fonts/QdVMSTAyLFyeg_IDWvOJmVES_HToIW86Rb0JcBaoUUU.woff2",
+      "bytes": 5124
+    },
+    {
+      "path": "assets/fonts/QdVMSTAyLFyeg_IDWvOJmVES_HToIW87Rb0JcBaoUUU.woff2",
+      "bytes": 7152
+    },
+    {
+      "path": "assets/fonts/QdVPSTAyLFyeg_IDWvOJmVES_Hw3BXoYZ7Aj.woff2",
+      "bytes": 12908
+    },
+    {
+      "path": "assets/fonts/QdVPSTAyLFyeg_IDWvOJmVES_Hw4BXoYZ7AjSh8.woff2",
+      "bytes": 4720
+    },
+    {
+      "path": "assets/fonts/QdVPSTAyLFyeg_IDWvOJmVES_Hw5BXoYZ7AjSh8.woff2",
+      "bytes": 6880
+    },
+    {
+      "path": "assets/fonts/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwgknk-6nFg.woff2",
+      "bytes": 5872
+    },
+    {
+      "path": "assets/fonts/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwgknk-6nFg.woff2",
+      "bytes": 1664
+    },
+    {
+      "path": "assets/fonts/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwgknk-6nFg.woff2",
+      "bytes": 11596
+    },
+    {
+      "path": "assets/fonts/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwgknk-4.woff2",
+      "bytes": 31340
+    },
+    {
+      "path": "assets/fonts/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwgknk-6nFg.woff2",
+      "bytes": 6800
+    },
+    {
+      "path": "assets/fonts/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxTcwgknk-6nFg.woff2",
+      "bytes": 8892
+    },
+    {
+      "path": "assets/fonts/V8mDoQDjQSkFtoMM3T6r8E7mPb54C_k3HqUtEw.woff2",
+      "bytes": 6772
+    },
+    {
+      "path": "assets/fonts/V8mDoQDjQSkFtoMM3T6r8E7mPb94C_k3HqUtEw.woff2",
+      "bytes": 18924
+    },
+    {
+      "path": "assets/fonts/V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+      "bytes": 22320
+    },
+    {
+      "path": "assets/icon-doh-locketgold-1024.png",
+      "bytes": 252815
+    },
+    {
+      "path": "assets/icon-doh-locketgold.svg",
       "bytes": 3281
     },
     {
-      "path": "images/halloween_indicator.png",
+      "path": "assets/icon-locketgold-512.png",
+      "bytes": 66854
+    },
+    {
+      "path": "assets/icon-locketgold.svg",
+      "bytes": 1694
+    },
+    {
+      "path": "assets/images/forgotten_island_bg.png",
+      "bytes": 130171
+    },
+    {
+      "path": "assets/images/halloween_indicator.png",
       "bytes": 2523
     },
     {
-      "path": "icon-locketgold.svg",
-      "bytes": 1694
+      "path": "assets/images/kawaii/frame-01-thumb.webp",
+      "bytes": 38062
+    },
+    {
+      "path": "assets/images/kawaii/frame-01-trans.png",
+      "bytes": 1222510
+    },
+    {
+      "path": "assets/images/kawaii/frame-01.png",
+      "bytes": 1222215
+    },
+    {
+      "path": "assets/images/kawaii/frame-02-thumb.webp",
+      "bytes": 38010
+    },
+    {
+      "path": "assets/images/kawaii/frame-02-trans.png",
+      "bytes": 1874464
+    },
+    {
+      "path": "assets/images/kawaii/frame-02.png",
+      "bytes": 2026668
+    },
+    {
+      "path": "assets/images/kawaii/frame-03-thumb.webp",
+      "bytes": 28768
+    },
+    {
+      "path": "assets/images/kawaii/frame-03-trans.png",
+      "bytes": 869275
+    },
+    {
+      "path": "assets/images/kawaii/frame-03.png",
+      "bytes": 883203
+    },
+    {
+      "path": "assets/images/kawaii/frame-04-thumb.webp",
+      "bytes": 34004
+    },
+    {
+      "path": "assets/images/kawaii/frame-04-trans.png",
+      "bytes": 1956482
+    },
+    {
+      "path": "assets/images/kawaii/frame-04.png",
+      "bytes": 2217481
+    },
+    {
+      "path": "assets/images/kawaii/frame-05-thumb.webp",
+      "bytes": 41842
+    },
+    {
+      "path": "assets/images/kawaii/frame-05-trans.png",
+      "bytes": 1983749
+    },
+    {
+      "path": "assets/images/kawaii/frame-05.png",
+      "bytes": 2159704
+    },
+    {
+      "path": "assets/images/kawaii/frame-06-thumb.webp",
+      "bytes": 36576
+    },
+    {
+      "path": "assets/images/kawaii/frame-06-trans.png",
+      "bytes": 1766787
+    },
+    {
+      "path": "assets/images/kawaii/frame-06.png",
+      "bytes": 1926948
+    },
+    {
+      "path": "assets/images/kawaii/frame-07-thumb.webp",
+      "bytes": 36934
+    },
+    {
+      "path": "assets/images/kawaii/frame-07-trans.png",
+      "bytes": 1785729
+    },
+    {
+      "path": "assets/images/kawaii/frame-07.png",
+      "bytes": 1968948
+    },
+    {
+      "path": "assets/images/kawaii/frame-08-trans.png",
+      "bytes": 12950
+    },
+    {
+      "path": "assets/images/kawaii/frame-09-trans.png",
+      "bytes": 12570
+    },
+    {
+      "path": "assets/images/kawaii/frame-10-trans.png",
+      "bytes": 12910
+    },
+    {
+      "path": "assets/images/kawaii/frame-11-trans.png",
+      "bytes": 12490
+    },
+    {
+      "path": "assets/images/kawaii/frame-12-trans.png",
+      "bytes": 12934
+    },
+    {
+      "path": "assets/images/kawaii/frame-13-trans.png",
+      "bytes": 12832
+    },
+    {
+      "path": "assets/images/MANIFEST.json",
+      "bytes": 2564
+    },
+    {
+      "path": "assets/welcome_banner_wide.jpg",
+      "bytes": 253573
+    },
+    {
+      "path": "assets/welcome_banner.jpg",
+      "bytes": 210544
+    },
+    {
+      "path": "assets/welcome_banner.png",
+      "bytes": 1936151
     }
   ]
 }
