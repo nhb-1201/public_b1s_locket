@@ -392,7 +392,22 @@ var FORCE_ENTRIES = {
   "has_premium": "true",
   "has_access": "true",
   "can_use_ai_filter": "true",
-  "can_generate_filtered_image": "true"
+  "can_generate_filtered_image": "true",
+  // B1sTeam 2026-11-13: bo sung key Gold theo phan phoi RC cua Locket (dong bo voi locketgold_remote v4.1) — "gold_since_badge" la flag huy hieu "Thanh vien Gold".
+  "gold_since_badge": "true",
+  "gold_badge_profile_menu": "true",
+  "locket_gold_enabled": "true",
+  "gold_camera_themes": "true",
+  "gold_camera_themes_profile_menu": "true",
+  "gold_custom_app_icons": "true",
+  "gold_custom_app_icons_profile_menu": "true",
+  "gold_profile_badge_enabled": "true",
+  "camera_roll_gold_max_duration": "30",
+  "camera_roll_gold_max_duration_seconds": "30",
+  "cameraRollGoldMaxDuration": "30",
+  "cameraRollGoldMaxDurationSeconds": "30",
+  "holiday_effects_gate": "false",
+  "photos_of_you_gate": "false"
 };
 
 /* Các feature gate premium — Locket đọc JSON này từ entries.feature_gates */
