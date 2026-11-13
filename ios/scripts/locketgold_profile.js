@@ -76,7 +76,8 @@ var GOLD_PROFILE = {
 /* ── Hằng thời gian (ms) ── */
 var B1S_VERIFY_CACHE_MS = 604800000;    // 7 ngày  — cache "đã verify OK", không hỏi lại
 var B1S_OFFLINE_GRACE_MS = 2592000000;  // 30 ngày — mở tạm khi máy chủ/mạng lỗi tạm thời
-var B1S_FAIL_COOLDOWN_MS = 300000;      // 5 phút  — sau khi verify FAIL
+var B1S_FAIL_COOLDOWN_MS = 600000;      // 10 phút — sau khi verify FAIL (chống verify-storm)
+var B1S_MEM_OK_MS = 21600000;           // 6 giờ — cache verify trong bộ nhớ script (dù $prefs hỏng vẫn không bắn liên tục)
 
 /* ── Verify endpoints — cùng 1 license, thử lần lượt ──
    1) locket.b1s.id.vn (worker)  2) b1s.id.vn (frontend) — cả hai đều trả { valid: true }. */
@@ -90,6 +91,9 @@ var B1S_KEY_OK_AT = "b1s_lg_ok_at";
 var B1S_KEY_FAIL_AT = "b1s_lg_fail_at";
 
 var memDeviceId = null;
+var memOkAt = 0;      // mốc verify OK gần nhất (bộ nhớ)
+var memFailAt = 0;    // mốc verify fail gần nhất (bộ nhớ)
+
 
 /** Device id bền trên máy này (tạo 1 lần) — Shadowrocket $prefs / Loon $persistentStore / memory. */
 function deviceId() {
@@ -189,9 +193,10 @@ function gate(allow, deny, tag) {
   var T = tag || "b1s";
   if (!licenseKeyUsable()) { noteFailed(); return deny(); }
 
-  if (Date.now() - lastVerifiedAt() < B1S_VERIFY_CACHE_MS) return allow(); // cache 7 ngày
+  if (Date.now() - lastVerifiedAt() < B1S_VERIFY_CACHE_MS) return allow();
+  if (Date.now() - memOkAt < B1S_MEM_OK_MS) return allow(); // cache 6 giờ bộ nhớ // cache 7 ngày
 
-  var failedAt = lastFailedAt();
+  var failedAt = Math.max(lastFailedAt(), memFailAt);
   if (failedAt > 0 && Date.now() - failedAt < B1S_FAIL_COOLDOWN_MS) {
     try { console.log("[locketgold] " + T + ": verify cooldown 5p (sau khi FAIL)"); } catch (e) {}
     return deny();
@@ -201,14 +206,15 @@ function gate(allow, deny, tag) {
   if (!id) { noteFailed(); return deny(); }
 
   verifyWith(B1S_VERIFY_PRIMARY, id, function (okPrimary) {
-    if (okPrimary) { markVerified(); return allow(); }
+    if (okPrimary) { markVerified(); memOkAt = Date.now(); return allow(); }
     verifyWith(B1S_VERIFY_FALLBACK, id, function (okFallback) {
-      if (okFallback) { markVerified(); return allow(); }
+      if (okFallback) { markVerified(); memOkAt = Date.now(); return allow(); }
       if (offlineGraceActive()) {
         try { console.log("[locketgold] " + T + ": OFFLINE-GRACE"); } catch (e) {}
         return allow();
       }
       noteFailed();
+      memFailAt = Date.now();
       return deny();
     });
   });
