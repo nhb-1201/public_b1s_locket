@@ -13,7 +13,7 @@
     <key>PayloadDisplayName</key>
     <string>LocketGold DoH · B1sTeam ✦</string>
     <key>PayloadDescription</key>
-            <string>DoH danh rieng cho Locket Gold VIP - chi truy van domain Locket di qua may chu B1sTeam (RevenueCat de nguyen de module MITM cua Shadowrocket luon nhan duoc phan hoi subscription). Moi web khac giu nguyen DNS goc: toc do 100% va khong log - mien phi vinh vien - b1s.id.vn/locketgold</string>
+    <string>DNS riêng cho LocketGold (Locket &amp; Firebase qua B1sTeam DoH — chặn quảng cáo/telemetry). RevenueCat cố ý giữ nguyên để Shadowrocket mitm luôn nhận được phản hồi Gold. Web/app khác giữ DNS gốc — miễn phí vĩnh viễn · b1s.id.vn/alfretro</string>
     <key>PayloadOrganization</key>
     <string>B1sTeam — b1s.id.vn · @b1steam</string>
     <key>PayloadRemovalDisallowed</key>
@@ -32,7 +32,7 @@
         <key>PayloadDisplayName</key>
         <string>LocketGold DoH · B1sTeam ✦</string>
         <key>PayloadDescription</key>
-            <string>DNS nay chi ap dung cho domain Locket (Split DNS qua doh.b1s.id.vn). RevenueCat co tinh KHONG di qua DNS nay de module MITM cua Shadowrocket luon nhan duoc phan hoi subscription (giu Gold on dinh). Web khac dung DNS goc cua ban.</string>
+        <string>Locket &amp; Firebase qua B1sTeam DoH (https://doh.b1s.id.vn/dns-query). Web/app khác giữ DNS gốc.</string>
         <key>PayloadOrganization</key>
         <string>B1sTeam — b1s.id.vn · @b1steam</string>
         <key>DNSSettings</key>
