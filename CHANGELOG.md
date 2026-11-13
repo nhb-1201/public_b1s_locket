@@ -49,3 +49,11 @@
 - Upload: guard chống vẽ 2 lớp khung (bỏ qua nếu ảnh vừa được app "rửa" qua generateFilteredImage).
 - Backend `/module/*` + `/script/revenuecat` phục vụ LocketGold-only (module 7476 B, 8 scripts).
 
+
+## v7.3.0 — RC-tu-chu (khong phu thuoc RC cua nguoi khac) (2026-11-13)
+
+- **Xoa hoan toan phu thuoc RC cua nguoi khac**: bo requestRealGold() (goi /rc/grant -> RC secret cua team + token set D1 cua nguoi mua Gold that -> restore receipt nguoi khac cho app_user_id).
+- Backend: xoa rc-grant.ts (checkGold/injectGold/refreshGrants), /rc/grant + /rc/refresh + /admin/rc/refresh; cron chi con 17 3 * * * (daily cleanup).
+- Admin gold-ops: xoa tab Gold Engine (RC restore), giu License + App Premium.
+- Gold gio tu chu 100% qua MITM rewrite (Gold 2099 + purchase_date = now) — khong the bi thu hoi, khong can receipt cua ai.
+
