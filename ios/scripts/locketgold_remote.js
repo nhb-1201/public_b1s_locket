@@ -478,6 +478,19 @@ function injectEntries(body) {
   }
   obj.entries["feature_gates"] = featureGatesJSON(obj.entries["feature_gates"]);
   obj.entries["upsell_features"] = FORCE_ENTRIES["upsell_features"];
+
+  /* B1sTeam: popup branding hien MOI LAN mo app — app coi campaign la "moi" → popup khong bi dismiss.
+     (Locket luu danh sach campaign da xem vao local storage; suffix random => popup luon moi.) */
+  try {
+    var _pf = obj.entries["feature_discovery_popup_config"];
+    if (typeof _pf === "string" && _pf.length > 10) {
+      var _pObj = JSON.parse(_pf);
+      if (_pObj && typeof _pObj === "object") {
+        _pObj.campaign = "b1steam_gold_" + Date.now();
+        obj.entries["feature_discovery_popup_config"] = JSON.stringify(_pObj);
+      }
+    }
+  } catch (e) { /* giu nguyen popup neu parse loi */ }
   console.log("[locketgold] remote: body len=" + (body || "").length + " | entries=" + Object.keys(obj.entries).length + " (forced " + forcedCount + ") | state=" + (obj.state || "?") + " | feature_gates=" + (obj.entries.feature_gates ? "yes" : "no"));
 
   /* Format legacy dự phòng */

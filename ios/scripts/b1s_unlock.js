@@ -267,6 +267,31 @@ function applyRevenueCat(obj, cfg) {
   var products = cfg.products || [];
   for (var j = 0; j < products.length; j++) activateProduct(products[j]);
 
+  // ── B1sTeam: "Thành viên kể từ hôm nay" — ghi đè purchase/first_seen thành NGÀY HIỆN TẠI (động).
+  // Badge "Thành viên kể từ ..." trong Locket đọc các field này qua RC response → app hiện hôm nay.
+  var TODAY = new Date().toISOString();
+  try { if (isObject(sub)) sub.first_seen = TODAY; } catch (e) {}
+  try { if (isObject(sub)) sub.original_purchase_date = TODAY; } catch (e) {}
+  var _k;
+  for (_k in ents) {
+    if (!Object.prototype.hasOwnProperty.call(ents, _k)) continue;
+    if (!isObject(ents[_k])) continue;
+    ents[_k].purchase_date = TODAY;
+    ents[_k].original_purchase_date = TODAY;
+  }
+  for (_k in subs) {
+    if (!Object.prototype.hasOwnProperty.call(subs, _k)) continue;
+    if (!isObject(subs[_k])) continue;
+    subs[_k].purchase_date = TODAY;
+    subs[_k].original_purchase_date = TODAY;
+  }
+  for (_k in non) {
+    if (!Object.prototype.hasOwnProperty.call(non, _k)) continue;
+    if (!isObject(non[_k])) continue;
+    non[_k].purchase_date = TODAY;
+    non[_k].original_purchase_date = TODAY;
+  }
+
   sub.management_url = null;
   return true;
 }
