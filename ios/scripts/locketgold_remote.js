@@ -284,7 +284,7 @@ var FORCE_ENTRIES = {
   "rollcall_tap_to_tag_enabled": "false",
 
   /* ── Widget & Live Activity ── */
-  "widget_frame_event": "{\"uid\":\"midautumn_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner_wide.jpg\",\"use_local_time_zone\":true,\"placement\":\"below\",\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
+  "widget_frame_event": "{\"uid\":\"b1steam_kawaii_gold_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-12-gold.png\",\"placement\":\"above\",\"use_local_time_zone\":true,\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
   "widget_frame_event_max_images": "5",
   "android_widget_frame_event_enabled": "true",
   "custom_widget_frames_enabled": "true",
