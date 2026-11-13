@@ -66,3 +66,11 @@
 - KNOWN_OFF_GATES = [] — không tắt gate nào.
 - AI filter server-side (431) vẫn giới hạn từ server Locket — không fix từ client.
 
+
+## v7.5.0 — Vinh danh Cộng đồng Gold + Rate-limit toàn diện (2026-11-13)
+
+- **Script mới `locketgold_vip.js`** (8 scripts tổng): bạn bè thuộc danh sách vinh danh → badge Gold trong app; fetch 12h/lần nền, không chặn.
+- **license-gate**: cache bộ nhớ 6 giờ + cooldown FAIL 10 phút — hết verify-storm khi $prefs hỏng (nguyên nhân 429 → "không hiện gì").
+- **frame worker**: license cache 60 phút (trước 5 phút).
+- **/alfretro** mục "Vinh danh Cộng đồng Gold" + **/locketgold/vip** hall-of-fame công khai.
+
