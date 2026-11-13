@@ -329,6 +329,13 @@ if (mode === "request") {
   );
   }
 } else {
+  // MEDIA/CDN (anh, video, webp, font…) — bo qua HOAN TOAN: khong gate, khong delay, giu nguyen response.
+  var _mUrl = "";
+  try { _mUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
+  if (/\.(jpe?g|png|webp|heic|heif|gif|mp4|mov|m4v|avi|mkv|mp3|m4a|pdf|zip)(\?|#|$)/i.test(_mUrl) || /^https?:\/\/(cdn\.|public\.|media\.)/i.test(_mUrl) || /firebasestorage\.|storage\.googleapis\.com/i.test(_mUrl)) {
+    $done({});
+    return;
+  }
   gate(
     function () {
       console.log("[locketgold] profile: mode=response → inject Gold+Verified badge");

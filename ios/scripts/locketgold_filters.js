@@ -225,6 +225,12 @@ if (IS_REQUEST_PHASE) {
 
 /* ═══════════════ RESPONSE — mở khoá paywall filter (402/403/400) ═══════════════ */
 (function () {
+  // MEDIA/CDN (anh, video, webp, font…) — bo qua HOAN TOAN: khong gate, khong verify, khong dem body.
+  // Truoc day response-phase van goi gate() (co the goi network verify) → anh/video ban be bi treo/khong load.
+  var _mediaUrl = "";
+  try { _mediaUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
+  if (isMediaRequest(_mediaUrl)) { try { $done({}); } catch (e) { $done({}); } return; }
+
   var body = $response.body;
   var status = $response.status || $response.statusCode || 200;
   var _dbgUrl = "";
