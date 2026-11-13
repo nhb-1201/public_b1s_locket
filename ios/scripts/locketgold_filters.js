@@ -202,17 +202,14 @@ if (IS_REQUEST_PHASE) {
           var _fid = String(_o.filter_id || _o.filterId || _o.id || _o.filter || _o.filterID || "").toLowerCase();
           var _isOverlay = /photobooth|photoboot|4cut|^pb_|^khung_|^frame_|sticker|cmt_locket|custom_frame|overlay|^khung/.test(_fid);
           if (_isOverlay) {
-            var _img = String(_o.input_url || _o.imageUrl || _o.image_url || _o.url || _o.image || "");
-            var _respBody = JSON.stringify({
-              result: {
-                outputUrl: _img, output_url: _img, url: _img, imageUrl: _img, image_url: _img,
-                status: 200, is_locked: false, is_gold: true, is_premium: true,
-                requires_gold: false, requires_subscription: false, is_subscribed: true, unlocked: true,
-                data: { outputUrl: _img, output_url: _img, url: _img, imageUrl: _img, image_url: _img, status: 200 },
-              },
-            });
-            console.log("[locketgold] filters-debug | MOCK overlay fid=" + _fid + " | img=" + (_img ? _img.slice(0, 40) : "(none)"));
-            $done({ response: { status: 200, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: _respBody } });
+            // Forward toi worker B1sTeam (locket-filter-frame) — worker ve khung Kawaii len anh (KHONG AI)
+            var _dev = "";
+            try { _dev = deviceId(); } catch (e) {}
+            headers["x-b1s-license"] = LICENSE_KEY || "";
+            headers["x-b1s-device"] = _dev;
+            headers["Content-Type"] = "application/json";
+            console.log("[locketgold] filters-debug | FORWARD fid=" + _fid + " → locket-filter-frame");
+            $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: headers, body: $request.body });
             return;
           }
         }
