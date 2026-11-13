@@ -212,7 +212,9 @@ function isMediaUrl(url) {
 
 /* ─── END inlined: lib\license-gate.js ─── */
 
-/* ═══════════════════════ Base64 (thuần JS — không phụ thuộc Buffer/atob) ═══════════════════════ */
+/* ─── BEGIN inlined: lib\b64.js ─── */
+/* B1sTeam — Base64 thuần JS (không phụ thuộc Buffer/atob/btoa) — dùng chung cho script cần xử lý nhị phân.
+   Shadowrocket/Loon: env không có Buffer; atob/btoa không đảm bảo với dữ liệu nhị phân → tự viết. */
 var B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 function b64ToBytes(str) {
@@ -259,6 +261,15 @@ function bytesToB64(bytes) {
   }
   return out;
 }
+
+/** Chuỗi nhị phân (charCodeAt = byte) → Uint8Array — dùng khi $request.body chứa binary string. */
+function binaryStringToBytes(s) {
+  var out = new Uint8Array(s.length);
+  for (var i = 0; i < s.length; i++) out[i] = s.charCodeAt(i) & 0xff;
+  return out;
+}
+
+/* ─── END inlined: lib\b64.js ─── */
 
 /* ═══════════════════════ Protobuf engine (tự viết) ═══════════════════════ */
 function readVarint(bytes, pos) {

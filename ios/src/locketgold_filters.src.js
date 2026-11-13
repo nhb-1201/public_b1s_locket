@@ -1,15 +1,16 @@
 // author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * LocketGold B1sTeam — Camera/AI Filter unlock + Region gate (DEVICE-LOCKED) v3.0
+ * LocketGold B1sTeam — Camera/AI Filter unlock + WebSocket passthrough (DEVICE-LOCKED) v4.1
  *
  *   1) REQUEST  → xoá header cache (chống 304) + ép vùng US (Locket chỉ mở filter
- *                 thử nghiệm ở US) + forward overlay/frame id → worker B1sTeam
- *                 (locket-filter-frame — tự vẽ khung Kawaii lên ảnh, KHÔNG AI).
- *   2) RESPONSE → lỗi 402/403/400 từ server (paywall filter) → đổi thành 200 "unlocked",
- *                 requires_gold=false / is_locked=false; unblur ảnh (blurred_url → bản thật).
+ *                 thử nghiệm ở US) + forward overlay/frame id → worker B1sTeam.
+ *   2) REQUEST  → WebSocket handshake (wss_v2/group — groups realtime): KHÔNG đụng
+ *                 1 byte — không ép vùng, không đổi header, không gate.
+ *   3) RESPONSE → WebSocket 101 / Upgrade: passthrough; lỗi 402/403/400 (paywall
+ *                 filter) → 200 "unlocked"; unblur ảnh.
  *
- * Media/CDN (ảnh, video) bỏ qua HOÀN TOÀN ở cả 2 phase — engine không verify, không đổi
- * 1 byte nào (URL ký bị sửa → 403 → feed trắng).
+ * Media/CDN (ảnh, video) bỏ qua HOÀN TOÀN — engine không verify, không đổi 1 byte
+ * (URL ký bị sửa → 403 → feed trắng). Upload ảnh Locket xử lý ở locketgold_upload.js.
  * Key sai / khác máy / hết grace → trả nguyên body gốc (fail-closed).
  *
  * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách · Zalo 083.3399.553
@@ -22,9 +23,11 @@ var LICENSE_KEY = "__LICENSE_KEY__";
 
 // @b1s-include ./lib/license-gate.js
 
+// @b1s-include ./lib/http-util.js
+
 var IS_REQUEST_PHASE = (typeof $response === "undefined");
 
-/* ═══════════════ REQUEST — bỏ cache + ép vùng US ═══════════════ */
+/* ═══════════════ Ép tham số vùng US ═══════════════ */
 /** Ép tham số vùng (US) vào query string — Locket chỉ mở filter AI ở khu vực US. */
 function forceRegionParams(url) {
   if (!url) return url;
@@ -38,7 +41,7 @@ function forceRegionParams(url) {
   var query = q === -1 ? "" : url.slice(q + 1);
   var pairs = query.length ? query.split("&") : [];
   for (var k in forced) {
-    if (!Object.prototype.hasOwnProperty.call(forced, k)) continue;
+    if (!hasOwn(forced, k)) continue;
     var found = false;
     for (var i = 0; i < pairs.length; i++) {
       if (pairs[i].split("=")[0] === k) {
@@ -65,19 +68,29 @@ function overlayFilterId(body) {
   }
 }
 
+/* ═══════════════ REQUEST ═══════════════ */
 if (IS_REQUEST_PHASE) {
   var _reqUrl = ($request && $request.url) ? String($request.url) : "";
+  var _rawHeaders = ($request && $request.headers) ? $request.headers : {};
 
-  // Media/CDN — engine không làm gì (giữ nguyên chữ ký URL)
-  if (isMediaUrl(_reqUrl)) { $done({}); } else {
+  // 1) WebSocket handshake (wss_v2/group — groups realtime) — KHÔNG đụng 1 byte
+  if (isWebSocketUpgrade(_rawHeaders) || isWebSocketPath(_reqUrl)) {
+    console.log("[locketgold] filters: WebSocket passthrough (group realtime)");
+    $done({});
+  }
+  // 2) Media/CDN — không đụng vào request (URL ký bị sửa → 403)
+  else if (isMediaUrl(_reqUrl)) {
+    $done({});
+  }
+  // 3) Còn lại — xoá header cache + ép vùng US + overlay forward
+  else {
     var headers = {};
-    var src = ($request && $request.headers) ? $request.headers : {};
-    for (var k in src) {
-      if (!Object.prototype.hasOwnProperty.call(src, k)) continue;
+    for (var k in _rawHeaders) {
+      if (!hasOwn(_rawHeaders, k)) continue;
       var lk = String(k).toLowerCase();
       // Bỏ header cache để server KHÔNG trả 304 (304 là body rỗng → filter không render)
       if (lk === "if-none-match" || lk === "if-modified-since" || lk === "x-revenuecat-etag") continue;
-      headers[k] = src[k];
+      headers[k] = _rawHeaders[k];
     }
     // Mở filter AI bị khoá theo vùng (Locket chỉ mở filter thử nghiệm ở US)
     headers["X-App-Region"] = "US";
@@ -101,7 +114,7 @@ if (IS_REQUEST_PHASE) {
             try { dev = deviceId(); } catch (e) {}
             var fwd = {};
             for (var hk in headers) {
-              if (!Object.prototype.hasOwnProperty.call(headers, hk)) continue;
+              if (!hasOwn(headers, hk)) continue;
               var lk2 = String(hk).toLowerCase();
               if (lk2 === "authorization" || lk2 === "cookie" || lk2 === "x-auth-token") continue;
               fwd[hk] = headers[hk];
@@ -124,13 +137,18 @@ if (IS_REQUEST_PHASE) {
 
 /* ═══════════════ RESPONSE — mở khoá paywall filter (402/403/400) ═══════════════ */
 (function () {
+  // WebSocket handshake / 101 Switching Protocols — không đọc body, không đụng
+  var _respHeaders = ($response && $response.headers) ? $response.headers : {};
+  var _status = ($response && ($response.status || $response.statusCode)) || 200;
+  if (_status === 101 || isWebSocketUpgrade(_respHeaders)) { $done({}); return; }
+
   // MEDIA/CDN (ảnh, video, webp…) — bỏ qua HOÀN TOÀN: không gate, không verify.
   var _mediaUrl = "";
   try { _mediaUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
   if (isMediaUrl(_mediaUrl)) { $done({}); return; }
 
   var body = $response.body;
-  var status = $response.status || $response.statusCode || 200;
+  var status = _status;
   var _dbgUrl = "";
   try { _dbgUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
   if (_dbgUrl.indexOf("generateFilteredImage") !== -1) {
@@ -153,7 +171,7 @@ if (IS_REQUEST_PHASE) {
       if (typeof v === "string" && /^https?:\/\//.test(v)) return v;
     }
     for (var k in node) {
-      if (!Object.prototype.hasOwnProperty.call(node, k)) continue;
+      if (!hasOwn(node, k)) continue;
       var val = node[k];
       if (val && typeof val === "object") {
         var found = findImageUrl(val, (depth || 0) + 1);
@@ -218,7 +236,7 @@ if (IS_REQUEST_PHASE) {
       return;
     }
     for (var key in node) {
-      if (!Object.prototype.hasOwnProperty.call(node, key)) continue;
+      if (!hasOwn(node, key)) continue;
       var value = node[key];
       if (value && typeof value === "object") { walk(value, (depth || 0) + 1); continue; }
       var lk = String(key).toLowerCase();
@@ -234,7 +252,7 @@ if (IS_REQUEST_PHASE) {
         lk === "premium_unlocked" || lk === "subscription_active" || lk === "membership_active" ||
         lk === "holiday_filters_enabled" || lk === "holiday_filters_free" || lk === "can_use_holiday_filters" ||
         lk === "can_use_premium_features" || lk === "has_premium" || lk === "has_gold" || lk === "has_pro" ||
-        lk === "has_subscription" || lk === "is_eligible" || lk === "is_unlocked" || lk === "can_unlock" ||
+        lk === "is_eligible" || lk === "is_unlocked" || lk === "can_unlock" ||
         lk === "camera_filters_enabled" || lk === "custom_filters_enabled" || lk === "all_effects_unlocked" ||
         lk === "can_access_gold" || lk === "can_access_premium" || lk === "has_entitlement" || lk === "vip" ||
         lk === "can_generate_filtered_image" || lk === "can_create_filtered_image" ||
@@ -266,14 +284,14 @@ if (IS_REQUEST_PHASE) {
     if (clearUrl && typeof clearUrl === "string") {
       for (var f = 0; f < URL_FIELDS.length; f++) {
         var key = URL_FIELDS[f];
-        if (Object.prototype.hasOwnProperty.call(node, key) && node[key] !== clearUrl) { node[key] = clearUrl; changed = true; }
+        if (hasOwn(node, key) && node[key] !== clearUrl) { node[key] = clearUrl; changed = true; }
       }
-      if (Object.prototype.hasOwnProperty.call(node, "blurred_url")) { node.blurred_url = clearUrl; changed = true; }
-      if (Object.prototype.hasOwnProperty.call(node, "blurred_image_url")) { node.blurred_image_url = clearUrl; changed = true; }
-      if (Object.prototype.hasOwnProperty.call(node, "preview_url") && node.is_blurred) { node.preview_url = clearUrl; changed = true; }
+      if (hasOwn(node, "blurred_url")) { node.blurred_url = clearUrl; changed = true; }
+      if (hasOwn(node, "blurred_image_url")) { node.blurred_image_url = clearUrl; changed = true; }
+      if (hasOwn(node, "preview_url") && node.is_blurred) { node.preview_url = clearUrl; changed = true; }
     }
     for (var k in node) {
-      if (!Object.prototype.hasOwnProperty.call(node, k)) continue;
+      if (!hasOwn(node, k)) continue;
       if (node[k] && typeof node[k] === "object") { if (unblur(node[k], (depth || 0) + 1)) changed = true; }
     }
     return changed;
