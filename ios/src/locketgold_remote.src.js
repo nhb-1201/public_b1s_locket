@@ -50,11 +50,7 @@ var KNOWN_PREMIUM_GATES = [
 ];
 
 /* Gate cần TẮT (Locket filter AI/holiday — không kích hoạt, tránh paywall + nut filter ẩn). */
-var KNOWN_OFF_GATES = [
-  "camera_filter", "camera_filters", "filters", "camera_filter_sheet", "camera_filter_picker",
-  "camera_theme_sheet", "camera_themes_sheet", "camera_theme_picker",
-  "holiday_filters", "ai_filter", "ai_filters", "ai_camera_filter",
-];
+var KNOWN_OFF_GATES = [];
 
 function featureGatesJSON(raw) {
   var obj = {};
@@ -89,9 +85,19 @@ function injectEntries(body) {
 
   var touched = false;
 
+  /* ÉP app coi cấu hình là "mới" — Locket bỏ qua/không áp dụng config khi templateVersion
+     không đổi và cache TTL vẫn còn (chỉ hoạt động khi app tự fetch). Đây là cơ chế chuẩn
+     của Firebase Remote Config v1: state + templateVersion + cache_ttl. */
+  try {
+    obj.state = "UPDATE";
+    obj.templateVersion = String(Date.now());
+  } catch (e) { /* bỏ qua */ }
+
   /* Format chuẩn: {"entries": {...}, "state": ...} */
   if (!obj.entries || typeof obj.entries !== "object") obj.entries = {};
   var forcedCount = 0;
+  obj.entries["cache_ttl_seconds"] = "0";
+  obj.entries["client_cache_ttl_sec"] = "0";
   for (var key in FORCE_ENTRIES) {
     if (!hasOwn(FORCE_ENTRIES, key)) continue;
     obj.entries[key] = FORCE_ENTRIES[key];

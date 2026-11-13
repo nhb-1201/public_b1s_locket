@@ -318,7 +318,7 @@ var FORCE_ENTRIES = {
   "camera": "{\"gold_max_duration\":60,\"goldMaxDuration\":60,\"max_duration\":60,\"maxDuration\":60,\"ultra_wide\":true,\"ultraWide\":true,\"volume_button\":true,\"volumeButton\":true,\"flash_button\":true,\"telephoto\":true,\"srgb\":true,\"lanczos\":true,\"quality_mbps\":2.5,\"qualityMbps\":2.5}",
   "camera_roll": "{\"gold_max_duration\":30,\"goldMaxDuration\":30,\"video_max_duration\":30,\"videoMaxDuration\":30,\"max_duration\":30,\"maxDuration\":30,\"trim_max_duration\":30,\"trimMaxDuration\":30,\"camera_roll_max_duration\":30,\"quality_mbps\":0.6,\"qualityMbps\":0.6,\"flash_button\":true}",
   "live_photos": "{\"capture\":true,\"video\":true,\"viewing\":true,\"catch_up\":true,\"widget_looping_mode\":\"never\"}",
-  "camera_filter_config": "{\"allows_custom_filters\":false,\"show_filter_button\":false,\"sheet_enabled\":false,\"open_sheet_immediately\":false,\"can_use_all_filters\":false,\"all_filters_free\":false,\"is_subscriber\":true,\"unlocked\":true,\"allow_saving_all\":false,\"free_filters\":[],\"holiday_filters_enabled\":false,\"holiday_filters_free\":false,\"sheet_filters\":[],\"picker_filters\":[]}",
+  "camera_filter_config": "{\"allows_custom_filters\":true,\"show_filter_button\":true,\"sheet_enabled\":true,\"open_sheet_immediately\":false,\"can_use_all_filters\":true,\"all_filters_free\":true,\"is_subscriber\":true,\"unlocked\":true,\"allow_saving_all\":true,\"free_filters\":[],\"holiday_filters_enabled\":true,\"holiday_filters_free\":true,\"sheet_filters\":[],\"picker_filters\":[]}",
   "camera_roll_preview_enabled": "true",
   "camera_video_recording": "{\"default\":{\"maximum_duration\":60000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"},\"gold\":{\"maximum_duration\":60000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"}}",
   "android_camera_video_recording": "{\"default\":{\"maximum_duration\":60000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"},\"gold\":{\"maximum_duration\":60000,\"size\":1080,\"file_type\":\"mp4\",\"video_codec\":\"h265\"}}",
@@ -536,6 +536,47 @@ var FORCE_ENTRIES = {
   "has_access": "true",
   "can_use_ai_filter": "true",
   "can_generate_filtered_image": "true",
+  // ── B1sTeam 2026-11-13 (doi chieu LocketGold-DinhTuan): cờ mở khoá toàn diện — mọi filter miễn phí ──
+  "country_code": "US",
+  "region_code": "US",
+  "is_us_user": "true",
+  "all_filters_free": "true",
+  "unlocked_filters": "true",
+  "all_gold_free": "true",
+  "filter_gold_only": "false",
+  "filters_gold_only": "false",
+  "camera_filter_gold_only": "false",
+  "camera_filters_gold_only": "false",
+  "holiday_filters_gold_only": "false",
+  "ai_filter_gold_only": "false",
+  "ai_filters_gold_only": "false",
+  "filter_paywall_enabled": "false",
+  "camera_filter_paywall_enabled": "false",
+  "filter_upsell_enabled": "false",
+  "require_gold_for_filters": "false",
+  "require_gold_for_filter": "false",
+  "requires_gold_for_filters": "false",
+  "requires_gold_for_filter": "false",
+  "requires_gold_for_camera_filters": "false",
+  "requires_gold_for_camera_filter": "false",
+  "camera_filter_requires_gold": "false",
+  "camera_filters_require_gold": "false",
+  "camera_filters_requires_gold": "false",
+  "ai_filter_requires_gold": "false",
+  "ai_filters_require_gold": "false",
+  "filter_requires_gold": "false",
+  "filters_require_gold": "false",
+  "filtered_image_requires_gold": "false",
+  "filtered_images_require_gold": "false",
+  "filtered_image_gold_only": "false",
+  "filtered_images_gold_only": "false",
+  "free_filters_enabled": "true",
+  "filter_selection_enabled": "true",
+  "sheet_filters_selectable": "true",
+  "dismiss_filter_sheet_on_select": "true",
+  "camera_filter_sheet_selection_enabled": "true",
+  "camera_filter_max_count": "50",
+  "max_camera_filters": "50",
   // B1sTeam 2026-11-13: bo sung key Gold theo phan phoi RC cua Locket (dong bo voi locketgold_remote v4.1) — "gold_since_badge" la flag huy hieu "Thanh vien Gold".
   "gold_since_badge": "true",
   "gold_badge_profile_menu": "true",
@@ -608,11 +649,7 @@ var KNOWN_PREMIUM_GATES = [
 ];
 
 /* Gate cần TẮT (Locket filter AI/holiday — không kích hoạt, tránh paywall + nut filter ẩn). */
-var KNOWN_OFF_GATES = [
-  "camera_filter", "camera_filters", "filters", "camera_filter_sheet", "camera_filter_picker",
-  "camera_theme_sheet", "camera_themes_sheet", "camera_theme_picker",
-  "holiday_filters", "ai_filter", "ai_filters", "ai_camera_filter",
-];
+var KNOWN_OFF_GATES = [];
 
 function featureGatesJSON(raw) {
   var obj = {};
@@ -647,9 +684,19 @@ function injectEntries(body) {
 
   var touched = false;
 
+  /* ÉP app coi cấu hình là "mới" — Locket bỏ qua/không áp dụng config khi templateVersion
+     không đổi và cache TTL vẫn còn (chỉ hoạt động khi app tự fetch). Đây là cơ chế chuẩn
+     của Firebase Remote Config v1: state + templateVersion + cache_ttl. */
+  try {
+    obj.state = "UPDATE";
+    obj.templateVersion = String(Date.now());
+  } catch (e) { /* bỏ qua */ }
+
   /* Format chuẩn: {"entries": {...}, "state": ...} */
   if (!obj.entries || typeof obj.entries !== "object") obj.entries = {};
   var forcedCount = 0;
+  obj.entries["cache_ttl_seconds"] = "0";
+  obj.entries["client_cache_ttl_sec"] = "0";
   for (var key in FORCE_ENTRIES) {
     if (!hasOwn(FORCE_ENTRIES, key)) continue;
     obj.entries[key] = FORCE_ENTRIES[key];
