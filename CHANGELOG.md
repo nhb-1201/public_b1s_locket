@@ -57,3 +57,12 @@
 - Admin gold-ops: xoa tab Gold Engine (RC restore), giu License + App Premium.
 - Gold gio tu chu 100% qua MITM rewrite (Gold 2099 + purchase_date = now) — khong the bi thu hoi, khong can receipt cua ai.
 
+
+## v7.4.0 — Full Features (học kỹ thuật từ repo tham khảo) (2026-11-13)
+
+- **Remote Config cache-bust**: ép `state=UPDATE` + `templateVersion=Date.now()` + `cache_ttl*=0` — app luôn apply flags đã rewrite.
+- **Bộ cờ mở khoá toàn diện** (filters miễn phí, không paywall/upsell, US region, filter sheets selectable).
+- **camera_filter_config bật hết** (filter sheet + all_filters_free + holiday_filters + saving).
+- KNOWN_OFF_GATES = [] — không tắt gate nào.
+- AI filter server-side (431) vẫn giới hạn từ server Locket — không fix từ client.
+
