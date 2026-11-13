@@ -40,3 +40,12 @@
 - **Chặn full RevenueCat**: [Url Rewrite] reject-200 toàn bộ revenuecat.com/rc-backup.com/rev.cat — MITM tự tổng hợp Gold 2099; app không gọi được RC thật.
 - DNS v7.0.0 (giữ); worker /frame-raw có frame-14.
 
+
+## v7.2.0 — Captions khung + hotfix CDN vỡ cú pháp (2026-11-13)
+
+- **HOTFIX**: `locketgold_remote.js` trên CDN bị vỡ cú pháp do patch Crayon trước đó (widget_frame_event nhân đôi chuỗi + frames_config thiếu escape) — Locket không parse được script → Gold biến mất. Đã sửa + thêm self-check compile vào `ios/build.mjs` (không thể push script vỡ lên CDN nữa).
+- **Captions**: section "🖼️ Khung Kawaii" — 14 khung làm caption items, icon = ảnh preview (type:image source:url), overlay_id `khung_*` (kích hoạt luồng "đang rửa ảnh" → worker vẽ khung → upload).
+- Worker `/frame-raw`: catalog 14 khung (01–07 tải runtime CDN, 08–14 nhúng), resize về 1024² khi khung khác kích thước.
+- Upload: guard chống vẽ 2 lớp khung (bỏ qua nếu ảnh vừa được app "rửa" qua generateFilteredImage).
+- Backend `/module/*` + `/script/revenuecat` phục vụ LocketGold-only (module 7476 B, 8 scripts).
+
