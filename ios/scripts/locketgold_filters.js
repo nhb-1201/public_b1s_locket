@@ -166,6 +166,13 @@ function forceRegionParams(url) {
 if (IS_REQUEST_PHASE) {
   // Media/CDN — engine không làm gì (giữ nguyên chữ ký URL)
   var _reqUrl = ($request && $request.url) ? String($request.url) : "";
+  if (_reqUrl.indexOf("generateFilteredImage") !== -1) {
+    try {
+      var _b = $request && $request.body ? String($request.body) : "";
+      // Chi log schema (key + prefix), KHONG log toan bo anh base64
+      console.log("[locketgold] filters-debug | REQ url=" + _reqUrl.slice(0, 60) + " | body(head 400)=" + _b.slice(0, 400));
+    } catch (e) {}
+  }
   if (!isMediaRequest(_reqUrl)) {
   var headers = {};
   var src = ($request && $request.headers) ? $request.headers : {};
