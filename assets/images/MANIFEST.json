@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-13T04:04:48.698Z",
+  "generated_at": "2026-11-13T13:10:59.465Z",
   "files": [
     {
       "path": "assets/banner.svg",
@@ -80,6 +80,34 @@
     {
       "path": "assets/fonts/V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
       "bytes": 22320
+    },
+    {
+      "path": "assets/frames/frame-08-valentine.png",
+      "bytes": 12950
+    },
+    {
+      "path": "assets/frames/frame-09-christmas.png",
+      "bytes": 12570
+    },
+    {
+      "path": "assets/frames/frame-10-halloween.png",
+      "bytes": 12910
+    },
+    {
+      "path": "assets/frames/frame-11-neon.png",
+      "bytes": 12490
+    },
+    {
+      "path": "assets/frames/frame-12-gold.png",
+      "bytes": 12934
+    },
+    {
+      "path": "assets/frames/frame-13-pastel.png",
+      "bytes": 12832
+    },
+    {
+      "path": "assets/frames/frame-14-crayon.png",
+      "bytes": 17051
     },
     {
       "path": "assets/icon-doh-locketgold-1024.png",
@@ -214,8 +242,12 @@
       "bytes": 12832
     },
     {
+      "path": "assets/images/kawaii/frame-14-trans.png",
+      "bytes": 17051
+    },
+    {
       "path": "assets/images/MANIFEST.json",
-      "bytes": 2564
+      "bytes": 5664
     },
     {
       "path": "assets/welcome_banner_wide.jpg",

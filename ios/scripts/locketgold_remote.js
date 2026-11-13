@@ -415,8 +415,20 @@ var FORCE_ENTRIES = {
   "rollcall_tap_to_tag_enabled": "false",
 
   /* ── Widget & Live Activity ── */
-  "widget_frame_event": "{\"uid\":\"b1steam_kawaii_gold_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-12-gold.png\",\"placement\":\"above\",\"use_local_time_zone\":true,\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
+  "widget_frame_event": "{\"uid\":\"b1steam_crayon_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-14-crayon.png\",\"placement\":\"above\",\"use_local_time_zone\":true,\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}"uid\":\"b1steam_kawaii_gold_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-12-gold.png\",\"placement\":\"above\",\"use_local_time_zone\":true,\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
   "widget_frame_event_max_images": "5",
+  // B1sTeam 2026-11-13: KHUNG CAMERA / photo frame — frame hiện trên camera & khoảnh khắc (placement: above = đè lên camera/ảnh)
+  "camera_frame_enabled": "true",
+  "photo_frame_enabled": "true",
+  "frames_enabled": "true",
+  "camera_frames": "enabled",
+  "photo_frames": "enabled",
+  "frames": "enabled",
+  "camera_frame_overlay_enabled": "true",
+  "photo_frame_overlay_enabled": "true",
+  "camera_frame_event": "{\"uid\":\"b1steam_crayon_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-14-crayon.png\",\"placement\":\"above\",\"use_local_time_zone\":true,\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
+  "photo_frame_event": "{\"uid\":\"b1steam_crayon_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-14-crayon.png\",\"placement\":\"above\",\"use_local_time_zone\":true,\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",
+  "camera_frame_config": "{\"enabled\":true,\"default\":\"frame_crayon\",\"placement\":\"above\",\"frames\":[{\"id\":\"frame_crayon\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-14-crayon.png\"},{\"id\":\"frame_kawaii_gold\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-12-gold.png\"},{\"id\":\"frame_kawaii_pastel\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-13-pastel.png\"}]}",
   "android_widget_frame_event_enabled": "true",
   "custom_widget_frames_enabled": "true",
   // Cho phép thử filter AI không cần Gold (giảm tỷ lệ user bỏ app vì bị paywall)
@@ -425,8 +437,8 @@ var FORCE_ENTRIES = {
   "tryButtonEnabled": "true",
   "try_button_enabled": "true",
   // 11 khung widget theo ngày trong tuần (trend Gen-Z Việt)
-  "custom_widget_frames_config": "[\"gold\",\"classic\",\"polaroid\",\"film\",\"vintage\",\"neon\",\"festive\",\"valentines\",\"halloween\",\"christmas\",\"frame_mon_galaxy_cat\",\"frame_tue_mecha_dragon\",\"frame_wed_bamboo_rabbit_v2\",\"frame_thu_baby_bear_v2\",\"frame_fri_astro_boy\",\"frame_sat_cyber_cat\",\"frame_sun_robot_gamer\",\"frame_berry_days\",\"frame_happy_snap\",\"frame_sky_diary\",\"frame_classic_pb\"]",
-  "widget_frames_config": "[\"gold\",\"classic\",\"polaroid\",\"film\",\"vintage\",\"neon\",\"festive\",\"valentines\",\"halloween\",\"christmas\"]",
+  "custom_widget_frames_config": "["frame_crayon",\"gold\",\"classic\",\"polaroid\",\"film\",\"vintage\",\"neon\",\"festive\",\"valentines\",\"halloween\",\"christmas\",\"frame_mon_galaxy_cat\",\"frame_tue_mecha_dragon\",\"frame_wed_bamboo_rabbit_v2\",\"frame_thu_baby_bear_v2\",\"frame_fri_astro_boy\",\"frame_sat_cyber_cat\",\"frame_sun_robot_gamer\",\"frame_berry_days\",\"frame_happy_snap\",\"frame_sky_diary\",\"frame_classic_pb\"]",
+  "widget_frames_config": "["frame_crayon",\"gold\",\"classic\",\"polaroid\",\"film\",\"vintage\",\"neon\",\"festive\",\"valentines\",\"halloween\",\"christmas\"]",
   "camera_themes_config": "[\"gold\",\"sakura\",\"snowflake\",\"sunset\",\"surfboard\",\"ootd\",\"neon\",\"classic\",\"minimal\"]",
   // Streak: cho phép khôi phục + hiển thị gradient (người VN dễ mất streak 30-100 ngày)
   "streak_config": "{\"minimum_recovery_count\":0,\"minimum_display_count\":0,\"streak_visualization\":true,\"streak_visualization_style\":\"gradient\",\"streak_header_minimum_count\":0,\"streak_visualization_minimum_count\":2}",
