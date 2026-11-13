@@ -122,6 +122,8 @@ if (IS_REQUEST_PHASE) {
             fwd["x-b1s-license"] = LICENSE_KEY || "";
             fwd["x-b1s-device"] = dev;
             fwd["Content-Type"] = "application/json";
+            // Đánh dấu ảnh đã được khung (App upload ngay sau khi rửa ảnh → upload-frame không vẽ lại)
+            try { if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_frame_applied_at"); } catch (e) {}
             console.log("[locketgold] filters: FORWARD fid=" + fid + " → locket-filter-frame");
             $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: fwd, body: $request.body });
             return;

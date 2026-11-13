@@ -17,6 +17,7 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import vm from "node:vm";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const SRC = join(ROOT, "src");
@@ -91,6 +92,16 @@ for (const { source, target, content } of outputs) {
     else console.log(`OK     ${relative(REPO_IOS, target)}`);
   } else {
     writeFileSync(target, content, "utf8");
+    // Self-check chỉ cho .js (bỏ qua .sgmodule — file INI, không phải JS).
+    // Bọc trong function wrapper — Shadowrocket cho phép `return` ở top-level script.
+    if (target.endsWith(".js")) {
+      try {
+        new vm.Script("(function(){\n" + content + "\n});", { filename: relative(REPO_IOS, target) });
+      } catch (e) {
+        console.error(`SYNTAX FAIL  ${relative(REPO_IOS, target)} — ${e.message}`);
+        process.exit(1);
+      }
+    }
     console.log(`${same ? "UNCHANGED" : "WROTE"}  ${relative(REPO_IOS, target)}  (${(content.length / 1024).toFixed(1)} KB)`);
   }
 }
