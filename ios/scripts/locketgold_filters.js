@@ -195,7 +195,30 @@ if (IS_REQUEST_PHASE) {
   if (nextUrl && $request && _reqUrl && nextUrl !== _reqUrl) out.url = nextUrl;
 
   gate(
-    function () { $done(out); },
+    function () {
+      try {
+        if (_reqUrl.indexOf("generateFilteredImage") !== -1 && $request && $request.body && typeof $request.body === "string") {
+          var _o = JSON.parse($request.body);
+          var _fid = String(_o.filter_id || _o.filterId || _o.id || _o.filter || _o.filterID || "").toLowerCase();
+          var _isOverlay = /photobooth|photoboot|4cut|^pb_|^khung_|^frame_|sticker|cmt_locket|custom_frame|overlay|^khung/.test(_fid);
+          if (_isOverlay) {
+            var _img = String(_o.input_url || _o.imageUrl || _o.image_url || _o.url || _o.image || "");
+            var _respBody = JSON.stringify({
+              result: {
+                outputUrl: _img, output_url: _img, url: _img, imageUrl: _img, image_url: _img,
+                status: 200, is_locked: false, is_gold: true, is_premium: true,
+                requires_gold: false, requires_subscription: false, is_subscribed: true, unlocked: true,
+                data: { outputUrl: _img, output_url: _img, url: _img, imageUrl: _img, image_url: _img, status: 200 },
+              },
+            });
+            console.log("[locketgold] filters-debug | MOCK overlay fid=" + _fid + " | img=" + (_img ? _img.slice(0, 40) : "(none)"));
+            $done({ response: { status: 200, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: _respBody } });
+            return;
+          }
+        }
+      } catch (e) { console.log("[locketgold] filters-debug | overlay-parse-err: " + String(e).slice(0, 80)); }
+      $done(out);
+    },
     function () { $done({}); }
   );
   } else {
