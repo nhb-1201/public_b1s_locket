@@ -15,7 +15,6 @@ khác** — tất cả đã được viết lại (rewrite) để chạy trên e
 | `locketgold_remote.js` | LocketGold | Ép Firebase Remote Config — ~196 entries (camera, widget frame, streak, caption, upsell…). |
 | `locketgold_profile.js` | LocketGold | Huy hiệu Gold + thông tin hồ sơ + paywall filter 402/403 + unblur. |
 | `locketgold_filters.js` | LocketGold | Mở khoá filter (paywall 402/403) + ép vùng US (header + query) + forward overlay → worker khung Kawaii. |
-| `locketgold_deleteHeader.js` | LocketGold | Xoá header cache `x-revenuecat-etag` để app không nhận 304 (body rỗng). |
 
 > **Build**: các file trên là OUTPUT của `ios/build.mjs` từ `ios/src/**` — không sửa tay.
 > License gate (fail-closed) nằm ở 1 nguồn duy nhất: `ios/src/lib/license-gate.js` — được inline vào mọi script khi build.

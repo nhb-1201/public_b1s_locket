@@ -48,8 +48,7 @@ ios/
     locketgold_remote.js       ← ép Firebase Remote Config (~196 entries premium)
     locketgold_profile.js      ← badge Gold + tích xanh + paywall filter (402/403/400) + unblur
     locketgold_filters.js      ← ép vùng US + unblur + xoá cache 304 + forward overlay → worker khung Kawaii
-    locketgold_deleteHeader.js ← xoá ETag/If-None-Match (chỉ xoá header)
-  alfretro-allinone.conf    ← cấu hình Shadowrocket All-In-One (nguồn chân lý cho .conf + .sgmodule)
+      alfretro-allinone.conf    ← cấu hình Shadowrocket All-In-One (nguồn chân lý cho .conf + .sgmodule)
   locketgold.sgmodule       ← Shadowrocket MODULE (GENERATED — %APPEND% ở [MITM])
   locketgold.mobileconfig   ← hồ sơ Split DNS (iOS) — chỉ route Locket + RC + Firebase RC
   locketgold.conf           ← config Shadowrocket tĩnh (phiên bản LocketGold)
