@@ -32,3 +32,11 @@
 ## v1.0.0 — LocketGold (gốc)
 
 - Phiên bản Shadowrocket module đầu tiên.
+
+## v7.1.0 — LocketGold-only + Khung Crayon (2026-11-13)
+
+- **LocketGold ONLY**: xóa 2 app premium scripts (YouTube, Spotify) — .conf chỉ còn 8 scripts LocketGold; [Rule]/[MITM]/[Script] sạch 100%, DNS tối thiểu (doh + system — giảm tải RAM tunnel iOS 50MB).
+- **Khung Crayon (frame-14)**: khung tự vẽ (RGBA 1024², trong suốt giữa, viên đỏ–vàng dày sát viền, 4 bé Kawaii nguyên bản 4 góc) — widget_frame_event → frame-14, thêm speculative camera/photo frame keys, upload mặc định khung_crayon.
+- **Chặn full RevenueCat**: [Url Rewrite] reject-200 toàn bộ revenuecat.com/rc-backup.com/rev.cat — MITM tự tổng hợp Gold 2099; app không gọi được RC thật.
+- DNS v7.0.0 (giữ); worker /frame-raw có frame-14.
+
