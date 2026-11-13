@@ -104,7 +104,7 @@ var FORCE_ENTRIES = {
 
   /* ── Paywall: tắt hẳn (đã premium) ── */
   "paywall_presentation_config": "{\"uid\":\"paywall_disabled\",\"onboarding\":false,\"after_sent_moment\":false,\"on_foreground\":false,\"interval\":999999999,\"profile_banner\":false}",
-  "feature_discovery_popup_config": "{\"tag\":\"🎀 KAWAII FRAMES\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"Chụp ảnh cùng khung Kawaii!\",\"feature_set\":[{\"title\":\"Khung Kawaii - B1sTeam\",\"body\":\"Các khung Kawaii cực cute đã có sẵn trong caption picker — Valentine, Noel, Halloween, Neon, Vàng, Pastel. Chụp ảnh và chọn khung trong caption picker!\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/images/kawaii/frame-12-gold.png\"}]}",
+  "feature_discovery_popup_config": "{\"tag\":\"LOCKET GOLD\",\"tag_gradient\":true,\"tag_style\":\"gold_gradient\",\"title\":\"B1sTeam Gold 💛\",\"feature_set\":[{\"title\":\"Locket Gold - B1sTeam\",\"body\":\"Chúc mừng! Bạn đã nâng cấp Locket Gold thành công bởi B1sTeam — Nguyễn Hoàng Bách · b1s.id.vn · @b1steam. Khung Kawaii đã có trong caption picker!\",\"imageURL\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/welcome_banner_wide.jpg\"}]}",
 
   // ── B1sTeam: GATE + CAMERA/THEME/FILTER (đối chiếu 2 nguồn tham khảo) ──
   "camera_filter": "enabled",
