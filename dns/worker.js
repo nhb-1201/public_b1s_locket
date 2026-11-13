@@ -1,47 +1,43 @@
 // author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * Locket Gold DNS — B1sTeam v4.0 (1 FILE DUY NHẤT cho toàn hệ thống) · DoH Worker (Cloudflare, RFC 8484)
+ * B1sTeam DoH — RFC 8484 resolver (Cloudflare Worker) · v7.0.0
  * Endpoint: https://doh.b1s.id.vn/dns-query
  *
- * GỘP CHUNG DNS VỀ 1 FILE — mọi app/tính năng B1sTeam dùng chung resolver này:
- *   • Split DNS (qua profile mobileconfig / Private DNS Android):
- *       only Locket/RevenueCat/Firebase RC → qua DNS này (chặn anti-revoke)
- *   • Mọi query khác → Race 3 upstream (1.1.1.1 / 8.8.8.8 / 9.9.9.9) — upstream đầu tiên trả lời THẮNG.
- *   • Edge cache (caches.default): GET & POST (POST cache theo hash query) — hàng nghìn thiết bị
- *     truy cập vẫn chia sẻ cache, gần như 0 upstream call khi hit.
- *   • STALE-IF-ERROR: upstream chết hàng loạt → vẫn phục vụ bản cache (kể cả REFUSED của anti-revoke)
- *     → chống sập "toàn bộ DNS" khi Cloudflare/Google/Quad9 outage.
+ * GỌI CHUNG DNS CHO TOÀN HỆ THỐNG AlFreToU (Shadowrocket .conf/.module, Android Private DNS, profile):
+ *   · Mọi query → race 3 upstream (1.1.1.1 / 8.8.8.8 / 9.9.9.9) — upstream đầu tiên trả lời THẮNG.
+ *   · Edge cache (caches.default): GET & POST (POST cache theo hash query, bỏ Transaction ID) —
+ *     hàng nghìn thiết bị vẫn chia sẻ cache, ~0 upstream call khi HIT.
+ *   · STALE-IF-ERROR: upstream chết hàng loạt → vẫn phục vụ bản cache cũ (chống sập toàn hệ thống).
+ *   · Blocklist theo nhóm: telemetry + ads (xem BLOCK_GROUPS) → REFUSED.
+ *     anti-revoke (chặn RevenueCat) CỐ Ý để TRỐNG: đo thực tế (2026-11) — khi RC không resolve được,
+ *     SDK dùng cache không có → app ẨN huy hiệu Gold + UI membership. Unlock bằng MITM (b1s_unlock.js)
+ *     đã rewrite RC response nên entitlement luôn "Gold 2099" — chặn DNS chỉ phản tác dụng.
  *
- * Kiến trúc Split DNS (anti-revoke + telemetry — chặn theo yêu cầu chủ repo):
- *   • revenuecat.com / rc-backup.com / rev.cat              → REFUSED (chống thu hồi)
- *   • app-measurement.com / firebaselogging-pa.googleapis.com / mixpanel.com / api.mixpanel.com / in.appcenter.ms → REFUSED
- *   • Mọi domain khác → race upstream, cache; khi sập tất cả → trả bản cache cũ (stale-if-error).
- *
- * Hỗ trợ cả hai kiểu truy vấn DoH:
- *   • GET  ?name=<domain>&type=<type>  → application/dns-json
- *   • POST (body: application/dns-message) → application/dns-message
+ * Hỗ trợ cả hai kiểu truy vấn DoH (RFC 8484):
+ *   · GET  ?name=<domain>&type=<type>   → application/dns-json
+ *   · GET  ?dns=<base64url wire message> → application/dns-message (iOS/Android system resolver)
+ *   · POST (body: application/dns-message) → application/dns-message
  *
  * B1sTeam — b1s.id.vn · Zalo 083.3399.553 · Nguyễn Hoàng Bách
  */
 
-const VERSION = "6.2.0";
+const VERSION = "7.0.0";
 const UPSTREAMS = ["https://1.1.1.1/dns-query", "https://8.8.8.8/dns-query", "https://9.9.9.9/dns-query"];
-const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
-const CACHE_STALE = 86400; // giây — tuổi tối đa bản stale khi upstream chết
-/** true = từ chối truy vấn các domain trong BLOCKLIST */
-const BLOCK_LOCKET = true;
+const CACHE_TTL = 300;      // giây — pin cache ở edge Cloudflare (5 phút)
+const CACHE_STALE = 86400;  // giây — tuổi tối đa bản stale khi upstream chết (24h)
+/** true = từ chối truy vấn các domain trong BLOCK_GROUPS */
+const BLOCK_ENABLED = true;
 
 /* ═══════════════════════════════════════════════════════════════════════════
- *  B1sTeam — Blocklist theo nhóm
- *  · anti-revoke  : chặn gốc RevenueCat (bắt buộc — app không hỏi server là mất Gold)
- *  · telemetry    : SDK đo lườ/attribution/crash — chặn để app không "rò" dữ liệu người dùng
+ *  B1sTeam — Blocklist theo nhóm (CHỈ liệt kê domain cụ thể — KHÔNG wildcard)
+ *  · anti-revoke : ĐỂ TRỐNG có chủ đích (xem header comment). Không thêm lại
+ *                  revenuecat.com / rc-backup.com / rev.cat — sẽ làm hỏng badge Gold.
+ *  · telemetry   : SDK đo lường / attribution / crash — app không "rò" dữ liệu người dùng
  *  · ads-global  : mạng quảng cáo toàn cầu
- *  · ads-vn      : quảng cáo Việt Nam (app VN hay gửi người dùng sang trang nhập tạo)
- *  KHÔNG dùng wildcard — chỉ liệt kê domain cụ thể để không chặn nhầm dịch vụ.
+ *  · ads-vn      : cờ bạc/redirect lừa đảo Việt Nam (KHÔNG chặn vnexpress/fpt/zing — đó là
+ *                  báo chí/nhà mạng thật, chặn sẽ sập app/web của người dùng VN)
  * ═══════════════════════════════════════════════════════════════════════════ */
 const BLOCK_GROUPS = {
-  // B1sTeam v6.2 (2026-11-13): GOI BO anti-revoke — chan RevenueCat o DNS lam chet RC SDK (app khong resolve duoc RC) → RC dung cache on-disk khong co/cu → app an huy hieu Gold + UI membership + paywall.
-  // MITM (b1s_unlock.js) da rewrite RC responses (Gold 2099) → khong can chan DNS; chan DNS chi gay phan tac dung.
   "anti-revoke": [],
   telemetry: [
     "app-measurement.com",
@@ -90,18 +86,16 @@ const BLOCK_GROUPS = {
     "yieldmo.com",
   ],
   "ads-vn": [
-    "zing.vn",
-    "zingme.vn",
-    "fpt.vn",
-    "vnexpress.net",
-    "hara.vn",
-    "fado.vn",
     "for88.vn",
     "for88vn.com",
+    "hara.vn",
+    "fado.vn",
   ],
 };
 
 const BLOCKED_DOMAINS = [...new Set(Object.values(BLOCK_GROUPS).flat())];
+
+const TYPE_MAP = { A: 1, AAAA: 28, CNAME: 5, TXT: 16, MX: 15, NS: 2, SOA: 6, HTTPS: 65, SVCB: 64 };
 
 function corsHeaders(extra = {}) {
   return {
@@ -132,7 +126,8 @@ const dnsJson = (status, question = [], extra = {}) =>
 
 const QUESTION = (name, type) => [{ name, type: Number(type) || 1 }];
 
-/* ─── Upstream race: query 1 upstream tại 1 thời điểm, trả về instance nhanh nhất ─── */
+/* ─── Upstream race: trả về upstream phản hồi ĐẦU TIÊN ───
+   Không abort request thua khi đã resolve — hủy sớm sẽ mất body của response thắng (CF 1101). */
 async function raceQueryJson(name, type) {
   const attempt = async (upstream) => {
     const target = new URL(upstream);
@@ -146,8 +141,6 @@ async function raceQueryJson(name, type) {
     if (!res.ok) throw new Error(`upstream ${upstream} → HTTP ${res.status}`);
     return res;
   };
-  // Race THẬT: trả về upstream phản hồi ĐẦU TIÊN (không đợi cả 3).
-  // KHÔNG abort các request thua ngay khi resolve — sẽ hủy luôn body của response thắng (1101).
   try {
     return await Promise.any(UPSTREAMS.map((u) => attempt(u)));
   } catch {
@@ -194,243 +187,6 @@ function base64UrlToArrayBuffer(b64) {
   return out.buffer;
 }
 
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-
-    // ── Health / index
-    if (url.pathname === "/" || url.pathname === "/health") {
-      return new Response(
-        JSON.stringify({
-          success: true,
-          service: "locketgold-dns",
-          release: "B1sTeam",
-          version: VERSION,
-          doh: "https://doh.b1s.id.vn/dns-query",
-          policy: { blocked: BLOCKED_DOMAINS, groups: BLOCK_GROUPS, upstreams: UPSTREAMS, staleIfError: true, singleFile: true },
-          ts: new Date().toISOString(),
-        }),
-        { status: 200, headers: corsHeaders({ "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60", ...securityHeaders() }) },
-      );
-    }
-
-    // ── CORS preflight
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: { ...corsHeaders(), ...securityHeaders() } });
-    }
-
-    if (url.pathname !== "/dns-query") {
-      return new Response("Not Found", { status: 404, headers: { ...corsHeaders(), ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" } });
-    }
-
-    /* ════════ POST — application/dns-message (RFC 8484 §4.2.2) ════════ */
-    if (request.method === "POST") {
-      const contentType = (request.headers.get("content-type") || "").split(";")[0].trim();
-      if (contentType !== "application/dns-message") {
-        return new Response(dnsJson(1, [], { Comment: "Unsupported content-type; use application/dns-message" }), {
-          status: 415,
-          headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
-        });
-      }
-
-      let body;
-      try {
-        body = await request.arrayBuffer();
-        if (body.byteLength === 0 || body.byteLength > 512) {
-          return new Response(dnsJson(1, [], { Comment: "Invalid dns-message length" }), {
-            status: 400,
-            headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
-          });
-        }
-      } catch {
-        return new Response("Bad Request", { status: 400, headers: corsHeaders({ ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" }) });
-      }
-
-      return await handleDnsMessage(body);
-    }
-
-async function handleDnsMessage(body) {
-      // ── POST cache (synthetic key từ hash body) — tính trước để cả nhánh blocked cũng cache được
-      const cache = caches.default;
-      // Hash BỎ Transaction ID (byte 0-1) → cache key ổn định cho cùng 1 câu hỏi.
-      const postKey = new Request(`https://doh.b1s.id.vn/__cache_post/${await hashBody(new Uint8Array(body).slice(2))}`, { method: "GET" });
-      const staleKey = new Request(`https://doh.b1s.id.vn/__cache_post_stale/${await hashBody(new Uint8Array(body).slice(2))}`, { method: "GET" });
-
-      const refuseAndCache = async () => {
-        const refused = refusedDnsMessage(body);
-        try {
-          const refusedCopy = refused.clone();
-          refusedCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
-          await cache.put(postKey, refusedCopy);
-        } catch { /* bỏ qua */ }
-        return refused;
-      };
-
-      // ── POST cache HIT — kiểm tra TRƯỚC cả blocklist/upstream: cache đủ cả REFUSED lẫn câu trả lời thường
-      const cached = await cache.match(postKey);
-      if (cached) {
-        // Vá lại Transaction ID của query hiện tại vào gói trả về (client đòi TXID khớp).
-        const cachedBuf = await cached.arrayBuffer();
-        const out = new Uint8Array(cachedBuf.byteLength);
-        out.set(new Uint8Array(cachedBuf));
-        out.set(new Uint8Array(body).slice(0, 2), 0);
-        return new Response(out, {
-          status: 200,
-          headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_TTL}`, "X-Cache": "HIT", ...securityHeaders() }),
-        });
-      }
-
-      const qname = readQName(body);
-      if (BLOCK_LOCKET) {
-        if (qname && isBlocked(qname)) {
-          return await refuseAndCache();
-        }
-        if (!qname) {
-          // Fail-closed: không đọc được tên → KHÔNG cho lọt (tránh lách blocklist bằng compression pointer).
-          const peek = peekQuestion(body);
-          if (peek && isBlocked(peek)) {
-            return await refuseAndCache();
-          }
-        }
-      }
-
-      const upstream = await raceQueryMessage(body);
-      if (upstream && upstream.ok) {
-        const buf = await upstream.arrayBuffer();
-        const resp = new Response(buf, {
-          status: 200,
-          headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_TTL}`, "X-Cache": "MISS", ...securityHeaders() }),
-        });
-        const cachedCopy = resp.clone();
-        cachedCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
-        try { await cache.put(staleKey, cachedCopy); } catch { /* bỏ qua */ }
-        // Bản FRESH cho lần truy vấn trùng trong 5 phút → HIT, không gọi upstream.
-        const freshCopy = resp.clone();
-        freshCopy.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
-        try { await cache.put(postKey, freshCopy); } catch { /* bỏ qua */ }
-        return resp;
-      }
-
-      // ── stale-if-error: dùng bản stale nếu có (kể cả khi upstream chết hàng loạt)
-      const stale = await cache.match(staleKey).catch(() => null);
-      if (stale) {
-        const staleBuf = await stale.arrayBuffer();
-        const out = new Uint8Array(staleBuf.byteLength);
-        out.set(new Uint8Array(staleBuf));
-        out.set(new Uint8Array(body).slice(0, 2), 0);
-        return new Response(out, {
-          status: 200,
-          headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_STALE}`, "X-Cache": "STALE", ...securityHeaders() }),
-        });
-      }
-      return new Response("Upstream Unavailable", { status: 502, headers: corsHeaders({ ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" }) });
-
-}
-
-    /* ════════ RFC 8484 GET — ?dns=<base64url wire message> (iOS/Android system DoH client) ════════ */
-    const dnsParam = url.searchParams.get("dns");
-    if (dnsParam) {
-      try {
-        const buf = base64UrlToArrayBuffer(dnsParam);
-        if (!buf || buf.byteLength === 0 || buf.byteLength > 512) {
-          return new Response(dnsJson(1, [], { Comment: "Invalid dns param" }), { status: 400, headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }) });
-        }
-        return await handleDnsMessage(buf);
-      } catch {
-        return new Response(dnsJson(1, [], { Comment: "Invalid base64url dns param" }), { status: 400, headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }) });
-      }
-    }
-
-    /* ════════ GET — application/dns-json (edge-cached + race + stale-if-error) ════════ */
-    if (request.method !== "GET" && request.method !== "HEAD") {
-      return new Response("Method Not Allowed", { status: 405, headers: { ...corsHeaders(), Allow: "GET, POST, OPTIONS", ...securityHeaders() } });
-    }
-
-    const cache = caches.default;
-    // v6.2 (2026-11-13): them VERSION vao cache key — lam moi toan bo cache REFUSED cu (anti-revoke da go): client se MISS va upstream that.
-    const cacheUrl = new URL(url.toString());
-    cacheUrl.searchParams.set("v", VERSION);
-    const cacheKey = new Request(cacheUrl.toString(), { method: "GET" });
-    const staleKey = new Request(`${cacheUrl.toString()}&__stale=1`, { method: "GET" });
-    const cached = request.method === "GET" ? await cache.match(cacheKey) : null;
-    if (cached) {
-      const fresh = new Response(cached.body, cached);
-      fresh.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
-      fresh.headers.set("X-Cache", "HIT");
-      return fresh;
-    }
-
-    const respondGet = async (response) => {
-      if (request.method === "GET" && response.status === 200) {
-        // Bản STALE (24h) — dùng khi upstream chết (chống sập toàn hệ thống).
-        const cachedCopy = response.clone();
-        cachedCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
-        try { await cache.put(staleKey, cachedCopy); } catch { /* bỏ qua */ }
-        // Bản FRESH (5 phút) — thiết bị sau truy vấn trùng query sẽ HIT, không đụng upstream (chống sập khi hàng nghìn thiết bị).
-        const freshCopy = response.clone();
-        freshCopy.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
-        freshCopy.headers.set("X-Cache", "MISS");
-        try { await cache.put(cacheKey, freshCopy); } catch { /* bỏ qua */ }
-        const out = new Response(response.body, response);
-        out.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
-        out.headers.set("X-Cache", "MISS");
-        return out;
-      }
-      return response;
-    };
-
-    const name = url.searchParams.get("name");
-    const typeParam = (url.searchParams.get("type") || "A").toUpperCase();
-    const type = /^\d+$/.test(typeParam) ? Number(typeParam) : ({ A: 1, AAAA: 28, CNAME: 5, TXT: 16, MX: 15, NS: 2, SOA: 6, HTTPS: 65, SVCB: 64 }[typeParam] || null);
-
-    if (!name || name.length > 253) {
-      return new Response(dnsJson(1, [], { Comment: "Missing or invalid 'name'" }), {
-        status: 400,
-        headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
-      });
-    }
-    if (type === null) {
-      return new Response(dnsJson(1, [], { Comment: `Unsupported type '${typeParam}'` }), {
-        status: 400,
-        headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
-      });
-    }
-
-    const question = QUESTION(name, type);
-
-    // ── Split DNS: REFUSED các domain anti-revoke / telemetry
-    if (BLOCK_LOCKET && isBlocked(name)) {
-      return await respondGet(new Response(dnsJson(5, question, { Comment: "Blocked by LocketGold anti-revoke policy (B1sTeam)" }), {
-        status: 200, // dns-json convention: HTTP 200 + Status 5 (REFUSED)
-        headers: corsHeaders({ "Content-Type": "application/dns-json", "Cache-Control": `public, max-age=${CACHE_STALE}`, ...securityHeaders() }),
-      }));
-    }
-
-    const upstream = await raceQueryJson(name, type);
-    if (upstream) {
-      const data = await upstream.json();
-      return await respondGet(new Response(JSON.stringify(data), {
-        status: 200,
-        headers: corsHeaders({ "Content-Type": "application/dns-json", "Cache-Control": `public, max-age=${CACHE_TTL}`, ...securityHeaders() }),
-      }));
-    }
-
-    // ── stale-if-error: phục vụ bản cũ (24h) nếu upstream chết hết
-    const stale = await cache.match(staleKey).catch(() => null);
-    if (stale) {
-      return new Response(stale.body, {
-        status: 200,
-        headers: corsHeaders({ "Content-Type": "application/dns-json", "Cache-Control": `public, max-age=${CACHE_STALE}`, "X-Cache": "STALE", ...securityHeaders() }),
-      });
-    }
-
-    return new Response(dnsJson(2, question, { Comment: "Upstream unavailable" }), {
-      status: 502,
-      headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
-    });
-  },
-};
-
 /* ─── Đọc QNAME từ dns-message ─── */
 function readQName(buffer) {
   try {
@@ -440,7 +196,7 @@ function readQName(buffer) {
     while (offset < buffer.byteLength) {
       const len = view.getUint8(offset);
       if (len === 0) break;
-      if ((len & 0xc0) === 0xc0) return null; // compression pointer — không đọc được tên (xử lý fail-closed ở caller)
+      if ((len & 0xc0) === 0xc0) return null; // compression pointer — xử lý fail-closed ở caller
       offset += 1;
       if (offset + len > buffer.byteLength) return null;
       labels.push(new TextDecoder().decode(new Uint8Array(buffer, offset, len)));
@@ -505,3 +261,236 @@ function refusedDnsMessage(queryBuffer) {
     headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_STALE}`, ...securityHeaders() }),
   });
 }
+
+/* ════════ POST/GET(?dns=) — application/dns-message (RFC 8484) ════════ */
+async function handleDnsMessage(body) {
+  const cache = caches.default;
+  // Hash BỎ Transaction ID (2 byte đầu) → cache key ổn định cho cùng 1 câu hỏi.
+  const postKey = new Request(`https://doh.b1s.id.vn/__cache_post/${await hashBody(new Uint8Array(body).slice(2))}`, { method: "GET" });
+  const staleKey = new Request(`https://doh.b1s.id.vn/__cache_post_stale/${await hashBody(new Uint8Array(body).slice(2))}`, { method: "GET" });
+
+  const refuseAndCache = async () => {
+    const refused = refusedDnsMessage(body);
+    try {
+      const copy = refused.clone();
+      copy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
+      await cache.put(postKey, copy);
+    } catch { /* bỏ qua */ }
+    return refused;
+  };
+
+  // ── POST cache HIT — kiểm tra TRƯỚC cả blocklist/upstream: cache đủ cả REFUSED lẫn câu trả lời thường
+  const cached = await cache.match(postKey);
+  if (cached) {
+    // Vá lại Transaction ID của query hiện tại vào gói trả về (client đòi TXID khớp).
+    const cachedBuf = await cached.arrayBuffer();
+    const out = new Uint8Array(cachedBuf.byteLength);
+    out.set(new Uint8Array(cachedBuf));
+    out.set(new Uint8Array(body).slice(0, 2), 0);
+    return new Response(out, {
+      status: 200,
+      headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_TTL}`, "X-Cache": "HIT", ...securityHeaders() }),
+    });
+  }
+
+  const qname = readQName(body);
+  if (BLOCK_ENABLED) {
+    if (qname && isBlocked(qname)) return await refuseAndCache();
+    if (!qname) {
+      // Fail-closed: không đọc được tên → KHÔNG cho lọt (tránh lách blocklist bằng compression pointer).
+      const peek = peekQuestion(body);
+      if (peek && isBlocked(peek)) return await refuseAndCache();
+    }
+  }
+
+  const upstream = await raceQueryMessage(body);
+  if (upstream && upstream.ok) {
+    const buf = await upstream.arrayBuffer();
+    const resp = new Response(buf, {
+      status: 200,
+      headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_TTL}`, "X-Cache": "MISS", ...securityHeaders() }),
+    });
+    // STALE (24h) — dùng khi upstream chết hàng loạt
+    const staleCopy = resp.clone();
+    staleCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
+    try { await cache.put(staleKey, staleCopy); } catch { /* bỏ qua */ }
+    // FRESH (5 phút) — thiết bị sau truy vấn trùng sẽ HIT, không gọi upstream
+    const freshCopy = resp.clone();
+    freshCopy.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+    try { await cache.put(postKey, freshCopy); } catch { /* bỏ qua */ }
+    return resp;
+  }
+
+  // ── stale-if-error: dùng bản stale nếu có (kể cả khi upstream chết hàng loạt)
+  const stale = await cache.match(staleKey).catch(() => null);
+  if (stale) {
+    const staleBuf = await stale.arrayBuffer();
+    const out = new Uint8Array(staleBuf.byteLength);
+    out.set(new Uint8Array(staleBuf));
+    out.set(new Uint8Array(body).slice(0, 2), 0);
+    return new Response(out, {
+      status: 200,
+      headers: corsHeaders({ "Content-Type": "application/dns-message", "Cache-Control": `public, max-age=${CACHE_STALE}`, "X-Cache": "STALE", ...securityHeaders() }),
+    });
+  }
+  return new Response("Upstream Unavailable", { status: 502, headers: corsHeaders({ ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" }) });
+}
+
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+
+    // ── Health / index
+    if (url.pathname === "/" || url.pathname === "/health") {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          service: "b1steam-doh",
+          release: "B1sTeam",
+          version: VERSION,
+          doh: "https://doh.b1s.id.vn/dns-query",
+          policy: { blocked: BLOCKED_DOMAINS, groups: BLOCK_GROUPS, upstreams: UPSTREAMS, staleIfError: true, singleFile: true },
+          ts: new Date().toISOString(),
+        }),
+        { status: 200, headers: corsHeaders({ "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60", ...securityHeaders() }) },
+      );
+    }
+
+    // ── CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: { ...corsHeaders(), ...securityHeaders() } });
+    }
+
+    if (url.pathname !== "/dns-query") {
+      return new Response("Not Found", { status: 404, headers: { ...corsHeaders(), ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" } });
+    }
+
+    /* ════════ POST — application/dns-message (RFC 8484 §4.2.2) ════════ */
+    if (request.method === "POST") {
+      const contentType = (request.headers.get("content-type") || "").split(";")[0].trim();
+      if (contentType !== "application/dns-message") {
+        return new Response(dnsJson(1, [], { Comment: "Unsupported content-type; use application/dns-message" }), {
+          status: 415,
+          headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
+        });
+      }
+
+      let body;
+      try {
+        body = await request.arrayBuffer();
+        if (body.byteLength === 0 || body.byteLength > 512) {
+          return new Response(dnsJson(1, [], { Comment: "Invalid dns-message length" }), {
+            status: 400,
+            headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
+          });
+        }
+      } catch {
+        return new Response("Bad Request", { status: 400, headers: corsHeaders({ ...securityHeaders(), "Content-Type": "text/plain; charset=utf-8" }) });
+      }
+
+      return await handleDnsMessage(body);
+    }
+
+    /* ════════ RFC 8484 GET — ?dns=<base64url wire message> (iOS/Android system DoH client) ════════ */
+    const dnsParam = url.searchParams.get("dns");
+    if (dnsParam) {
+      try {
+        const buf = base64UrlToArrayBuffer(dnsParam);
+        if (!buf || buf.byteLength === 0 || buf.byteLength > 512) {
+          return new Response(dnsJson(1, [], { Comment: "Invalid dns param" }), { status: 400, headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }) });
+        }
+        return await handleDnsMessage(buf);
+      } catch {
+        return new Response(dnsJson(1, [], { Comment: "Invalid base64url dns param" }), { status: 400, headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }) });
+      }
+    }
+
+    /* ════════ GET — application/dns-json (edge-cached + race + stale-if-error) ════════ */
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      return new Response("Method Not Allowed", { status: 405, headers: { ...corsHeaders(), Allow: "GET, POST, OPTIONS", ...securityHeaders() } });
+    }
+
+    const cache = caches.default;
+    // Thêm VERSION vào cache key — đổi blocklist sẽ làm mới toàn bộ cache (HIT giả → MISS).
+    const cacheUrl = new URL(url.toString());
+    cacheUrl.searchParams.set("v", VERSION);
+    const cacheKey = new Request(cacheUrl.toString(), { method: "GET" });
+    const staleKey = new Request(`${cacheUrl.toString()}&__stale=1`, { method: "GET" });
+    const cached = request.method === "GET" ? await cache.match(cacheKey) : null;
+    if (cached) {
+      const fresh = new Response(cached.body, cached);
+      fresh.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+      fresh.headers.set("X-Cache", "HIT");
+      return fresh;
+    }
+
+    const respondGet = async (response) => {
+      if (request.method === "GET" && response.status === 200) {
+        // Bản STALE (24h) — dùng khi upstream chết (chống sập toàn hệ thống).
+        const staleCopy = response.clone();
+        staleCopy.headers.set("Cache-Control", `public, max-age=${CACHE_STALE}`);
+        try { await cache.put(staleKey, staleCopy); } catch { /* bỏ qua */ }
+        // Bản FRESH (5 phút) — thiết bị sau truy vấn trùng query sẽ HIT, không đụng upstream.
+        const freshCopy = response.clone();
+        freshCopy.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+        freshCopy.headers.set("X-Cache", "MISS");
+        try { await cache.put(cacheKey, freshCopy); } catch { /* bỏ qua */ }
+        const out = new Response(response.body, response);
+        out.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+        out.headers.set("X-Cache", "MISS");
+        return out;
+      }
+      return response;
+    };
+
+    const name = url.searchParams.get("name");
+    const typeParam = (url.searchParams.get("type") || "A").toUpperCase();
+    const type = /^\d+$/.test(typeParam) ? Number(typeParam) : TYPE_MAP[typeParam] ?? null;
+
+    if (!name || name.length > 253) {
+      return new Response(dnsJson(1, [], { Comment: "Missing or invalid 'name'" }), {
+        status: 400,
+        headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
+      });
+    }
+    if (type === null) {
+      return new Response(dnsJson(1, [], { Comment: `Unsupported type '${typeParam}'` }), {
+        status: 400,
+        headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
+      });
+    }
+
+    const question = QUESTION(name, type);
+
+    // ── Split DNS: REFUSED các domain telemetry / ads
+    if (BLOCK_ENABLED && isBlocked(name)) {
+      return await respondGet(new Response(dnsJson(5, question, { Comment: "Blocked by B1sTeam DoH policy" }), {
+        status: 200, // dns-json convention: HTTP 200 + Status 5 (REFUSED)
+        headers: corsHeaders({ "Content-Type": "application/dns-json", "Cache-Control": `public, max-age=${CACHE_STALE}`, ...securityHeaders() }),
+      }));
+    }
+
+    const upstream = await raceQueryJson(name, type);
+    if (upstream) {
+      const data = await upstream.json();
+      return await respondGet(new Response(JSON.stringify(data), {
+        status: 200,
+        headers: corsHeaders({ "Content-Type": "application/dns-json", "Cache-Control": `public, max-age=${CACHE_TTL}`, ...securityHeaders() }),
+      }));
+    }
+
+    // ── stale-if-error: phục vụ bản cũ (24h) nếu upstream chết hết
+    const stale = await cache.match(staleKey).catch(() => null);
+    if (stale) {
+      return new Response(stale.body, {
+        status: 200,
+        headers: corsHeaders({ "Content-Type": "application/dns-json", "Cache-Control": `public, max-age=${CACHE_STALE}`, "X-Cache": "STALE", ...securityHeaders() }),
+      });
+    }
+
+    return new Response(dnsJson(2, question, { Comment: "Upstream unavailable" }), {
+      status: 502,
+      headers: corsHeaders({ "Content-Type": "application/dns-json", ...securityHeaders() }),
+    });
+  },
+};

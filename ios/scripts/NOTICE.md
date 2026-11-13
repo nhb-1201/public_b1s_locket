@@ -12,11 +12,14 @@ khác** — tất cả đã được viết lại (rewrite) để chạy trên e
 | `b1s_unlock.js` | 21 App Premium | **Engine MITM tổng quát** — 1 file xử lý mọi app: `merge` / `replace` / `revenuecat`, patch theo đường dẫn, `variants` (chọn cấu hình theo URL), `force` (ép key theo regex), sửa URL/header ở request phase. |
 | `b1s_youtube.js` | YouTube Premium | Scrub quảng cáo InnerTube (`adPlacements`, `playerAds`, `promotedVideoRenderer`…), ép `playabilityStatus.status = OK`, ép `HTML5_PREF_WANTS`. |
 | `b1s_spotify.js` | Spotify Premium | **Engine Protobuf tự viết** (varint / 64-bit / length-delimited / 32-bit) + Base64 thuần JS. Patch `ProductState`/`UserAttributes` theo chữ ký field, ép JSON `product = premium`. |
-| `locketgold_remote.js` | LocketGold | Ép Firebase Remote Config — 196 entry (camera, widget frame, streak, caption, upsell…). |
-| `locketgold_revenuecat.js` | LocketGold | Bật entitlement Gold của Locket qua RevenueCat. |
-| `locketgold_profile.js` | LocketGold | Huy hiệu Gold + thông tin hồ sơ. |
-| `locketgold_filters.js` | LocketGold | Mở khoá AI Filter (paywall 402/403) + ép vùng US (header + query). |
+| `locketgold_remote.js` | LocketGold | Ép Firebase Remote Config — ~196 entries (camera, widget frame, streak, caption, upsell…). |
+| `locketgold_profile.js` | LocketGold | Huy hiệu Gold + thông tin hồ sơ + paywall filter 402/403 + unblur. |
+| `locketgold_filters.js` | LocketGold | Mở khoá filter (paywall 402/403) + ép vùng US (header + query) + forward overlay → worker khung Kawaii. |
 | `locketgold_deleteHeader.js` | LocketGold | Xoá header cache `x-revenuecat-etag` để app không nhận 304 (body rỗng). |
+
+> **Build**: các file trên là OUTPUT của `ios/build.mjs` từ `ios/src/**` — không sửa tay.
+> License gate (fail-closed) nằm ở 1 nguồn duy nhất: `ios/src/lib/license-gate.js` — được inline vào mọi script khi build.
+> `locketgold_revenuecat.js` (legacy) đã bị xoá — `b1s_unlock.js` đảm nhiệm entitlement Gold.
 
 ## Cấu hình theo app — 2 đường (tương thích ngược)
 
@@ -60,6 +63,7 @@ khác** — tất cả đã được viết lại (rewrite) để chạy trên e
   (B1sTeam sẽ cập nhật).
 - Khi B1sTeam cập nhật script, chỉ cần push file mới vào thư mục này — module tự lấy bản mới
   (script-path trỏ CDN `cdn.jsdelivr.net/gh/...@main`, jsDelivr cache ~12h; module vẫn hoạt động khi worker chết).
+- Sau mỗi lần sửa `ios/src/**`, chạy `node ios/build.mjs` và commit cả `src/` lẫn `scripts/` (CI có thể kiểm bằng `--check`).
 
 ---
 
