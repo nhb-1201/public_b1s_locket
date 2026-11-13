@@ -24,7 +24,7 @@
  * B1sTeam — b1s.id.vn · Zalo 083.3399.553 · Nguyễn Hoàng Bách
  */
 
-const VERSION = "6.1.0";
+const VERSION = "6.2.0";
 const UPSTREAMS = ["https://1.1.1.1/dns-query", "https://8.8.8.8/dns-query", "https://9.9.9.9/dns-query"];
 const CACHE_TTL = 300; // giây — pin cache ở edge Cloudflare
 const CACHE_STALE = 86400; // giây — tuổi tối đa bản stale khi upstream chết
@@ -40,11 +40,9 @@ const BLOCK_LOCKET = true;
  *  KHÔNG dùng wildcard — chỉ liệt kê domain cụ thể để không chặn nhầm dịch vụ.
  * ═══════════════════════════════════════════════════════════════════════════ */
 const BLOCK_GROUPS = {
-  "anti-revoke": [
-    "revenuecat.com",
-    "rc-backup.com",
-    "rev.cat",
-  ],
+  // B1sTeam v6.2 (2026-11-13): GOI BO anti-revoke — chan RevenueCat o DNS lam chet RC SDK (app khong resolve duoc RC) → RC dung cache on-disk khong co/cu → app an huy hieu Gold + UI membership + paywall.
+  // MITM (b1s_unlock.js) da rewrite RC responses (Gold 2099) → khong can chan DNS; chan DNS chi gay phan tac dung.
+  "anti-revoke": [],
   telemetry: [
     "app-measurement.com",
     "firebaselogging-pa.googleapis.com",
@@ -349,8 +347,11 @@ async function handleDnsMessage(body) {
     }
 
     const cache = caches.default;
-    const cacheKey = new Request(url.toString(), { method: "GET" });
-    const staleKey = new Request(`${url.toString()}__stale`, { method: "GET" });
+    // v6.2 (2026-11-13): them VERSION vao cache key — lam moi toan bo cache REFUSED cu (anti-revoke da go): client se MISS va upstream that.
+    const cacheUrl = new URL(url.toString());
+    cacheUrl.searchParams.set("v", VERSION);
+    const cacheKey = new Request(cacheUrl.toString(), { method: "GET" });
+    const staleKey = new Request(`${cacheUrl.toString()}&__stale=1`, { method: "GET" });
     const cached = request.method === "GET" ? await cache.match(cacheKey) : null;
     if (cached) {
       const fresh = new Response(cached.body, cached);
