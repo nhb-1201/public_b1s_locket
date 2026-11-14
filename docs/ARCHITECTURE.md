@@ -10,6 +10,7 @@ Tài liệu này mô tả chi tiết cách hệ thống **B1sTeam DNS** hoạt �
 | Thành phần | Công nghệ | Nhiệm vụ |
 |---|---|---|
 | **Web portal** | Next.js (Vercel) — repo `b1steam_web` nhánh `main` | Landing `/alfretro`, `/dns`, `/quantri/dns`, `/locketgold/vip` |
+| **AR / Sticker assets** | 27 frame + 55 sticker do B1sTeam tự sinh bằng `tools/gen-missing-assets.mjs` (SVG → PNG) | Phục vụ RemoteConfig + frame worker; AR overlay phía client |
 | **Backend API** | Next.js Route Handlers (Cloudflare Workers / OpenNext) — repo `b1steam_web` nhánh `backend` | Quản lý tài khoản/profile NextDNS, hạn mức, xoay vòng, cấp hồ sơ iOS, Vinh danh Gold |
 | **DoH Worker** | Cloudflare Worker (TypeScript) — repo này, `dns/` | Cửa vào DoH, đếm lượt truy vấn, chặn telemetry/ads, REFUSED khi chạm ngưỡng |
 | **Proxy MITM** | Go (Fly.io) — repo này, `proxy/` | Ký TLS bằng Root CA, ghi đè phản hồi Firebase RC / RevenueCat / Locket API |
@@ -190,16 +191,18 @@ CREATE UNIQUE INDEX idx_dns_nextdns_accounts_ready
 
 ---
 
-## 8. Asset catalog — 82 file thiếu
+## 8. Asset catalog — 82 file ĐÃ có (do B1sTeam sinh)
 
 `proxy/handler/camera_filter_config.json` chứa ~2.457 tham chiếu `<domain>/assets/<path>` cho catalog
-Photobooth + Cue (504 filter `cutout`/`normal`). 82 file unique (`stickers/stk_*.png`, `frames/khung_*.png`,
-`frames/pb_*.png`, …) **không có trong repo này** — trước đây chúng nằm trên CDN bên thứ 3 (nay 404, và đây là
-tác phẩm của tác giả riêng). Khi chưa có file:
+Photobooth + Cue (~500 filter `cutout`/`normal`). 82 file unique (`stickers/stk_*.png`, `frames/khung_*.png`,
+`frames/pb_*.png`…) trước đây nằm trên CDN bên thứ 3 (đã chết 404), **không phải tác phẩm của người dùng NextDNS** mà là
+tác phẩm Nico/Creative Commons-ish của tác giả riêng — vì vậy B1sTeam tự vẽ bộ mới đặt cùng tên file:
 
-- Các khung/cue trong **picker** bị thiếu; các tính năng Locket Gold khác **không bị ảnh hưởng**.
-- Server-side vẽ khung đi đường `/apply-frame` với 14 khung Kawaii trong `assets/images/kawaii/` + `assets/frames/` — vẫn chạy.
+- Vẽ bằng `tools/gen-missing-assets.mjs` (SVG → `sharp` → PNG, alpha hoàn toàn trong suốt ở phần giữa cho AR overlay).
+- Thiết kế 100% gốc (kawaii/photobooth vector), **không** sao chép khung gốc.
+- Nếu bạn có bản gốc hoặc thay 1 ảnh bất kỳ: thả file cùng tên vào `assets/frames/` hoặc `assets/stickers/` là được
+  (vùng trung tâm trong suốt, kích thước 1024×1024 cho frame / 512×512 cho sticker, hoặc bất kỳ kích thước nào — Locket
+  tự scale).
+- `frame-worker` phục vụ `/assets/*`: nhiều path đã có trong repo (kawaii frames, icon…); còn lại 301 sang raw repo.
 
-Cách bổ sung: thả đúng tên file (`assets/stickers|frames/<filename>.png` đúng như catalog tham chiếu), rồi cho
-worker phục vụ `/assets/*` (hoặc trỏ `ASSET_CDN_BASE`/`ASSET_RAW_BASE` về nơi chứa file).
 
