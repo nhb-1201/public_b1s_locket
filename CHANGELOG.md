@@ -1,174 +1,31 @@
-<!-- author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket -->
+# Changelog — Locket Gold Hub (public_b1s_locket)
 
-# 📜 Changelog — LocketGold B1sTeam
+## [2.0.0] — 2026-11-14
 
-## v6.1.0 — 1 module duy nhất (2026-11-12)
+**VIẾT LẠI HOÀN TOÀN — DNS thuần. Bỏ Shadowrocket / Quantumult X / .conf / .sgmodule.**
 
-- **1 module duy nhất** (sinh bởi worker): LocketGold + 23 app + DNS DoH trong 1 file — xoá module từng app.
-- **Không còn `FINAL,DIRECT`/`dns-server = system`** trong module — mọi host MITM đi PROXY + `#hostname` scoping.
-- **DNS DoH gộp trong module** — không cần cài hồ sơ DNS riêng.
-- Bỏ 25 script repo thứ ba — 100% viết lại bằng `b1s_unlock.js` (engine MITM).
-- RC: **248 entries / 41 gates**.
-- Filter paywall: ép đủ 15 cờ `can_use_filters`/`has_ai_access`/… + giữ nguyên body khi 402/403 (danh sách filter không bị xoá).
-- `widget_frame_event` dùng asset của B1sTeam (không hotlink ảnh bên thứ ba).
-- `locketgold.sgmodule` xoá (module sinh bởi worker tại b1s.id.vn).
-- Static `ios/locketgold.conf` đồng bộ với module: PROXY rules + `#hostname` + DNS + `[Host]` chặn Firebase realtime RC.
-- Toàn bộ link `b1s.id.vn/locketgold` → `b1s.id.vn/alfretro`.
+### Thay đổi lớn
 
-## v6.0.0 — B1sTeam Edition (2026-11-09)
+- **NextDNS theo TÀI KHOẢN**: mỗi vòng xoay = 1 tài khoản NextDNS mới (trước đây đổi profile
+  trong cùng tài khoản — không reset được hạn mức 300k/tháng).
+- **Tự tạo sẵn tài khoản kế tiếp** khi chạm ngưỡng cảnh báo (cron) → nút “Cập nhật DNS”
+  có link mới ngay lập tức.
+- **Bắt buộc cập nhật** khi chạm 80%: DoH REFUSED + thông báo in-app + email + banner
+  yêu cầu cài lại `.mobileconfig`. `user_update_required` tự tắt khi tải hồ sơ mới.
+- `proxy/`: `generateFilteredImage` giờ chuyển đúng sang `/apply-frame` (fix 404),
+  gửi `x-b1s-proxy-key`, forge leaf chỉ cho hostname Locket (allowlist).
+- `dns/`: Worker v1.2.0 — REFUSED wire format, `X-Update-Required:1`, `no-store`,
+  cache key theo origin (không hardcode).
+- `frame-worker/`: shared-secret auth (bỏ license gate của thế hệ cũ), `/assets/*` → 301 sang raw base.
+- Cấu trúc repo rút gọn: chỉ còn `dns/ proxy/ frame-worker/ assets/ ca/ docs/ scanner/`.
 
-- **Rewrite toàn bộ từ gốc**: thiết kế "Dark Luxe" cho static assets; brand đồng nhất B1sTeam.
-- Toàn bộ link tải chuyển sang `raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/...` (không giới hạn băng thông, không chặn).
-- DoH Worker (`dns/worker.js`) viết lại: Split DNS RFC 8484 (GET dns-json + POST dns-message), blocklist Locket → REFUSED (chống thu hồi), cache edge 300s. Fix lỗi self-forward loop.
-- Scripts MITM hardening: fail-open, depth-limit recursion, bỏ header ETag đúng chuẩn.
-- **Mới**: `ios/locketgold-webclip.mobileconfig` — Web Clip "B1sDev_" → https://b1s.id.vn/about (icon nhúng base64).
-- **Mới**: mọi file cấu hình đều có header `author: B1sTeam | b1s.id.vn | @b1steam | public_b1s_locket`.
-- Backup bản cũ trong repo cha: `_backup_locketgold_20261109/`.
+### Bỏ (không còn được hỗ trợ)
 
-## v2.0.0 (2026-11-09) — Bản khởi đầu
+- Shadowrocket / Quantumult X / Surge / Loon / `.sgmodule` / `.conf` / ký Root CA riêng của Shadowrocket
+- `ios/` (scripts nguồn), `android/` (Private DNS từ thế hệ cũ)
+- `tools/` (generate `.conf` / `.sgmodule`)
+- Worker license thế hệ cũ (`locket.b1s.id.vn` — đã lưu trữ thành zip backup ngoài repo)
 
-- Landing page, Module/Config Shadowrocket, DoH chống thu hồi, configs V2RayNG/Sing-Box.
+### Trước đây
 
-## v1.0.0 — LocketGold (gốc)
-
-- Phiên bản Shadowrocket module đầu tiên.
-
-## v7.1.0 — LocketGold-only + Khung Crayon (2026-11-13)
-
-- **LocketGold ONLY**: xóa 2 app premium scripts (YouTube, Spotify) — .conf chỉ còn 8 scripts LocketGold; [Rule]/[MITM]/[Script] sạch 100%, DNS tối thiểu (doh + system — giảm tải RAM tunnel iOS 50MB).
-- **Khung Crayon (frame-14)**: khung tự vẽ (RGBA 1024², trong suốt giữa, viên đỏ–vàng dày sát viền, 4 bé Kawaii nguyên bản 4 góc) — widget_frame_event → frame-14, thêm speculative camera/photo frame keys, upload mặc định khung_crayon.
-- **Chặn full RevenueCat**: [Url Rewrite] reject-200 toàn bộ revenuecat.com/rc-backup.com/rev.cat — MITM tự tổng hợp Gold 2099; app không gọi được RC thật.
-- DNS v7.0.0 (giữ); worker /frame-raw có frame-14.
-
-
-## v7.2.0 — Captions khung + hotfix CDN vỡ cú pháp (2026-11-13)
-
-- **HOTFIX**: `locketgold_remote.js` trên CDN bị vỡ cú pháp do patch Crayon trước đó (widget_frame_event nhân đôi chuỗi + frames_config thiếu escape) — Locket không parse được script → Gold biến mất. Đã sửa + thêm self-check compile vào `ios/build.mjs` (không thể push script vỡ lên CDN nữa).
-- **Captions**: section "🖼️ Khung Kawaii" — 14 khung làm caption items, icon = ảnh preview (type:image source:url), overlay_id `khung_*` (kích hoạt luồng "đang rửa ảnh" → worker vẽ khung → upload).
-- Worker `/frame-raw`: catalog 14 khung (01–07 tải runtime CDN, 08–14 nhúng), resize về 1024² khi khung khác kích thước.
-- Upload: guard chống vẽ 2 lớp khung (bỏ qua nếu ảnh vừa được app "rửa" qua generateFilteredImage).
-- Backend `/module/*` + `/script/revenuecat` phục vụ LocketGold-only (module 7476 B, 8 scripts).
-
-
-## v7.3.0 — RC-tu-chu (khong phu thuoc RC cua nguoi khac) (2026-11-13)
-
-- **Xoa hoan toan phu thuoc RC cua nguoi khac**: bo requestRealGold() (goi /rc/grant -> RC secret cua team + token set D1 cua nguoi mua Gold that -> restore receipt nguoi khac cho app_user_id).
-- Backend: xoa rc-grant.ts (checkGold/injectGold/refreshGrants), /rc/grant + /rc/refresh + /admin/rc/refresh; cron chi con 17 3 * * * (daily cleanup).
-- Admin gold-ops: xoa tab Gold Engine (RC restore), giu License + App Premium.
-- Gold gio tu chu 100% qua MITM rewrite (Gold 2099 + purchase_date = now) — khong the bi thu hoi, khong can receipt cua ai.
-
-
-## v7.4.0 — Full Features (học kỹ thuật từ repo tham khảo) (2026-11-13)
-
-- **Remote Config cache-bust**: ép `state=UPDATE` + `templateVersion=Date.now()` + `cache_ttl*=0` — app luôn apply flags đã rewrite.
-- **Bộ cờ mở khoá toàn diện** (filters miễn phí, không paywall/upsell, US region, filter sheets selectable).
-- **camera_filter_config bật hết** (filter sheet + all_filters_free + holiday_filters + saving).
-- KNOWN_OFF_GATES = [] — không tắt gate nào.
-- AI filter server-side (431) vẫn giới hạn từ server Locket — không fix từ client.
-
-
-## v7.5.0 — Vinh danh Cộng đồng Gold + Rate-limit toàn diện (2026-11-13)
-
-- **Script mới `locketgold_vip.js`** (8 scripts tổng): bạn bè thuộc danh sách vinh danh → badge Gold trong app; fetch 12h/lần nền, không chặn.
-- **license-gate**: cache bộ nhớ 6 giờ + cooldown FAIL 10 phút — hết verify-storm khi $prefs hỏng (nguyên nhân 429 → "không hiện gì").
-- **frame worker**: license cache 60 phút (trước 5 phút).
-- **/alfretro** mục "Vinh danh Cộng đồng Gold" + **/locketgold/vip** hall-of-fame công khai.
-
-
-## v7.6.0 — Fix toàn diện theo log PacketTunnel 2026-11-14 (2026-11-14)
-
-Đọc log PacketTunnel (4345 dòng) của thiết bị thật → tìm ra 5 lỗi gốc, đã sửa & test:
-
-1. **license-gate lưu trữ sai API trên Shadowrocket** — bản cũ đọc/ghi cache 7 ngày, cooldown và
-   device id qua `$prefs` (chỉ Quantumult X có; Shadowrocket dùng `$persistentStore`) ⇒ **không lưu
-   được gì** ⇒ mỗi request đều gọi verify (2 host) ⇒ **64 lần/10 phút** (đo được trong D1) ⇒ 429 ⇒
-   fail-closed ⇒ *không hiện gì*. Nay dùng store đa-API (`$persistentStore` → `$prefs` → `$storage`)
-   + device id ổn định `mitm-<hash>` (salt lưu được → khoá theo máy; lưu không được → tất định theo key).
-   ⇒ verify: 64 lần/10p → **1 lần/7 ngày**; cooldown 10 phút thật sự chạy.
-2. **Remote Config không bao giờ về** — log: `TLSV1_ALERT_PROTOCOL_VERSION` + treo 3,5s ⇒ app không có
-   config ⇒ cờ mở khoá không được áp dụng. Nay `locketgold_remote.js` chuyển sang **REQUEST-PHASE
-   SYNTHESIS**: tự gọi RC gốc qua `$httpClient` (ngoài đường MITM) → gộp cờ B1sTeam → trả thẳng cho app,
-   cache trên máy 6 giờ (lần sau không gọi mạng), lỗi → dùng cache → không có cache → bộ cờ tối thiểu.
-   Giữ thêm phase RESPONSE làm lưới an toàn.
-3. **8 flag bị đảo ngược (app TẮT tính năng)** — `camera_filters_enabled`, `camera_filter_enabled`,
-   `camera_filter_sheet_enabled`, `camera_filter_picker_enabled`, `holiday_filters_enabled`,
-   `holiday_filters_free`, `calendar_rewind_enabled`, `rollcall_tap_to_tag_enabled` đang là `"false"`
-   ⇒ sửa thành `"true"` (giữ `filter_paywall_enabled`/`filter_upsell_enabled`/`subscribe_gold_button`
-   = false vì đúng ý nghĩa).
-4. **Marker "đã vẽ khung" không lưu được** (`$prefs` trong filters/upload) ⇒ vẽ khung 2 lần → chuyển
-   sang store đa-API.
-5. **Telemetry/ads lọt** (log thấy sentry.io, amplitude, appsflyersdk, moloco, app-*-services,
-   amp-api-edge) ⇒ thêm rule REJECT-DROP trong `.conf` + mở rộng blocklist DNS worker 7.0.0 → 7.1.0.
-
-Kèm: `$request`/`$response` không có `typeof` guard ⇒ ReferenceError làm script chết im lặng khi chạy
-thủ công trong trình soạn thảo → thêm accessor `_req`/`_resp` cho mọi script.
-Backend 3.2.0: verify tự **gắn lại** khi client đổi thuật toán id (stored `dev-*` → `mitm-*`) ⇒ không ai
-bị kẹt "sai máy" sau khi cài lại app; khoá theo máy vẫn giữ (máy khác vẫn device_mismatch).
-
-
-## v7.6.1 — Fix "không có gì xảy ra" (log PacketTunnel 11:40) (2026-11-14)
-
-Log mới (sau khi cài .conf v7.6.0) cho thấy: **verify trả false ⇒ mọi script DENY** (đúng kiểu fail-closed),
-nên app không mở khoá gì. Nguyên nhân + sửa:
-
-1. **Device id của máy ≠ id đã gắn trong D1** (`dev-95qjv8ndl7mmwepfzj1`) ⇒ luôn `device_mismatch`.
-   Bản cũ sinh id NGẪU NHIÊN mỗi lần chạy (storage không giữ) ⇒ không bao giờ khớp.
-   → Nay id **TẤT ĐỊNH theo key**: `mitm-` + FNV1a32(key) ⇒ giống nhau trên MỌI script, MỌI lần cài,
-     không phụ thuộc `$prefs`/`$persistentStore`. Backend chấp nhận & re-bind nhóm `mitm-*`.
-2. **Cooldown 10 phút của bản cũ chặn luôn bản mới** ⇒ 10 phút "không có gì xảy ra".
-   → Cooldown giờ **gắn theo device id**: id đổi (client mới / cài lại app) ⇒ thử verify lại ngay.
-3. **Script cache cũ vẫn chạy ở request đầu tiên** (log: "script update" xảy ra *sau* lần chạy đầu).
-   → Mọi `script-path` giờ có `?v=7.6.0` ⇒ URL đổi theo version ⇒ Shadowrocket tải đúng bản mới.
-4. Log chẩn đoán rõ hơn: `[locketgold] <tag>: verify FAIL (device=mitm-xxxx…)` + `device id đổi → thử verify lại`.
-
-Kiểm chứng end-to-end (tính đúng thuật toán client rồi gọi API thật):
-`B1S-8C3G-ZVY3-WBNQ` → `mitm-1f1badf1` → `valid=true, bound=true` (đã re-bind từ id cũ) ✓
-`B1S-F4DB-SKNA-Y4KA` → `mitm-35999d86` → `valid=true, bound=true` ✓
-
-
-## v7.7.0 — Gộp script API Locket (Shadowrocket chỉ chạy 1 script/phase) (2026-11-14)
-
-Log PacketTunnel 11:40 phát hiện điểm mấu chốt: **Shadowrocket chỉ chạy MỘT script khớp đầu tiên cho mỗi phase**.
-Vì `[locketgold_filters_response]` đứng trước `[locketgold_user]` (profile) và `[locketgold_vip]` trong `[Script]`
-⇒ **`locketgold_profile.js` (badge Gold + unblur + verified) và `locketgold_vip.js` KHÔNG BAO GIỜ CHẠY**
-⇒ app không mở khoá gì ("không có gì xảy ra").
-
-Sửa: gộp Profile + Filters + Vinh danh vào **MỘT script** `locketgold_locket.js`:
-- REQUEST: bỏ header cache + ép vùng US + forward `generateFilteredImage` (overlay) sang worker vẽ khung
-  + `changeProfileInfo` → 200 Gold+Verified (trừ khi user đang LƯU bio thật → passthrough).
-  **Thêm `requires-body=true`** (bản cũ thiếu ⇒ `$request.body` không có ⇒ forward khung không bao giờ chạy).
-- RESPONSE: inject badge Gold/Verified + credit, mở paywall 402/403/400, gỡ blur, ép cờ mở khoá mọi node,
-  badge Gold cho thành viên vinh danh.
-- 1 gate duy nhất, đúng 1 lần gọi `$done`.
-
-`.conf` còn **6 script entries**, không trùng pattern theo phase:
-RC(unlock) · Firebase RC(request+response) · **Locket(request+response)** · storage upload.
-Script cũ (profile/filters/vip) **giữ nguyên trong repo** để .conf đã cài từ trước vẫn chạy được.
-Mọi `script-path` có `?v=7.6.1` ⇒ Shadowrocket tải đúng bản mới (log cho thấy request đầu tiên vẫn chạy bản cache cũ).
-
-Test mới: `test-merged-locket` 24/24 (badge, paywall 402, unblur, vinh danh, header US, changeProfileInfo,
-passthrough bio, forward overlay, fail-closed).
-
-
-## v7.7.1 — Hệ thống Version + Ngày cập nhật cho TOÀN BỘ (2026-11-14)
-
-Yêu cầu: "toàn bộ phải có version và ngày update để xác định được mới hay cũ".
-
-**Nguồn sự thật duy nhất:** `version.json` ở gốc repo
-```json
-{ "product": "LocketGold B1sTeam", "version": "7.7.1", "updated": "2026-11-14", "channel": "stable" }
-```
-
-| Lớp | Cách hiển thị version / ngày |
-|---|---|
-| **Script MITM** (6 file) | Mỗi script build có `B1S_VERSION` · `B1S_UPDATED` · `B1S_BUILD` (ISO timestamp) + banner đầu file; license-gate **log 1 dòng mỗi script**: `[locketgold] remote v7.7.1 · 2026-11-14 · build 2026-11-14T…` (đọc log PacketTunnel là biết bản nào đang chạy) |
-| **`.conf` / `.sgmodule`** | `#!version=7.7.1` + `#!updated=2026-11-14` + dòng chú thích `# B1sTeam v7.7.1 · cap nhat 2026-11-14 · build …`; mọi `script-path` có `?v=7.7.1` (cache-bust) |
-| **`ios/build.mjs`** | Đọc `version.json` → chèn hằng version vào mọi script; **validate**: `.conf` phải có `#!version` khớp, mọi `?v=` phải khớp, phải có `?v=` (cache-bust), và **bắt URL hỏng** (`$1` / `.js$version`) → build fail nếu lệch |
-| **Backend** `locket.b1s.id.vn` | `VERSION 3.3.0` + `BUILD_DATE` + `BUILD_AT` trong **mọi response** (`builtAt`, `updated`, `moduleVersion`) + endpoint mới `GET /api/v2/locketgold/version` |
-| **DNS worker** `doh.b1s.id.vn` | `7.2.0` + `updated` + `builtAt` trong `/health` và `/policy` |
-| **Frame worker** `frame.b1s.id.vn` | `1.3.0` + `updated` + `builtAt` trong `/health` (JSON) |
-| **Web** `b1s.id.vn/alfretro` | Mục **"Phiên bản"**: module vX + ngày + backend vY + build time (live từ `/version`), so sánh với bản .conf đã tải (wizard tự lưu `#!version=` vào localStorage) → badge "bản mới nhất" / "có bản mới"; kèm hướng dẫn đọc version trong log Shadowrocket + link nhật ký thay đổi |
-
-Test mới `test-version` 16/16 (version.json · #!version/#!updated · ?v= · .sgmodule · mọi script có hằng version +
-log version · build validation).
-
+- `1.x`: hệ thế hệ Shadowrocket/MITM/module All-in-One (đã gỡ sạch từng bước qua các bản `v6.x`/`v7.x`).

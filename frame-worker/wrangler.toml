@@ -1,0 +1,24 @@
+# B1sTeam - locket-filter-frame — MITM proxy gọi worker qua shared secret
+name = "locket-filter-frame"
+main = "src/index.ts"
+compatibility_date = "2026-11-14"
+workers_dev = true
+
+# Custom domain: frame.b1s.id.vn (zone b1s.id.vn da co tren cung account Cloudflare)
+[[routes]]
+pattern = "frame.b1s.id.vn"
+custom_domain = true
+
+# Secret bat buoc (dat bang: wrangler secret put PROXY_SHARED_KEY).
+#   PROXY_SHARED_KEY  — secret chia se voi MITM proxy (header x-b1s-proxy-key). Toi thieu 16 ky tu.
+# Var (cau hinh, khong phai secret):
+#   ASSET_RAW_BASE    — raw base cua repo chua assets (mac dinh raw.githubusercontent.com/Xwuan19/locket-gold-hub/main)
+[vars]
+ASSET_RAW_BASE = "https://raw.githubusercontent.com/Xwuan19/locket-gold-hub/main"
+
+[[rules]]
+type = "CompiledWasm"
+globs = ["**/*.wasm"]
+
+[observability]
+enabled = false

@@ -1,20 +1,29 @@
-# B1sTeam DoH — v7.0 · Cloudflare Workers Config
-# B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
+﻿# B1sTeam - DoH Worker (multi-tenant) - Cloudflare Worker
+# BAN DEPLOY CHINH THUC cua worker `b1steam-dns` (doh.b1s.id.vn) nam o repo
+# `b1steam_web` (nhanh backend/workers/dns-resolver) - duoc CI deploy tu dong.
+# File nay chi dung cho dev/staging (npx wrangler deploy -> *.workers.dev).
+# KHONG dua custom domain vao day - se ghi de worker production.
+# Repo nay la ban trien khai doc lap; ban chinh cua B1sTeam nam trong repo
+# `b1steam_web` (nhanh `backend/workers/dns-resolver`).
 
-name = "locketgold-dns"
-main = "worker.js"
-compatibility_date = "2026-11-09"
-
-# Custom Domain: Cloudflare TỰ tạo DNS record + TLS cert cho doh.b1s.id.vn
+name = "locket-gold-hub-dns"
+main = "src/index.ts"
+compatibility_date = "2026-09-05"
+compatibility_flags = ["nodejs_compat"]
 workers_dev = true
-routes = [
-  { pattern = "doh.b1s.id.vn", custom_domain = true }
-]
 
-[vars]
-SERVICE_NAME = "b1steam-doh"
-VERSION = "7.2.0"
-RELEASE = "B1sTeam"
+observability = {
+  logs = {
+    enabled = true
+    head_sampling_rate = 1
+    invocation_logs = true
+    persist = true
+  }
+}
 
-[observability]
-enabled = true
+# Cung D1 database voi backend (bang `dns_profiles` + `dns_usage_counters`).
+# doi database_id theo database cua ban.
+[[d1_databases]]
+binding = "DB"
+database_name = "b1steam"
+database_id = "45bf85bd-c974-4a89-8f95-30a950821838"

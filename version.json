@@ -1,7 +1,8 @@
 {
   "product": "LocketGold B1sTeam",
-  "version": "7.7.1",
+  "version": "2.0.0",
   "updated": "2026-11-14",
   "channel": "stable",
-  "note": "Nguồn sự thật duy nhất cho version của module/.conf/scripts. build.mjs đọc file này và chèn vào mọi script; .conf phải khai #!version khớp (build sẽ báo lỗi nếu lệch)."
+  "system": "DNS thuần — NextDNS per-account, không Shadowrocket",
+  "note": "Hệ thống DNS thuần: 1 tài khoản NextDNS riêng / user, tự tạo sẵn tài khoản kế tiếp, xoay vòng theo tài khoản khi chạm 80%."
 }

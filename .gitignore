@@ -18,6 +18,15 @@ build
 .env.*
 !.env.example
 
+# Root CA — KHÔNG BAO GIỜ commit private key
+ca/*.key
+proxy/ca/*.key
+*.key
+
+# Wrangler/Fly state
+.wrangler/
+.fly/
+
 # IDE / OS
 .vscode
 .idea
@@ -30,4 +39,3 @@ Thumbs.db
 *.tmp
 *.bak
 *.backup
-dns/.wrangler/
