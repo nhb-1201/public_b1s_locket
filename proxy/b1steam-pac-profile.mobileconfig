@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadCertificateFileName</key>
+			<string>b1steam-root-ca.crt</string>
+			<key>PayloadContent</key>
+			<data>MIICUjCCAfigAwIBAgIUJ/8Cmo5swGGjrcJPvq1ByEiVJzswCgYIKoZIzj0EAwIwdTEYMBYGA1UEAwwPQjFzVGVhbSBSb290IENBMRAwDgYDVQQKDAdCMXNUZWFtMR8wHQYDVQQLDBZCMXNUZWFtIFRydXN0IFNlcnZpY2VzMRkwFwYDVQQHDBBIbyBDaGkgTWluaCBDaXR5MQswCQYDVQQGEwJWTjAeFw0yNjExMTQxMTQxMDlaFw0zNjExMTExMTQxMDlaMHUxGDAWBgNVBAMMD0Ixc1RlYW0gUm9vdCBDQTEQMA4GA1UECgwHQjFzVGVhbTEfMB0GA1UECwwWQjFzVGVhbSBUcnVzdCBTZXJ2aWNlczEZMBcGA1UEBwwQSG8gQ2hpIE1pbmggQ2l0eTELMAkGA1UEBhMCVk4wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQBXjOHbOIDZBQzpYUIR24BikHG3sTa/SShdNe0TyJ+y7vZqvPdAlccvNbH3LPqqGAy4+CG8h2HbAnlF+gK2GCMo2YwZDASBgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQU8YhbjJNo6Bwu9QSBJy4Fr9movi8wHwYDVR0jBBgwFoAU8YhbjJNo6Bwu9QSBJy4Fr9movi8wCgYIKoZIzj0EAwIDSAAwRQIgRBtsyPw+1iqSztBp3U78IsGbkCmjuz9xZgfXa1IfsDACIQDK1CrYyLqrW2nIRxIws1kjhCs3pSAtiwKGuJIx8pqM9Q==</data>
+			<key>PayloadDescription</key>
+			<string>B1sTeam Root CA — cai 1 lan, tin cay proxy B1sTeam. Vao Cai dat &gt; Cai dat chung &gt; Gioi thieu &gt; Cai dat tin cay chung nhan va bat tin cay.</string>
+			<key>PayloadDisplayName</key>
+			<string>B1sTeam Root CA</string>
+			<key>PayloadIdentifier</key>
+			<string>vn.b1steam.proxy.ca</string>
+			<key>PayloadType</key>
+			<string>com.apple.security.root</string>
+			<key>PayloadUUID</key>
+			<string>C1DED84D-3E88-475B-9B58-E02923C4527B</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>PayloadDescription</key>
+			<string>B1sTeam Proxy qua PAC — chi cac host B1sTeam can MITM di qua proxy (Locket/RC/FC), tat ca traffic khac ra thang Internet.</string>
+			<key>PayloadDisplayName</key>
+			<string>B1sTeam Proxy (PAC)</string>
+			<key>PayloadIdentifier</key>
+			<string>vn.b1steam.proxy.http</string>
+			<key>PayloadType</key>
+			<string>com.apple.proxy.http</string>
+			<key>PayloadUUID</key>
+			<string>4786EE9B-F461-4F2A-AA2C-B800C16D9DFD</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>ProxyType</key>
+			<string>Auto</string>
+			<key>ProxyPACURL</key>
+			<string>http://14.162.212.229:8443/proxy.pac</string>
+			<key>ProxyPACFallbackAllowed</key>
+			<true/>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>B1sTeam LocketGold — Proxy Internet route (PAC). IP 14.162.212.229 (snapshot 2026-11-14); khi doi IP hay chay lai build_pac_profile.py roi cai lai ho so.</string>
+	<key>PayloadDisplayName</key>
+	<string>B1sTeam Proxy (PAC)</string>
+	<key>PayloadIdentifier</key>
+	<string>vn.b1steam.proxy.profile</string>
+	<key>PayloadOrganization</key>
+	<string>B1sTeam — b1s.id.vn</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>368580C0-7DFC-4E8F-B4AE-1475531705F3</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

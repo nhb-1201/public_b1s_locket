@@ -13,19 +13,17 @@ dist
 build
 .cache
 
-# Environment — KHÔNG commit secrets
+# Environment (NEVER commit secrets)
 .env
 .env.*
 !.env.example
 
-# Root CA — KHÔNG BAO GIỜ commit private key
-ca/*.key
-proxy/ca/*.key
+# Private keys
 *.key
+ca/*.key
 
-# Wrangler/Fly state
+# Wrangler state
 .wrangler/
-.fly/
 
 # IDE / OS
 .vscode
@@ -40,11 +38,4 @@ Thumbs.db
 *.bak
 *.backup
 
-# Proxy runtime (KHONG commit)
-proxy/proxy.env
-
-
 __pycache__/
-
-proxy/.public-ip
-proxy/b1steam-pac-profile.mobileconfig

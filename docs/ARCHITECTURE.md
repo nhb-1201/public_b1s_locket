@@ -34,8 +34,6 @@ Tài liệu này mô tả cách hệ thống hoạt động từ lúc người d
 
 ┌─ Tầng DNS (tùy chọn, mọi lúc) ───────────────────────┐
 │  (.mobileconfig B1sTeam DNS)                          │
-│   ├─ Root CA B1sTeam (ECC P-256) — chỉ proxy LAN     │
-│   └─ DNSSettings → DoH: doh.b1s.id.vn / proxy LAN    │
 └───────────────────────────────────────────────────────┘
 ```
 
@@ -49,7 +47,6 @@ Tài liệu này mô tả cách hệ thống hoạt động từ lúc người d
 | **Rewards/frames** | `locket-filter-frame` v2.0.0 | Vẽ khung Kawaii lên ảnh (4 accounts, round-robin + failover) |
 | **Edge gateway** | `b1steam-edge` v1.0.0 (4 accounts) | Relay minh bạch (`/rc`, `/vip/list`, `/health`), strict allowlist |
 | **DoH** | `doh.b1s.id.vn` (`locketgold-dns`) | RFC 8484 — phân giải / block ads / **không log** |
-| **Proxy (LAN, tùy chọn)** | Python (`proxy/python/mitm_proxy.py`) | Shadowrocket-free fallback LAN — 443 + 8443, watchdog auto-start |
 
 ---
 ## 2. Shadowrocket là đường chính
@@ -79,7 +76,6 @@ ios/            # Shadowrocket (v7.8.0) — nguồn chân lý
   conf.html / module.html         # Landing cute → /locketvip
   README.md / CHANGELOG.md
 dns/            # DoH worker (RFC 8484)
-proxy/          # Python MITM proxy LAN (+ watchdog, Task Scheduler, public-ip)
 edge/           # b1steam-edge gateway (relay minh bạch)
 frame-worker/   # locket-filter-frame v2.0.0 (dual auth)
 scanner/        # Endpoint/host scanner
@@ -126,7 +122,6 @@ docs/           # tài liệu này
 | **AR / Sticker assets** | 27 frame + 55 sticker do B1sTeam tự sinh bằng `tools/gen-missing-assets.mjs` (SVG → PNG) | Phục vụ RemoteConfig + frame worker; AR overlay phía client |
 | **Backend API** | Next.js Route Handlers (Cloudflare Workers / OpenNext) — repo `b1steam_web` nhánh `backend` | Quản lý tài khoản/profile NextDNS, hạn mức, xoay vòng, cấp hồ sơ iOS, Vinh danh Gold |
 | **DoH Worker** | Cloudflare Worker (TypeScript) — repo này, `dns/` | Cửa vào DoH, đếm lượt truy vấn, chặn telemetry/ads, REFUSED khi chạm ngưỡng |
-| **Proxy MITM** | Go (Fly.io) — repo này, `proxy/` | Ký TLS bằng Root CA, ghi đè phản hồi Firebase RC / RevenueCat / Locket API |
 | **Frame Worker** | Cloudflare Worker (WASM) — repo này, `frame-worker/` | Vẽ khung Kawaii lên ảnh người dùng; phục vụ `/assets/*` (301 sang raw repo) và `/apply-frame`, `/frame-raw` |
 | **Database** | Cloudflare D1 (`b1steam`) | `dns_nextdns_accounts`, `dns_profiles`, `dns_usage_counters`, `dns_usage_snapshots`, `dns_events`, `dns_config`, `locketgold_vip_honor` |
 
@@ -166,7 +161,7 @@ Người dùng                Backend (Workers)            NextDNS
 ## 3. Luồng truy vấn DNS
 
 ```
-iPhone ──DoH──> DoH Worker ──DoH──> NextDNS (tài khoản của user) ──(rewrite)──> IP proxy ──TLS──> API thật
+iPhone ──DoH──> DoH Worker ──DoH──> NextDNS (tài khoản của user) ▶ IP profile rewrite (block/rewrite)
 ```
 
 ### 3.1 DoH Worker
@@ -182,7 +177,7 @@ iPhone ──DoH──> DoH Worker ──DoH──> NextDNS (tài khoản của 
 6. **Forward** sang `https://dns.nextdns.io/<nextdns_profile_id>` (GET json hoặc POST dns-message, race 2 đường).
 7. **Cache edge**: 5 phút fresh + 24 giờ stale-if-error. POST cache key = SHA-256 bản tin DNS bỏ 2 byte transaction ID.
 
-### 3.2 Proxy MITM (Go)
+### 3.2 MITM Proxy (Go, Fly.io — ĐÃ NGỪNG DỊCH VỤ 2026-11-14, chỉ còn tham khảo)
 
 - TLS server dùng **leaf certificate** ký bằng Root CA, cache theo SNI (`tls/cache.go`).
 - `X-Forwarded-*` / `Accept-Encoding` bị xoá để luôn nhận body gốc.
@@ -310,7 +305,6 @@ CREATE UNIQUE INDEX idx_dns_nextdns_accounts_ready
 
 ## 8. Asset catalog — 82 file ĐÃ có (do B1sTeam sinh)
 
-`proxy/handler/camera_filter_config.json` chứa ~2.457 tham chiếu `<domain>/assets/<path>` cho catalog
 Photobooth + Cue (~500 filter `cutout`/`normal`). 82 file unique (`stickers/stk_*.png`, `frames/khung_*.png`,
 `frames/pb_*.png`…) trước đây nằm trên CDN bên thứ 3 (đã chết 404), **không phải tác phẩm của người dùng NextDNS** mà là
 tác phẩm Nico/Creative Commons-ish của tác giả riêng — vì vậy B1sTeam tự vẽ bộ mới đặt cùng tên file:
