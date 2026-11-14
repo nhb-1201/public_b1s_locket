@@ -15,7 +15,44 @@ import { PhotonImage, SamplingFilter, crop, resize, watermark } from "@cf-wasm/p
 
 import { FRAMES, FRAME_B64, FRAME_URLS, EMBEDDED } from "./frames-data";
 
-interface Env { PROXY_SHARED_KEY?: string; ASSET_RAW_BASE?: string; }
+interface Env {
+  PROXY_SHARED_KEY?: string;   // secret chia sẻ với MITM proxy (server-side) — optional
+  ASSET_RAW_BASE?: string;
+  VERIFY_BASE?: string;        // endpoint verify license (device-bound)
+}
+
+const VERIFY_BASE_DEFAULT = "https://locket.b1s.id.vn/api/v2/locketgold/verify";
+const LIC_CACHE_MS = 3_600_000; // 60 phút
+const licCache = new Map<string, { at: number; ok: boolean }>();
+
+async function verifyLicense(key: string, deviceId: string, env: Env): Promise<boolean> {
+  if (!key || !deviceId) return false;
+  const cacheKey = key + "|" + deviceId;
+  const hit = licCache.get(cacheKey);
+  const now = Date.now();
+  if (hit && now - hit.at < LIC_CACHE_MS) return hit.ok;
+  try {
+    const base = (env.VERIFY_BASE || VERIFY_BASE_DEFAULT).replace(/\/+$/, "");
+    const r = await fetch(base + "?key=" + encodeURIComponent(key) + "&device_id=" + encodeURIComponent(deviceId), {
+      headers: { Accept: "application/json" },
+    });
+    const j = await r.json().catch(() => null) as { valid?: boolean; data?: { status?: string } } | null;
+    const ok = Boolean(j && (j.valid === true || (j.data && j.data.status === "active")));
+    licCache.set(cacheKey, { at: now, ok });
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
+/** Cho phép EITHER MITM proxy (x-b1s-proxy-key) HOẶC license hợp lệ từ thiết bị (x-b1s-license + x-b1s-device). */
+async function requestAuthorized(req: Request, env: Env): Promise<boolean> {
+  if (verifyProxyKey(req, env)) return true;
+  const lic = (req.headers.get("x-b1s-license") || "").trim();
+  const dev = (req.headers.get("x-b1s-device") || "").trim();
+  if (!lic) return false;
+  return verifyLicense(lic, dev, env);
+}
 
 export interface ExecutionContext { waitUntil(promise: Promise<unknown>): void }
 
@@ -124,9 +161,9 @@ async function frameImage(imgBytes: Uint8Array, filterId: string): Promise<{ b64
 }
 
 /** Version + ngày build — hiện trong /health. */
-const FRAME_VERSION = "1.4.0";
+const FRAME_VERSION = "2.0.0";
 const FRAME_BUILD_DATE = "2026-11-14";
-const FRAME_BUILD_AT = "2026-11-14T10:00:00Z";
+const FRAME_BUILD_AT = "2026-11-14T11:30:00Z";
 
 export default {
   async fetch(req: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
@@ -162,8 +199,8 @@ export default {
     }
 
     // Pure DNS + MITM shared-key — không còn license riêng.
-    if (!verifyProxyKey(req, env)) {
-      return jsonResponse({ result: { status: 403, errors: ["proxy required"], is_gold: false, requires_gold: true }, error: { message: "proxy required", status: "PERMISSION_DENIED" } }, 403);
+    if (!(await requestAuthorized(req, env))) {
+      return jsonResponse({ result: { status: 403, errors: ["license required"], is_gold: false, requires_gold: true }, error: { message: "license required", status: "PERMISSION_DENIED" } }, 403);
     }
 
     let body: Record<string, unknown> | null = null;
@@ -216,8 +253,8 @@ export default {
  * KHÔNG lưu ảnh — ảnh đi thẳng qua memory.
  */
 async function handleFrameRaw(req: Request, env: Env): Promise<Response> {
-  if (!verifyProxyKey(req, env)) {
-    return jsonResponse({ ok: false, error: { message: "proxy required", status: "PERMISSION_DENIED" } }, 403);
+  if (!(await requestAuthorized(req, env))) {
+    return jsonResponse({ ok: false, error: { message: "license required", status: "PERMISSION_DENIED" } }, 403);
   }
 
   let body: Record<string, unknown> | null = null;

@@ -1,0 +1,322 @@
+// author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
+/**
+ * LocketGold B1sTeam — Profile & Badge Gold (DEVICE-LOCKED) v3.0
+ *
+ *   1) REQUEST changeProfileInfo  → giả lập phản hồi thành công "Gold Badge"
+ *                                  (bỏ qua khi license hợp lệ và body có bio thật — chủ profile đang LƯU bio).
+ *   2) RESPONSE mọi API Locket    → ép badge/is_gold = Gold (+ unblur filter paywall).
+ *
+ * License gate fail-closed (lib/license-gate.js) — key sai / sai máy / hết grace → trả body gốc.
+ *
+ * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
+ */
+"use strict";
+
+var LICENSE_KEY = "__LICENSE_KEY__";
+
+// @b1s-include ./lib/cdn-arg.js
+
+var CREDIT = "B1sTeam: Nguyễn Hoàng Bách - Zalo: 083.3399.553";
+
+var GOLD_PROFILE = {
+  badge: "gold",
+  badge_tier: "gold",
+  badge_name: "Gold",
+  is_gold: true,
+  is_gold_badge: true,
+  verified: true,
+  is_verified: true,
+  verified_badge: true,
+  checkmark: true,
+  gold_badge: true,
+  gold_badge_enabled: true,
+  badge_gold: true,
+  badge_enabled: true,
+  use_gold_badge: true,
+  bio: CREDIT,
+  biography: CREDIT,
+  about: CREDIT,
+  about_me: CREDIT,
+  subtitle: CREDIT,
+  tagline: CREDIT,
+  status_message: CREDIT,
+  status_text: CREDIT,
+  profile_bio: CREDIT,
+  success: true,
+};
+
+// @b1s-include ./lib/license-gate.js
+/* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
+   trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
+   ReferenceError làm script chết im lặng. */
+var _req = (typeof $request !== "undefined" && $request) ? $request : {};
+var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
+
+/* Các key chứng thực tích xanh — ép true khi license hợp lệ (client-side view) */
+var VERIFIED_KEYS = /^(verified|is_verified|verified_badge|verified_user|badge_verified|has_verified|checkmark|has_checkmark|is_official|official|celebrity|is_celebrity|is_star|verified_check)$/i;
+
+/* Các key bio/subtitle dưới username — ép về credit B1sTeam (client-side view) */
+var BIO_LIKE_KEYS = /^(bio|biography|about|about_me|subtitle|tagline|headline|status_message|status_text|profile_bio|profile_subtitle|profile_description)$/i;
+var CREDIT_FIELDS = ["bio", "biography", "about", "about_me", "subtitle", "tagline", "headline", "status_message", "status_text", "profile_bio", "profile_subtitle", "profile_description"];
+
+/* MỌI key chứa "badge" (trừ key url/icon/path) — ép Gold; giữ số/string đúng kiểu */
+function isBadgeKey(k) { return /badge/i.test(k); }
+function isBadgeUrlKey(k) { return /_url($|_)|url$|image|icon|_src($|_)|path|asset/i.test(k); }
+function badgeValueFor(k) {
+  var s = String(k).toLowerCase();
+  if (/number|count|level|rank|order|index/.test(s)) return 1;
+  if (/_name($|_)/.test(s)) return "Gold";
+  return "gold"; // badge / badge_tier / badge_type / badge_color — "gold" là màu CSS hợp lệ
+}
+
+/** Ép mọi object trong payload về Gold Badge + credit (giữ nguyên các field khác). */
+function injectBadge(node, depth) {
+  if (!node || typeof node !== "object" || (depth || 0) > 24) return;
+
+  if (Array.isArray(node)) {
+    for (var i = 0; i < node.length; i++) injectBadge(node[i], (depth || 0) + 1);
+    return;
+  }
+
+  var keys = Object.keys(node);
+  for (var j = 0; j < keys.length; j++) {
+    var value = node[keys[j]];
+    if (value && typeof value === "object") {
+      injectBadge(value, (depth || 0) + 1);
+      continue;
+    }
+    if (/^(is_?gold(_?badge)?|badge(_tier|_name|_number)?|has_?gold|is_vip|vip_active|is_premium|premium_active)$/i.test(keys[j])) {
+      var lk0 = keys[j].toLowerCase();
+      node[keys[j]] = (lk0.indexOf("badge_number") !== -1)
+        ? 1
+        : (lk0.indexOf("badge_name") !== -1 ? "Gold" : (lk0.indexOf("badge_tier") !== -1 ? "gold" : (/^(is_|has_)/i.test(keys[j]) ? true : "gold")));
+    } else if (isBadgeKey(keys[j]) && !isBadgeUrlKey(keys[j])) {
+      // Toggle/badge keys server có thể trả false — ép về Gold (boolean giữ boolean, string giữ string)
+      if (typeof value === "boolean" || /_enabled|_active|_visible|_on$|^use_|^show_/i.test(keys[j])) {
+        node[keys[j]] = true;
+      } else {
+        node[keys[j]] = badgeValueFor(keys[j]);
+      }
+    } else if (VERIFIED_KEYS.test(keys[j])) {
+      node[keys[j]] = true;
+    } else if (BIO_LIKE_KEYS.test(keys[j]) && value !== CREDIT) {
+      node[keys[j]] = CREDIT;
+    }
+  }
+
+  var looksLikeProfile = ("badge" in node) || ("is_gold" in node) || ("badge_tier" in node) ||
+    ("display_name" in node || "username" in node || "user_id" in node);
+  // Ép TOÀN BỘ profile-like (bản thân + danh sách bạn bè, tin nhắn…) lên Gold + tích xanh + credit
+  if (looksLikeProfile) {
+    node.badge = "gold";
+    node.badge_tier = "gold";
+    node.is_gold = true;
+    node.is_gold_badge = true;
+    node.gold_badge = true;
+    node.gold_badge_enabled = true;
+    node.badge_gold = true;
+    node.badge_enabled = true;
+    node.use_gold_badge = true;
+    node.verified = true;
+    node.is_verified = true;
+    node.verified_badge = true;
+    for (var k = 0; k < CREDIT_FIELDS.length; k++) node[CREDIT_FIELDS[k]] = CREDIT;
+  }
+}
+
+/** Ép cờ "đã mở khoá" ở mọi node (filter, moment, camera template) — requires_gold=false, is_locked=false. */
+function unlockFlags(node, depth) {
+  if (!node || typeof node !== "object" || (depth || 0) > 24) return;
+  if (Array.isArray(node)) {
+    for (var i = 0; i < node.length; i++) unlockFlags(node[i], (depth || 0) + 1);
+    return;
+  }
+  for (var key in node) {
+    if (!Object.prototype.hasOwnProperty.call(node, key)) continue;
+    var value = node[key];
+    if (value && typeof value === "object") { unlockFlags(value, (depth || 0) + 1); continue; }
+    var lk = String(key).toLowerCase();
+    if (lk === "requires_gold" || lk === "requires_subscription" || lk === "is_locked" || lk === "locked" || lk === "needs_subscription") {
+      node[key] = false;
+    } else if (lk === "is_gold" || lk === "is_premium" || lk === "unlocked" || lk === "is_subscribed" || lk === "has_access") {
+      node[key] = true;
+    } else if (
+      lk === "has_ai_access" || lk === "ai_access_enabled" || lk === "can_use_ai" || lk === "allow_ai_filter" ||
+      lk === "can_use_filters" || lk === "can_use_filter" || lk === "can_use_gold_features" ||
+      lk === "can_generate_filtered_image" || lk === "can_create_filtered_image" ||
+      lk === "filter_access" || lk === "has_filter_access" || lk === "can_apply_filter" ||
+      lk === "can_use_ai_filter" || lk === "is_subscriber" || lk === "all_filters_free" ||
+      lk === "can_use_all_filters" || lk === "allow_saving_all" || lk === "allowed" ||
+      lk === "is_available" || lk === "is_enabled" || lk === "is_active" ||
+      lk === "subscribed" || lk === "is_paid" || lk === "has_subscription" || lk === "is_member" ||
+      lk === "is_pro" || lk === "is_vip" || lk === "pro_enabled" || lk === "pro_unlocked" ||
+      lk === "gold_enabled" || lk === "gold_unlocked" || lk === "premium_unlocked" ||
+      lk === "subscription_active" || lk === "membership_active" || lk === "member_active" ||
+      lk === "holiday_filters_enabled" || lk === "holiday_filters_free" || lk === "can_use_holiday_filters" ||
+      lk === "can_use_gold_features" || lk === "can_use_premium_features" || lk === "can_access_gold" ||
+      lk === "can_access_premium" || lk === "has_premium" || lk === "has_gold" || lk === "has_pro" ||
+      lk === "is_eligible" || lk === "can_render" || lk === "can_unlock" || lk === "is_unlocked" ||
+      lk === "camera_filters_enabled" || lk === "custom_filters_enabled" || lk === "all_effects_unlocked" ||
+      lk === "free_forever" || lk === "vip" || lk === "has_entitlement"
+    ) {
+      node[key] = true;
+    } else if (lk === "is_blurred" || lk === "blurred" || lk === "needs_gold" || lk === "has_blur") {
+      node[key] = false;
+    }
+  }
+}
+
+var url = (typeof $request !== "undefined" && $request && $request.url) ? $request.url : "";
+var mode = "response";
+// locketgold_profile được gọi với argument "KEY|request" hoặc "KEY|response"
+if (typeof $argument !== "undefined" && $argument) {
+  try {
+    var args = typeof $argument === "string" ? JSON.parse($argument) : $argument;
+    if (args === "request" || args === "response") mode = args;
+    else if (args && (args.mode === "request" || args.mode === "response")) mode = args.mode;
+  } catch (e) {
+    if (String($argument).indexOf("|request") !== -1) mode = "request";
+    else if (String($argument).indexOf("request") !== -1 && String($argument).indexOf("|") === -1) mode = "request";
+  }
+} else if (url.indexOf("changeProfileInfo") !== -1 && typeof $response === "undefined") {
+  mode = "request";
+}
+
+/* Cho changeProfileInfo chứa field bio đi thẳng lên server (chủ profile muốn LƯU bio thật);
+   response trả về vẫn được response-mode ép badge/credit sau đó. */
+function containsBioValue(node, depth) {
+  if (!node || typeof node !== "object" || (depth || 0) > 10) return false;
+  for (var k in node) {
+    if (!Object.prototype.hasOwnProperty.call(node, k)) continue;
+    var v = node[k];
+    if (typeof v === "string" && BIO_LIKE_KEYS.test(k) && v.trim().length > 0) return true;
+    if (v && typeof v === "object" && containsBioValue(v, (depth || 0) + 1)) return true;
+  }
+  return false;
+}
+
+if (mode === "request") {
+  var passthrough = false;
+  try {
+    var rb = (typeof $request !== "undefined" && $request && $request.body) ? $request.body : null;
+    var parsedBody = typeof rb === "string" ? JSON.parse(rb) : rb;
+    if (parsedBody && typeof parsedBody === "object" && containsBioValue(parsedBody, 0)) passthrough = true;
+  } catch (e) {
+    passthrough = false;
+  }
+  if (passthrough) {
+    console.log("[locketgold] profile: mode=request → PASSTHROUGH (bio edit — server sẽ lưu)");
+    $done({}); // request đi tiếp lên server nguyên trạng
+  } else {
+    gate(
+      function () {
+        console.log("[locketgold] profile: mode=request → 200 Gold+Verified (changeProfileInfo)");
+        $done({
+          response: {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              "Access-Control-Allow-Origin": "*",
+              "Cache-Control": "no-store",
+            },
+            body: JSON.stringify({
+              data: GOLD_PROFILE,
+              result: GOLD_PROFILE,
+              success: true,
+            }),
+          },
+        });
+      },
+      function () {
+        console.log("[locketgold] profile: mode=request → DENY (license invalid) → passthrough");
+        $done({}); // không license → để request đi tiếp bình thường
+      },
+      "profile"
+    );
+  }
+} else {
+  // MEDIA/CDN (ảnh, video, webp, font…) — bỏ qua HOÀN TOÀN: không gate, không delay.
+  var _mUrl = "";
+  try { _mUrl = _req.url ? String($request.url) : ""; } catch (e) {}
+  if (isMediaUrl(_mUrl)) { $done({}); return; }
+  gate(
+    function () {
+      console.log("[locketgold] profile: mode=response → inject Gold+Verified badge");
+      // AI filter (createFilter/generateFilteredImage) bị entitlement server-side: bom Gold giả KHÔNG giúp được —
+      // app sẽ treo "ĐANG RỬA ẢNH" vô hạn. Trả lời fail-fast CHỈ khi server không 200 (user free).
+      // User trả phí (server 200) đi tiếp bình thường qua unlock flow.
+      const uAI = _req.url ? String($request.url) : "";
+      if (uAI.indexOf("/createFilter") !== -1 || uAI.indexOf("/generateFilteredImage") !== -1) {
+        const rs0 = (_resp.status || _resp.statusCode) || 200;
+        if (rs0 !== 200) {
+          console.log("[locketgold] profile: AI filter từ chối (status=" + rs0 + ") — fail-fast, app hiện lỗi ngay");
+          $done({ status: rs0, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify({ error: { message: "Entitlement required", code: "ENTITLEMENT_REQUIRED" } }) });
+          return;
+        }
+      }
+      var body = (typeof $response !== "undefined" && $response) ? $response.body : null;
+      // Bỏ qua mọi response không phải JSON text — file tải về/nhị phân phải đi nguyên vẹn
+      try {
+        var ct = "";
+        if (_resp.headers) {
+          for (var h in $response.headers) {
+            if (Object.prototype.hasOwnProperty.call($response.headers, h) && String(h).toLowerCase() === "content-type") {
+              ct = String($response.headers[h] || "").toLowerCase();
+              break;
+            }
+          }
+        }
+        if (ct && ct.indexOf("json") === -1 && ct.indexOf("text") === -1 && ct.indexOf("x-www-form-urlencoded") === -1) {
+          return $done({ body: body }); // nhị phân/media — giữ nguyên
+        }
+      } catch (e) { /* không đọc được header → xử lý như text */ }
+      if (body) {
+        try {
+          var obj = JSON.parse(body);
+          injectBadge(obj, 0);
+          // ── MỞ KHOÁ PAYWALL FILTER (402/403/400) — filter AI/Camera bị khoá theo vùng hoặc theo gói
+          var rstatus = (_resp.status || _resp.statusCode) || 200;
+          if (rstatus === 402 || rstatus === 403 || rstatus === 400 || (obj && obj.error)) {
+            var details = (obj && obj.error && obj.error.details) ? obj.error.details : {};
+            obj = {
+              result: {
+                status: 200,
+                is_gold: true,
+                is_locked: false,
+                requires_gold: false,
+                requires_subscription: false,
+                is_subscribed: true,
+                unlocked: true,
+                premium: true,
+                is_premium: true,
+                data: details,
+              },
+              data: {
+                status: 200,
+                is_locked: false,
+                requires_gold: false,
+                unlocked: true,
+                is_gold: true,
+                is_premium: true,
+              },
+              error: null,
+            };
+            injectBadge(obj, 0);
+            body = JSON.stringify(obj);
+            $done({ status: 200, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: body });
+            return;
+          }
+          unlockFlags(obj, 0);
+          body = JSON.stringify(obj);
+        } catch (e) { /* body không phải JSON hợp lệ — giữ nguyên */ }
+      }
+      $done({ headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: body });
+    },
+    function () {
+      console.log("[locketgold] profile: mode=response → DENY (license invalid) → nguyên vẹn");
+      var body = (typeof $response !== "undefined" && $response) ? $response.body : null;
+      $done({ body: body }); // không license → nguyên vẹn
+    },
+    "profile"
+  );
+}

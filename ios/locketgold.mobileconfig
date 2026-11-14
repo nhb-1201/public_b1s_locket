@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+    <key>PayloadIdentifier</key>
+    <string>vn.b1s.locketgold.dns</string>
+    <key>PayloadUUID</key>
+    <string>E8B7C2A4-3F1D-4A6E-9C5B-7D2A91F04B63</string>
+    <key>PayloadDisplayName</key>
+    <string>LocketGold DoH · B1sTeam ✦</string>
+    <key>PayloadDescription</key>
+    <string>DNS riêng cho LocketGold (Locket &amp; Firebase qua B1sTeam DoH — chặn quảng cáo/telemetry). RevenueCat cố ý giữ nguyên để Shadowrocket mitm luôn nhận được phản hồi Gold. Web/app khác giữ DNS gốc — miễn phí vĩnh viễn · b1s.id.vn/alfretro</string>
+    <key>PayloadOrganization</key>
+    <string>B1sTeam — b1s.id.vn · @b1steam</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadContent</key>
+    <array>
+      <dict>
+        <key>PayloadType</key>
+        <string>com.apple.dnsSettings.managed</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+        <key>PayloadIdentifier</key>
+        <string>com.apple.dnsSettings.managed.D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
+        <key>PayloadUUID</key>
+        <string>D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
+        <key>PayloadDisplayName</key>
+        <string>LocketGold DoH · B1sTeam ✦</string>
+        <key>PayloadDescription</key>
+        <string>Locket &amp; Firebase qua B1sTeam DoH (https://doh.b1s.id.vn/dns-query). Web/app khác giữ DNS gốc.</string>
+        <key>PayloadOrganization</key>
+        <string>B1sTeam — b1s.id.vn · @b1steam</string>
+        <key>DNSSettings</key>
+        <dict>
+          <key>DNSProtocol</key>
+          <string>HTTPS</string>
+          <key>ServerURL</key>
+          <string>https://doh.b1s.id.vn/dns-query</string>
+          <key>SupplementalMatchDomains</key>
+          <array>
+            <string>locketcamera.com</string>
+            <string>locket.camera</string>
+            <string>firebaseremoteconfig.googleapis.com</string>
+          </array>
+        </dict>
+        <key>ProhibitDisablement</key>
+        <false/>
+      </dict>
+    </array>
+  </dict>
+</plist>

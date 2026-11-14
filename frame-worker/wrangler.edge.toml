@@ -1,0 +1,17 @@
+# Deploy lên 4 tài khoản Cloudflare PHỤ (edge) — KHÔNG custom domain, KHÔNG account chính.
+# Deploy:  CLOUDFLARE_ACCOUNT_ID=<account_id> CLOUDFLARE_API_TOKEN=<token> wrangler deploy --config wrangler.edge.toml
+name = "locket-filter-frame"
+main = "src/index.ts"
+compatibility_date = "2026-11-14"
+workers_dev = true
+
+[vars]
+ASSET_RAW_BASE = "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main"
+VERIFY_BASE = "https://locket.b1s.id.vn/api/v2/locketgold/verify"
+
+[[rules]]
+type = "CompiledWasm"
+globs = ["**/*.wasm"]
+
+[observability]
+enabled = false
