@@ -105,9 +105,9 @@ function buildModule() {
     console.error("STALE  .conf có script-path hỏng (ký tự '$1' hoặc .js$version) — sửa lại URL script-path");
     process.exit(1);
   }
-  const noV = [...conf.matchAll(/script-path=([^\s,]+)/g)].filter((m) => !m[1].includes("?v="));
+  const noV = [...conf.matchAll(/script-path=([^\s,]+)/g)].filter((m) => !m[1].includes(".v" + VERSION.version + ".js"));
   if (noV.length) {
-    console.error("STALE  " + noV.length + " script-path thiếu ?v=" + VERSION.version + " (cache-bust) — sửa lại .conf");
+    console.error("STALE  " + noV.length + " script-path chưa dùng file có version (.v" + VERSION.version + ".js) — sửa lại .conf");
     process.exit(1);
   }
   const badV = [...conf.matchAll(/\?v=([0-9]+\.[0-9]+\.[0-9]+)/g)].filter((m) => m[1] !== String(VERSION.version));
@@ -142,6 +142,10 @@ for (const { source, target, content } of outputs) {
     else console.log(`OK     ${relative(REPO_IOS, target)}`);
   } else {
     writeFileSync(target, content, "utf8");
+    // Bản CÓ VERSION trong tên — đường dẫn khác ⇒ CDN cache-bust thật (query ?v= bị raw.githubusercontent BỎ QUA).
+    // Giữ cả bản tên cũ để .conf đã cài từ trước vẫn tải được.
+    const versionedTarget = target.replace(/\.js$/, ".v" + VERSION.version + ".js");
+    writeFileSync(versionedTarget, content, "utf8");
     // Self-check chỉ cho .js (bỏ qua .sgmodule — file INI, không phải JS).
     // Bọc trong function wrapper — Shadowrocket cho phép `return` ở top-level script.
     if (target.endsWith(".js")) {
