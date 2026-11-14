@@ -1,6 +1,6 @@
 // author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
 /**
- * LocketGold B1sTeam — Firebase Remote Config Unlock (DEVICE-LOCKED) v5.0
+ * LocketGold B1sTeam — Firebase Remote Config Unlock (DEVICE-LOCKED) v6.0
  *
  * MỞ KHÓA TOÀN BỘ TÍNH NĂNG PREMIUM CỦA LOCKET — entries là format THẬT của app:
  *   · Firebase v1 fetch trả về { entries: { flag: "value", ... } } (flat, string).
@@ -10,7 +10,17 @@
  *   · Entry thương hiệu bên ngoài (URL mạng xã hội…) — giữ giá trị máy chủ; riêng popup chào mừng
  *     là bản B1sTeam (credit B1sDev · Nguyễn Hoàng Bách), campaign random MỖI LẦN fetch để popup luôn hiện.
  *
- * License gate fail-closed (lib/license-gate.js) — key sai / sai máy / hết grace → trả nguyên body gốc.
+ * ⚠ BẢN SỬA 2026-11-14 (sau log PacketTunnel 10:39):
+ *   Log cho thấy request RC của app bị "TLSV1_ALERT_PROTOCOL_VERSION" / treo → app KHÔNG nhận
+ *   được Remote Config ⇒ toàn bộ cờ mở khoá không được áp dụng (app chạy như bản thường).
+ *   Nay script chuyển sang REQUEST-PHASE SYNTHESIS: tự gọi API RC gốc qua $httpClient
+ *   (ngoài đường MITM nên không dính lỗi TLS của MITM), gộp cờ B1sTeam, rồi TRẢ THẲNG cho app.
+ *   · Cache trên máy 6 giờ ⇒ app mở nhanh, không gọi mạng liên tục.
+ *   · Nếu gọi Google lỗi → dùng cache cũ; không có cache → trả bộ cờ B1sTeam tối thiểu.
+ *   · License sai → pass-through (app tự lấy RC thật từ Google, không đứt app).
+ *   · Vẫn giữ chế độ RESPONSE (đăng ký thêm ở .conf) làm lưới an toàn khi request-phase không chạy.
+ *
+ * License gate fail-closed (lib/license-gate.js) — key sai / sai máy / hết grace → không ép cờ.
  *
  * B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
  */
@@ -20,7 +30,10 @@ var LICENSE_KEY = "__LICENSE_KEY__";
 
 // @b1s-include ./lib/cdn-arg.js
 
-var rawBody = (typeof $response !== "undefined" && $response && $response.body) ? $response.body : "";
+/* Cache RC hợp nhất trên máy — 6 giờ (app mở nhanh, không gọi Google liên tục) */
+var RC_TTL_MS = 21600000;
+var RC_CACHE_KEY = "b1s_rc_payload";
+var RC_CACHE_AT = "b1s_rc_cache_at";
 
 // @b1s-include ./lib/license-gate.js
 
@@ -30,6 +43,11 @@ var rawBody = (typeof $response !== "undefined" && $response && $response.body) 
    Giá trị KHÔNG đổi: URL ngoài / branding bên thứ 3 (app tự giữ mặc định server).
    ══════════════════════════════════════ */
 // @b1s-include ./_remote_entries.fragment.js
+/* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
+   trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
+   ReferenceError làm script chết im lặng. */
+var _req = (typeof $request !== "undefined" && $request) ? $request : {};
+var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
 
 /* Các feature gate premium — Locket đọc JSON này từ entries.feature_gates */
 var KNOWN_PREMIUM_GATES = [
@@ -146,17 +164,164 @@ function injectEntries(body) {
   return JSON.stringify(obj);
 }
 
-function unlock() {
+/* ═══════════════════════════════════════════════════════════════
+   CHẾ ĐỘ: REQUEST (synthesis) — RESPONSE (lưới an toàn)
+   ═══════════════════════════════════════════════════════════════ */
+function hasOwn(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+
+function isResponseMode() {
+  return (typeof $response !== "undefined" && $response && $response.body !== undefined);
+}
+
+/** Bóc body từ callback của $httpClient (string / object / response.body). */
+function extractBody(data, response) {
+  if (typeof data === "string" && data) return data;
+  if (data && typeof data === "object") {
+    try {
+      if (typeof data.body === "string" && data.body) return data.body;
+    } catch (e) { /* ignore */ }
+    try { return JSON.stringify(data); } catch (e) { /* ignore */ }
+  }
+  try {
+    if (response && typeof response.body === "string" && response.body) return response.body;
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+/** Bỏ campaign cũ để popup B1sTeam luôn hiện (app coi campaign mới = chưa xem). */
+function restampCampaign(jsonStr) {
+  try {
+    var o = JSON.parse(jsonStr);
+    var pf = o && o.entries && o.entries["feature_discovery_popup_config"];
+    if (typeof pf === "string" && pf.length > 10) {
+      var p = JSON.parse(pf);
+      if (p && typeof p === "object") {
+        p.campaign = "b1steam_gold_" + Date.now();
+        o.entries["feature_discovery_popup_config"] = JSON.stringify(p);
+        return JSON.stringify(o);
+      }
+    }
+  } catch (e) { /* giữ nguyên */ }
+  return jsonStr;
+}
+
+/** Bộ cờ tối thiểu khi không lấy được RC gốc (offline / Google lỗi). */
+function baselineBody() {
+  var merged = injectEntries(JSON.stringify({ entries: {} }));
+  return merged || JSON.stringify({ entries: {} });
+}
+
+function serveLocal(bodyStr) {
+  $done({
+    response: {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store",
+        "X-B1s-Remote": "synth",
+      },
+      body: bodyStr,
+    },
+  });
+}
+
+/** Gọi API RC gốc (ngoài MITM) để lấy config thật rồi gộp cờ B1sTeam. */
+function fetchUpstream(onDone) {
+  if (typeof $httpClient === "undefined" || !$httpClient) return onDone(null);
+  var headers = {};
+  try {
+    var h = _req.headers ? $request.headers : {};
+    for (var k in h) {
+      if (!hasOwn(h, k)) continue;
+      var lk = String(k).toLowerCase();
+      if (lk === "host" || lk === "connection" || lk === "content-length" ||
+          lk === "accept-encoding" || lk === "proxy-connection" || lk === "te") continue;
+      headers[k] = h[k];
+    }
+  } catch (e) { /* dùng header rỗng */ }
+  var url = "";
+  var method = "GET";
+  var body = null;
+  try {
+    url = String($request.url || "");
+    method = String($request.method || "GET").toUpperCase();
+    if ($request.body !== undefined && $request.body !== null) body = String($request.body);
+  } catch (e) { /* ignore */ }
+  if (!url) return onDone(null);
+
+  var cb = function (err, response, data) {
+    if (err) return onDone(null);
+    var raw = extractBody(data, response);
+    if (!raw) return onDone(null);
+    onDone(raw);
+  };
+
+  try {
+    if (method === "POST" && typeof $httpClient.post === "function") {
+      $httpClient.post({ url: url, headers: headers, body: body || "", timeout: 12 }, cb);
+    } else {
+      $httpClient.get({ url: url, headers: headers, timeout: 12 }, cb);
+    }
+  } catch (e) {
+    try { onDone(null); } catch (e2) { /* ignore */ }
+  }
+}
+
+function serveRequestPhase() {
+  var cached = b1sStoreGet(RC_CACHE_KEY);
+  var at = Number(b1sStoreGet(RC_CACHE_AT) || 0);
+  var fresh = cached && at > 0 && (Date.now() - at) < RC_TTL_MS;
+
+  if (fresh) {
+    console.log("[locketgold] remote: synthesis từ cache (" + Math.round((Date.now() - at) / 60000) + "p)");
+    return serveLocal(restampCampaign(cached));
+  }
+
+  fetchUpstream(function (raw) {
+    if (raw) {
+      var merged = injectEntries(raw);
+      var out = merged === null ? raw : merged;
+      out = restampCampaign(out);
+      b1sStoreSet(RC_CACHE_KEY, out);
+      b1sStoreSet(RC_CACHE_AT, String(Date.now()));
+      console.log("[locketgold] remote: synthesis từ RC gốc (đã lưu cache 6h)");
+      return serveLocal(out);
+    }
+    if (cached) {
+      console.log("[locketgold] remote: RC gốc lỗi → dùng cache cũ");
+      return serveLocal(restampCampaign(cached));
+    }
+    console.log("[locketgold] remote: RC gốc lỗi & không cache → trả bộ cờ B1sTeam tối thiểu");
+    return serveLocal(restampCampaign(baselineBody()));
+  });
+}
+
+function serveResponsePhase() {
+  var rawBody = (typeof $response !== "undefined" && $response && typeof $response.body === "string") ? $response.body : "";
   var out = injectEntries(rawBody);
   $done({
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
     body: (out === null) ? rawBody : out,
   });
 }
-function deny() { $done({ body: rawBody }); }
 
 gate(
-  function () { console.log("[locketgold] remote: UNLOCK"); return unlock(); },
-  function () { console.log("[locketgold] remote: DENY (license invalid)"); return deny(); },
+  function () {
+    if (isResponseMode()) {
+      console.log("[locketgold] remote: UNLOCK (response mode)");
+      return serveResponsePhase();
+    }
+    console.log("[locketgold] remote: UNLOCK (request synthesis)");
+    return serveRequestPhase();
+  },
+  function () {
+    if (isResponseMode()) {
+      console.log("[locketgold] remote: DENY (license invalid) — giữ body gốc");
+      var raw = (typeof $response !== "undefined" && $response && typeof $response.body === "string") ? $response.body : "";
+      return $done({ body: raw });
+    }
+    console.log("[locketgold] remote: DENY (license invalid) — pass-through");
+    return $done({}); // app tự lấy RC thật từ Google
+  },
   "remote"
 );

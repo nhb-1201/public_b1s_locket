@@ -21,7 +21,7 @@
  * B1sTeam — b1s.id.vn · Zalo 083.3399.553 · Nguyễn Hoàng Bách
  */
 
-const VERSION = "7.0.0";
+const VERSION = "7.1.0";
 const UPSTREAMS = ["https://1.1.1.1/dns-query", "https://8.8.8.8/dns-query", "https://9.9.9.9/dns-query"];
 const CACHE_TTL = 300;      // giây — pin cache ở edge Cloudflare (5 phút)
 const CACHE_STALE = 86400;  // giây — tuổi tối đa bản stale khi upstream chết (24h)
@@ -61,6 +61,11 @@ const BLOCK_GROUPS = {
     "datadoghq.com",
     "api.segment.io",
     "segment.io",
+    "appsflyersdk.com",
+    "moloco.com",
+    "app-ads-services.com",
+    "app-analytics-services.com",
+    "amp-api-edge.apps.apple.com",
   ],
   "ads-global": [
     "googlesyndication.com",
@@ -84,6 +89,8 @@ const BLOCK_GROUPS = {
     "smartadserver.com",
     "teads.tv",
     "yieldmo.com",
+    "ads.google.com",
+    "analytics.google.com",
   ],
   "ads-vn": [
     "for88.vn",

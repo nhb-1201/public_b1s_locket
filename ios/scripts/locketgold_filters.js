@@ -39,30 +39,40 @@ try {
 /* ─── END inlined: lib\cdn-arg.js ─── */
 
 /* ─── BEGIN inlined: lib\license-gate.js ─── */
-/* B1sTeam — License gate (fail-closed) — single source of truth for ALL B1sTeam scripts.
-   Shadowrocket scripts must be self-contained; ios/build.mjs inlines this file.
+/* B1sTeam — License gate (fail-closed) — single source of truth cho MỌI script B1sTeam.
+   Shadowrocket scripts phải self-contained; ios/build.mjs inline file này.
 
-   Nguyên tắc:
-     · Key sai / thiếu / sai máy / offline > 30 ngày (chưa từng verify OK) → KHÔNG bơm gì.
-     · Đã verify OK trong ≤ 7 ngày → cho chạy tiếp (không hỏi lại — tránh nghẽn).
-     · Verify FAIL → cooldown 5 phút (chống verify-storm khi mạng chập chờn).
-     · Đã verify OK trong ≤ 30 ngày nhưng lần này không hỏi được (mất mạng) → OFFLINE-GRACE.
-     · Không uid / token / dữ liệu người dùng nào được gửi — chỉ key + device_id ẩn danh. */
+   NGUYÊN TẮC:
+     A) Key sai / thiếu / sai máy / offline > 30 ngày (chưa từng verify OK) → KHÔNG bám.
+     B) Đã verify OK trong 7 ngày → chạy tiếp (không hỏi lại, không gọi mạng).
+     C) Verify FAIL → cooldown 10 phút (chống verify-storm khi mạng chập chờn).
+     D) Đã verify OK trong 30 ngày nhưng lần này không hỏi được (mất mạng) → OFFLINE-GRACE.
+     E) Không gửi uid / token / dữ liệu người dùng đi đâu — chỉ key + device_id đã ẩn danh.
 
-/* ── Hằng thời gian (ms) ── */
-var B1S_VERIFY_CACHE_MS = 604800000;    // 7 ngày  — cache "đã verify OK", không hỏi lại
-var B1S_OFFLINE_GRACE_MS = 2592000000;  // 30 ngày — mở tạm khi máy chủ/mạng lỗi tạm thời
-var B1S_FAIL_COOLDOWN_MS = 600000;      // 10 phút — sau khi verify FAIL (chống verify-storm)
-var B1S_MEM_OK_MS = 21600000;           // 6 giờ — cache verify trong bộ nhớ script (dù $prefs hỏng vẫn không bắn liên tục)
+   ⚠ BẢN SỬA 2026-11-14 (sau log PacketTunnel):
+     Shadowrocket KHÔNG có `$prefs` (đó là Quantumult X) — chỉ có `$persistentStore`.
+     Bản cũ đọc/ghi cache + cooldown + device id qua $prefs ⇒ trên Shadowrocket KHÔNG BAO GIỜ
+     lưu được ⇒ mỗi request đều gọi verify (2 host) ⇒ 64 lần/10 phút ⇒ 429 ⇒ fail-closed ⇒
+     "không hiện gì". Nay dùng store đa-API ($persistentStore → $prefs → $storage) + device id
+     ổn định (salt lưu được → id theo máy; lưu không được → id tất định theo key) để:
+       · cache 7 ngày + cooldown 10 phút thật sự hoạt động ⇒ hết bão verify;
+       · device id không bao giờ đổi mỗi lần chạy ⇒ không còn device_mismatch vô lý.
+*/
 
-/* ── Verify endpoints — cùng 1 license, thử lần lượt ──
-   1) locket.b1s.id.vn (worker)  2) b1s.id.vn (frontend) — cả hai đều trả { valid: true }. */
+/* ═══════════ Thời gian (ms) ═══════════ */
+var B1S_VERIFY_CACHE_MS = 604800000;    // 7 ngày — cache "đã verify OK"
+var B1S_OFFLINE_GRACE_MS = 2592000000;  // 30 ngày — mất tạm khi máy chủ/mạng lỗi tạm thời
+var B1S_FAIL_COOLDOWN_MS = 600000;      // 10 phút — sau khi verify FAIL
+var B1S_MEM_OK_MS = 21600000;           // 6 giờ — cache verify trong bộ nhớ script
+
+/* ═══════════ Verify endpoints (2 host, độc lập) ═══════════ */
 var B1S_VERIFY_PRIMARY = "https://locket.b1s.id.vn/api/v2/locketgold/verify";
 var B1S_VERIFY_FALLBACK = "https://b1s.id.vn/api/locketgold/verify";
 var B1S_VERIFY_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 
-/* ── prefs keys — GIỮ NGUYÊN để máy đã cài bản cũ không mất verify cache ── */
+/* ═══════════ Prefs keys ═══════════ */
 var B1S_KEY_DEVICE = "b1s_lg_device_id";
+var B1S_KEY_SALT = "b1s_lg_salt";
 var B1S_KEY_OK_AT = "b1s_lg_ok_at";
 var B1S_KEY_FAIL_AT = "b1s_lg_fail_at";
 
@@ -70,69 +80,127 @@ var memDeviceId = null;
 var memOkAt = 0;      // mốc verify OK gần nhất (bộ nhớ)
 var memFailAt = 0;    // mốc verify fail gần nhất (bộ nhớ)
 
-
-/** Device id bền trên máy này (tạo 1 lần) — Shadowrocket $prefs / Loon $persistentStore / memory. */
-function deviceId() {
-  try {
-    if (typeof $prefs !== "undefined" && $prefs) {
-      var id1 = $prefs.valueForKey(B1S_KEY_DEVICE);
-      if (id1) return id1;
-      id1 = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      $prefs.setValueForKey(id1, B1S_KEY_DEVICE);
-      return id1;
-    }
-  } catch (e) { /* thử tầng tiếp theo */ }
+/* ═══════════════════════════════════════════════════════════════
+   STORE ĐA-API — $persistentStore (Shadowrocket/Surge/Loon) → $prefs (QX) → $storage
+   Trả "" / null khi chưa có; set trả true nếu ghi được ít nhất 1 nơi.
+   ═══════════════════════════════════════════════════════════════ */
+function b1sStoreGet(key) {
   try {
     if (typeof $persistentStore !== "undefined" && $persistentStore) {
-      var id2 = $persistentStore.read(B1S_KEY_DEVICE);
-      if (id2) return id2;
-      id2 = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      $persistentStore.write(id2, B1S_KEY_DEVICE);
-      return id2;
+      var v = $persistentStore.read(key);
+      if (v !== undefined && v !== null && v !== "") return String(v);
     }
-  } catch (e) { /* thử memory */ }
-  if (!memDeviceId) memDeviceId = "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-  return memDeviceId;
+  } catch (e) { /* bỏ qua */ }
+  try {
+    if (typeof $prefs !== "undefined" && $prefs) {
+      var v2 = $prefs.valueForKey(key);
+      if (v2 !== undefined && v2 !== null && v2 !== "") return String(v2);
+    }
+  } catch (e) { /* bỏ qua */ }
+  try {
+    if (typeof $storage !== "undefined" && $storage) {
+      var v3 = $storage.read(key);
+      if (v3 !== undefined && v3 !== null && v3 !== "") return String(v3);
+    }
+  } catch (e) { /* bỏ qua */ }
+  return null;
+}
+
+function b1sStoreSet(key, value) {
+  var ok = false;
+  var s = String(value);
+  try {
+    if (typeof $persistentStore !== "undefined" && $persistentStore) {
+      $persistentStore.write(s, key);
+      ok = true;
+    }
+  } catch (e) { /* bỏ qua */ }
+  try {
+    if (typeof $prefs !== "undefined" && $prefs) {
+      $prefs.setValueForKey(s, key);
+      ok = true;
+    }
+  } catch (e) { /* bỏ qua */ }
+  try {
+    if (typeof $storage !== "undefined" && $storage) {
+      $storage.write(s, key);
+      ok = true;
+    }
+  } catch (e) { /* bỏ qua */ }
+  return ok;
+}
+
+/* ═══════════ Hash 32-bit (FNV-1a) — device id tất định khi không lưu được salt ═══════════ */
+function b1sHash32(str) {
+  var h = 0x811c9dc5;
+  for (var i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return ("00000000" + h.toString(16)).slice(-8);
+}
+
+function b1sRandomHex(len) {
+  var s = "";
+  var chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  for (var i = 0; i < len; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
+  return s;
+}
+
+/**
+ * Device id ổn định:
+ *   · store hoạt động  → salt lưu được → id = mitm-<hash(key|salt)>  (KHÓA THEO MÁY thật)
+ *   · store hỏng       → id = mitm-<hash(key)>                        (ổn định, không khóa máy)
+ * Không bao giờ random mỗi lần chạy → không còn device_mismatch vô lý.
+ */
+function deviceId() {
+  var cached = b1sStoreGet(B1S_KEY_DEVICE);
+  if (cached) return cached;
+  if (memDeviceId) return memDeviceId;
+
+  var salt = b1sStoreGet(B1S_KEY_SALT);
+  if (!salt) {
+    salt = b1sRandomHex(10);
+    var written = b1sStoreSet(B1S_KEY_SALT, salt);
+    if (!written || b1sStoreGet(B1S_KEY_SALT) !== salt) salt = ""; // store hỏng → không salt
+  }
+  var id = salt ? ("mitm-" + b1sHash32(LICENSE_KEY + "|" + salt)) : ("mitm-" + b1sHash32(LICENSE_KEY));
+  b1sStoreSet(B1S_KEY_DEVICE, id);
+  memDeviceId = id;
+  return id;
 }
 
 function lastVerifiedAt() {
-  try {
-    if (typeof $prefs !== "undefined" && $prefs) return Number($prefs.valueForKey(B1S_KEY_OK_AT) || 0);
-  } catch (e) { /* bỏ qua */ }
-  return 0;
+  var v = b1sStoreGet(B1S_KEY_OK_AT);
+  return v ? Number(v) || 0 : 0;
 }
 
 function markVerified() {
-  try {
-    if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), B1S_KEY_OK_AT);
-  } catch (e) { /* bỏ qua */ }
+  b1sStoreSet(B1S_KEY_OK_AT, String(Date.now()));
+  memOkAt = Date.now();
 }
 
 function noteFailed() {
-  try {
-    if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), B1S_KEY_FAIL_AT);
-  } catch (e) { /* bỏ qua */ }
+  b1sStoreSet(B1S_KEY_FAIL_AT, String(Date.now()));
 }
 
 function lastFailedAt() {
-  try {
-    if (typeof $prefs !== "undefined" && $prefs) return Number($prefs.valueForKey(B1S_KEY_FAIL_AT) || 0);
-  } catch (e) { /* bỏ qua */ }
-  return 0;
+  var v = b1sStoreGet(B1S_KEY_FAIL_AT);
+  return v ? Number(v) || 0 : 0;
 }
 
-/** Máy từng verify OK ≤ 30 ngày nhưng lần này không verify được → cho mở tạm. */
+/** Máy đã từng verify OK < 30 ngày nhưng lần này không hỏi được → cho mạy tiếp. */
 function offlineGraceActive() {
   var last = lastVerifiedAt();
   return last > 0 && Date.now() - last < B1S_OFFLINE_GRACE_MS;
 }
 
-/** Key còn dùng được? (không phải placeholder, đủ dài) */
+/** Key dùng được (không phải placeholder, đủ dài). */
 function licenseKeyUsable() {
   return !!LICENSE_KEY && LICENSE_KEY.indexOf("__LICENSE_KEY__") !== 0 && LICENSE_KEY.length >= 8;
 }
 
-/** Gọi verify 1 endpoint. cb(bool). Shadowrocket/Loon: callback(err, response, data) — data thường là body (string). */
+/** Gọi 1 endpoint verify. cb(bool). */
 function verifyWith(base, deviceIdValue, onDone) {
   if (typeof $httpClient === "undefined" || !$httpClient) return onDone(false);
   $httpClient.get(
@@ -147,7 +215,7 @@ function verifyWith(base, deviceIdValue, onDone) {
       if (typeof data === "string") body = data;
       else if (typeof data !== "undefined" && data !== null) {
         try { body = String(data); } catch (e) { return onDone(false); }
-      } else if (response && typeof response.body === "string") body = response.body; // tương thích ngược
+      } else if (response && typeof response.body === "string") body = response.body;
       if (!body) return onDone(false);
       try {
         var j = JSON.parse(body);
@@ -161,20 +229,20 @@ function verifyWith(base, deviceIdValue, onDone) {
 
 /**
  * Fail-closed gate.
- *   allow() được gọi khi license hợp lệ (hoặc cache/grace còn hiệu lực) — KHÔNG gọi network khi cache còn.
- *   deny()  được gọi khi key sai/máy khác/verify fail và hết grace → script trả nguyên body gốc.
+ *   allow() — license hợp lệ (hoặc cache/grace còn hiệu lực) → KHÔNG gọi mạng khi cache còn.
+ *   deny()  — key sai/sai máy/verify fail hết grace → trả nguyên body gốc.
  *   tag:    tiền tố log, vd "remote" → log "[locketgold] remote: …".
  */
 function gate(allow, deny, tag) {
   var T = tag || "b1s";
   if (!licenseKeyUsable()) { noteFailed(); return deny(); }
 
-  if (Date.now() - lastVerifiedAt() < B1S_VERIFY_CACHE_MS) return allow();
-  if (Date.now() - memOkAt < B1S_MEM_OK_MS) return allow(); // cache 6 giờ bộ nhớ // cache 7 ngày
+  if (Date.now() - lastVerifiedAt() < B1S_VERIFY_CACHE_MS) return allow(); // cache 7 ngày
+  if (Date.now() - memOkAt < B1S_MEM_OK_MS) return allow();               // cache 6 giờ trong bộ nhớ
 
   var failedAt = Math.max(lastFailedAt(), memFailAt);
   if (failedAt > 0 && Date.now() - failedAt < B1S_FAIL_COOLDOWN_MS) {
-    try { console.log("[locketgold] " + T + ": verify cooldown 5p (sau khi FAIL)"); } catch (e) {}
+    try { console.log("[locketgold] " + T + ": verify cooldown 10p (sau khi FAIL)"); } catch (e) {}
     return deny();
   }
 
@@ -182,9 +250,9 @@ function gate(allow, deny, tag) {
   if (!id) { noteFailed(); return deny(); }
 
   verifyWith(B1S_VERIFY_PRIMARY, id, function (okPrimary) {
-    if (okPrimary) { markVerified(); memOkAt = Date.now(); return allow(); }
+    if (okPrimary) { markVerified(); return allow(); }
     verifyWith(B1S_VERIFY_FALLBACK, id, function (okFallback) {
-      if (okFallback) { markVerified(); memOkAt = Date.now(); return allow(); }
+      if (okFallback) { markVerified(); return allow(); }
       if (offlineGraceActive()) {
         try { console.log("[locketgold] " + T + ": OFFLINE-GRACE"); } catch (e) {}
         return allow();
@@ -196,8 +264,7 @@ function gate(allow, deny, tag) {
   });
 }
 
-/* ── Media/CDN bypass — KHÔNG được inject region/header hoặc chạy gate nặng ──
-   URL ký (signed) bị sửa query → 403/404 → feed trắng ảnh. */
+/* ═══════════ Media/CDN bypass — KHÔNG ép region/header, KHÔNG chạy gate nặng ═══════════ */
 var B1S_MEDIA_EXT = /\.(jpe?g|png|webp|heic|heif|gif|svg|mp4|mov|m4v|avi|mkv|mp3|m4a|pdf|zip)(\?|#|$)/i;
 
 function isMediaUrl(url) {
@@ -250,6 +317,11 @@ function isWebSocketPath(url) {
 }
 
 /* ─── END inlined: lib\http-util.js ─── */
+/* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
+   trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
+   ReferenceError làm script chết im lặng. */
+var _req = (typeof $request !== "undefined" && $request) ? $request : {};
+var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
 
 var IS_REQUEST_PHASE = (typeof $response === "undefined");
 
@@ -296,8 +368,8 @@ function overlayFilterId(body) {
 
 /* ═══════════════ REQUEST ═══════════════ */
 if (IS_REQUEST_PHASE) {
-  var _reqUrl = ($request && $request.url) ? String($request.url) : "";
-  var _rawHeaders = ($request && $request.headers) ? $request.headers : {};
+  var _reqUrl = _req.url ? String($request.url) : "";
+  var _rawHeaders = _req.headers ? $request.headers : {};
 
   // 1) WebSocket handshake (wss_v2/group — groups realtime) — KHÔNG đụng 1 byte
   if (isWebSocketUpgrade(_rawHeaders) || isWebSocketPath(_reqUrl)) {
@@ -333,7 +405,7 @@ if (IS_REQUEST_PHASE) {
       function () {
         // generateFilteredImage + overlay/frame id → forward sang worker B1sTeam (tự vẽ khung Kawaii)
         if (_reqUrl.indexOf("generateFilteredImage") !== -1 && $request && typeof $request.body === "string") {
-          var fid = overlayFilterId($request.body);
+          var fid = overlayFilterId(_req.body);
           if (fid) {
             // Forward tới worker — KHÔNG kèm token Locket của người dùng
             var dev = "";
@@ -349,9 +421,9 @@ if (IS_REQUEST_PHASE) {
             fwd["x-b1s-device"] = dev;
             fwd["Content-Type"] = "application/json";
             // Đánh dấu ảnh đã được khung (App upload ngay sau khi rửa ảnh → upload-frame không vẽ lại)
-            try { if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_frame_applied_at"); } catch (e) {}
+            try { b1sStoreSet("b1s_frame_applied_at", String(Date.now())); } catch (e) {}
             console.log("[locketgold] filters: FORWARD fid=" + fid + " → locket-filter-frame");
-            $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: fwd, body: $request.body });
+            $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: fwd, body: _req.body });
             return;
           }
         }
@@ -366,19 +438,19 @@ if (IS_REQUEST_PHASE) {
 /* ═══════════════ RESPONSE — mở khoá paywall filter (402/403/400) ═══════════════ */
 (function () {
   // WebSocket handshake / 101 Switching Protocols — không đọc body, không đụng
-  var _respHeaders = ($response && $response.headers) ? $response.headers : {};
-  var _status = ($response && ($response.status || $response.statusCode)) || 200;
+  var _respHeaders = _resp.headers ? $response.headers : {};
+  var _status = (_resp.status || _resp.statusCode) || 200;
   if (_status === 101 || isWebSocketUpgrade(_respHeaders)) { $done({}); return; }
 
   // MEDIA/CDN (ảnh, video, webp…) — bỏ qua HOÀN TOÀN: không gate, không verify.
   var _mediaUrl = "";
-  try { _mediaUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
+  try { _mediaUrl = _req.url ? String($request.url) : ""; } catch (e) {}
   if (isMediaUrl(_mediaUrl)) { $done({}); return; }
 
   var body = $response.body;
   var status = _status;
   var _dbgUrl = "";
-  try { _dbgUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
+  try { _dbgUrl = _req.url ? String($request.url) : ""; } catch (e) {}
   if (_dbgUrl.indexOf("generateFilteredImage") !== -1) {
     console.log("[locketgold] filters: url=" + _dbgUrl.slice(0, 80) + " | status=" + status);
   }

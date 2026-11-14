@@ -1,3 +1,8 @@
+/* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
+   trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
+   ReferenceError làm script chết im lặng. */
+var _req = (typeof $request !== "undefined" && $request) ? $request : {};
+var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
 /* B1sTeam — Upload ảnh Locket → vẽ khung Kawaii (lib dùng chung — build inline).
    Yêu cầu file nguồn đã include: lib/http-util.js (hasOwn/headerValue), lib/b64.js
    (bytesToB64/b64ToBytes/binaryStringToBytes) và lib/license-gate.js (deviceId). */
@@ -36,12 +41,12 @@ function looksLikeLocketImageUpload(url, method, headers) {
 function requestBytes() {
   try {
     if ($request && $request.bodyBytes && typeof $request.bodyBytes.length === "number" && $request.bodyBytes.length > 0) {
-      return $request.bodyBytes;
+      return _req.bodyBytes;
     }
   } catch (e) { /* thử tầng tiếp theo */ }
   if (typeof $request !== "undefined" && $request && typeof $request.body === "string" && $request.body) {
     try {
-      return binaryStringToBytes($request.body);
+      return binaryStringToBytes(_req.body);
     } catch (e) { /* bỏ qua */ }
   }
   return null;

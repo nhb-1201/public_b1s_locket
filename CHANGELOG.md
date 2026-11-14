@@ -74,3 +74,34 @@
 - **frame worker**: license cache 60 phút (trước 5 phút).
 - **/alfretro** mục "Vinh danh Cộng đồng Gold" + **/locketgold/vip** hall-of-fame công khai.
 
+
+## v7.6.0 — Fix toàn diện theo log PacketTunnel 2026-11-14 (2026-11-14)
+
+Đọc log PacketTunnel (4345 dòng) của thiết bị thật → tìm ra 5 lỗi gốc, đã sửa & test:
+
+1. **license-gate lưu trữ sai API trên Shadowrocket** — bản cũ đọc/ghi cache 7 ngày, cooldown và
+   device id qua `$prefs` (chỉ Quantumult X có; Shadowrocket dùng `$persistentStore`) ⇒ **không lưu
+   được gì** ⇒ mỗi request đều gọi verify (2 host) ⇒ **64 lần/10 phút** (đo được trong D1) ⇒ 429 ⇒
+   fail-closed ⇒ *không hiện gì*. Nay dùng store đa-API (`$persistentStore` → `$prefs` → `$storage`)
+   + device id ổn định `mitm-<hash>` (salt lưu được → khoá theo máy; lưu không được → tất định theo key).
+   ⇒ verify: 64 lần/10p → **1 lần/7 ngày**; cooldown 10 phút thật sự chạy.
+2. **Remote Config không bao giờ về** — log: `TLSV1_ALERT_PROTOCOL_VERSION` + treo 3,5s ⇒ app không có
+   config ⇒ cờ mở khoá không được áp dụng. Nay `locketgold_remote.js` chuyển sang **REQUEST-PHASE
+   SYNTHESIS**: tự gọi RC gốc qua `$httpClient` (ngoài đường MITM) → gộp cờ B1sTeam → trả thẳng cho app,
+   cache trên máy 6 giờ (lần sau không gọi mạng), lỗi → dùng cache → không có cache → bộ cờ tối thiểu.
+   Giữ thêm phase RESPONSE làm lưới an toàn.
+3. **8 flag bị đảo ngược (app TẮT tính năng)** — `camera_filters_enabled`, `camera_filter_enabled`,
+   `camera_filter_sheet_enabled`, `camera_filter_picker_enabled`, `holiday_filters_enabled`,
+   `holiday_filters_free`, `calendar_rewind_enabled`, `rollcall_tap_to_tag_enabled` đang là `"false"`
+   ⇒ sửa thành `"true"` (giữ `filter_paywall_enabled`/`filter_upsell_enabled`/`subscribe_gold_button`
+   = false vì đúng ý nghĩa).
+4. **Marker "đã vẽ khung" không lưu được** (`$prefs` trong filters/upload) ⇒ vẽ khung 2 lần → chuyển
+   sang store đa-API.
+5. **Telemetry/ads lọt** (log thấy sentry.io, amplitude, appsflyersdk, moloco, app-*-services,
+   amp-api-edge) ⇒ thêm rule REJECT-DROP trong `.conf` + mở rộng blocklist DNS worker 7.0.0 → 7.1.0.
+
+Kèm: `$request`/`$response` không có `typeof` guard ⇒ ReferenceError làm script chết im lặng khi chạy
+thủ công trong trình soạn thảo → thêm accessor `_req`/`_resp` cho mọi script.
+Backend 3.2.0: verify tự **gắn lại** khi client đổi thuật toán id (stored `dev-*` → `mitm-*`) ⇒ không ai
+bị kẹt "sai máy" sau khi cài lại app; khoá theo máy vẫn giữ (máy khác vẫn device_mismatch).
+

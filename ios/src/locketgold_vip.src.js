@@ -28,17 +28,8 @@ var VIP_TTL_MS = 43200000; // 12 giờ
 var VIP_STORE_AT = "b1s_vip_list_at";
 var VIP_STORE_DATA = "b1s_vip_list_data";
 
-function storeRead(k) {
-  try { if (typeof $prefs !== "undefined" && $prefs) { var v = $prefs.valueForKey(k); if (v !== undefined) return v; } } catch (e) { /* bỏ qua */ }
-  try { if (typeof $persistentStore !== "undefined" && $persistentStore) return $persistentStore.read(k); } catch (e) { /* bỏ qua */ }
-  return null;
-}
-function storeWrite(k, v) {
-  var ok = false;
-  try { if (typeof $prefs !== "undefined" && $prefs) { $prefs.setValueForKey(String(v), k); ok = true; } } catch (e) { /* bỏ qua */ }
-  try { if (typeof $persistentStore !== "undefined" && $persistentStore) { $persistentStore.write(String(v), k); ok = true; } } catch (e) { /* bỏ qua */ }
-  return ok;
-}
+function storeRead(k) { return b1sStoreGet(k); }
+function storeWrite(k, v) { return b1sStoreSet(k, v); }
 
 /** Đọc danh sách vinh danh đã cache { at, usernames[], uids[] }. */
 function loadVip() {

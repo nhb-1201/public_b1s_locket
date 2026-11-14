@@ -52,12 +52,12 @@ var FORCE_ENTRIES = {
   "video": "enabled",
   "custom_widget_frames": "enabled",
   // ── B1sTeam: cờ bật riêng (tên flag Locket thật) ──
-  "camera_filters_enabled": "false",
-  "camera_filter_enabled": "false",
-  "camera_filter_sheet_enabled": "false",
-  "camera_filter_picker_enabled": "false",
-  "holiday_filters_enabled": "false",
-  "holiday_filters_free": "false",
+  "camera_filters_enabled": "true",
+  "camera_filter_enabled": "true",
+  "camera_filter_sheet_enabled": "true",
+  "camera_filter_picker_enabled": "true",
+  "holiday_filters_enabled": "true",
+  "holiday_filters_free": "true",
   "camera_theme_enabled": "true",
   "camera_themes_enabled": "true",
   "camera_theme_sheet_enabled": "true",
@@ -186,7 +186,7 @@ var FORCE_ENTRIES = {
   "send_to_self_only_mode": "always_enabled",
   "time_travel_rewind_v2_enabled": "true",
   "calendar_delete_moment_enabled": "true",
-  "calendar_rewind_enabled": "false",
+  "calendar_rewind_enabled": "true",
   "locket_yearbook_story_sharing_encouraged": "true",
 
   /* ── Rollcall (tag bạn bè trong ảnh) ── */
@@ -195,7 +195,7 @@ var FORCE_ENTRIES = {
   "rollcall_profile_button": "true",
   "rollcall_prompt_export_after_share": "true",
   "rollcall_confirm_skip_tagging": "false",
-  "rollcall_tap_to_tag_enabled": "false",
+  "rollcall_tap_to_tag_enabled": "true",
 
   /* ── Widget & Live Activity ── */
   "widget_frame_event": "{\"uid\":\"b1steam_crayon_2026\",\"url\":\"https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/frames/frame-14-crayon.png\",\"placement\":\"above\",\"use_local_time_zone\":true,\"start_at\":\"2020-01-01T00:00:00\",\"end_at\":\"2099-12-31T23:59:59\"}",

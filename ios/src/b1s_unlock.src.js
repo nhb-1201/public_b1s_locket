@@ -36,6 +36,11 @@ var FAR_FUTURE_MS = 4102444800000; // 2100-01-01
 var PAST = "2024-01-01T00:00:00Z";
 
 // @b1s-include ./lib/license-gate.js
+/* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
+   trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
+   ReferenceError làm script chết im lặng. */
+var _req = (typeof $request !== "undefined" && $request) ? $request : {};
+var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
 
 /* ═══════════════════════ Helpers ═══════════════════════ */
 function isObject(v) { return v !== null && typeof v === "object" && !Array.isArray(v); }
@@ -268,12 +273,12 @@ function applyUrlRules(url) {
 
 function applyRequestPhase() {
   var result = {};
-  var url = ($request && $request.url) ? String($request.url) : "";
+  var url = _req.url ? String($request.url) : "";
   var newUrl = applyUrlRules(url);
   if (newUrl && newUrl !== url) result.url = newUrl;
 
   var headers = {};
-  var src = ($request && $request.headers) ? $request.headers : {};
+  var src = _req.headers ? $request.headers : {};
   var del = B1S_CONFIG.deleteHeaders || [];
   for (var k in src) {
     if (!Object.prototype.hasOwnProperty.call(src, k)) continue;
@@ -300,7 +305,7 @@ function applyRequestPhase() {
 function resolveConfig() {
   var variants = B1S_CONFIG.variants || [];
   if (variants.length) {
-    var url = ($request && $request.url) ? String($request.url) : "";
+    var url = _req.url ? String($request.url) : "";
     for (var i = 0; i < variants.length; i++) {
       var v = variants[i];
       if (!v || !v.match) continue;
@@ -364,7 +369,7 @@ function applyResponsePhase() {
   var body = (typeof $response !== "undefined" && $response && $response.body) ? $response.body : "";
   var cfg = resolveConfig();
   var mode = cfg.mode || "merge";
-  var status = ($response && ($response.status || $response.statusCode)) || 200;
+  var status = (_resp.status || _resp.statusCode) || 200;
   var isRc = mode === "revenuecat";
 
   if (!body || typeof body !== "string") {

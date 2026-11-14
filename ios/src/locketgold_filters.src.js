@@ -24,6 +24,11 @@ var LICENSE_KEY = "__LICENSE_KEY__";
 // @b1s-include ./lib/license-gate.js
 
 // @b1s-include ./lib/http-util.js
+/* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
+   trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
+   ReferenceError làm script chết im lặng. */
+var _req = (typeof $request !== "undefined" && $request) ? $request : {};
+var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
 
 var IS_REQUEST_PHASE = (typeof $response === "undefined");
 
@@ -70,8 +75,8 @@ function overlayFilterId(body) {
 
 /* ═══════════════ REQUEST ═══════════════ */
 if (IS_REQUEST_PHASE) {
-  var _reqUrl = ($request && $request.url) ? String($request.url) : "";
-  var _rawHeaders = ($request && $request.headers) ? $request.headers : {};
+  var _reqUrl = _req.url ? String($request.url) : "";
+  var _rawHeaders = _req.headers ? $request.headers : {};
 
   // 1) WebSocket handshake (wss_v2/group — groups realtime) — KHÔNG đụng 1 byte
   if (isWebSocketUpgrade(_rawHeaders) || isWebSocketPath(_reqUrl)) {
@@ -107,7 +112,7 @@ if (IS_REQUEST_PHASE) {
       function () {
         // generateFilteredImage + overlay/frame id → forward sang worker B1sTeam (tự vẽ khung Kawaii)
         if (_reqUrl.indexOf("generateFilteredImage") !== -1 && $request && typeof $request.body === "string") {
-          var fid = overlayFilterId($request.body);
+          var fid = overlayFilterId(_req.body);
           if (fid) {
             // Forward tới worker — KHÔNG kèm token Locket của người dùng
             var dev = "";
@@ -123,9 +128,9 @@ if (IS_REQUEST_PHASE) {
             fwd["x-b1s-device"] = dev;
             fwd["Content-Type"] = "application/json";
             // Đánh dấu ảnh đã được khung (App upload ngay sau khi rửa ảnh → upload-frame không vẽ lại)
-            try { if (typeof $prefs !== "undefined" && $prefs) $prefs.setValueForKey(String(Date.now()), "b1s_frame_applied_at"); } catch (e) {}
+            try { b1sStoreSet("b1s_frame_applied_at", String(Date.now())); } catch (e) {}
             console.log("[locketgold] filters: FORWARD fid=" + fid + " → locket-filter-frame");
-            $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: fwd, body: $request.body });
+            $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: fwd, body: _req.body });
             return;
           }
         }
@@ -140,19 +145,19 @@ if (IS_REQUEST_PHASE) {
 /* ═══════════════ RESPONSE — mở khoá paywall filter (402/403/400) ═══════════════ */
 (function () {
   // WebSocket handshake / 101 Switching Protocols — không đọc body, không đụng
-  var _respHeaders = ($response && $response.headers) ? $response.headers : {};
-  var _status = ($response && ($response.status || $response.statusCode)) || 200;
+  var _respHeaders = _resp.headers ? $response.headers : {};
+  var _status = (_resp.status || _resp.statusCode) || 200;
   if (_status === 101 || isWebSocketUpgrade(_respHeaders)) { $done({}); return; }
 
   // MEDIA/CDN (ảnh, video, webp…) — bỏ qua HOÀN TOÀN: không gate, không verify.
   var _mediaUrl = "";
-  try { _mediaUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
+  try { _mediaUrl = _req.url ? String($request.url) : ""; } catch (e) {}
   if (isMediaUrl(_mediaUrl)) { $done({}); return; }
 
   var body = $response.body;
   var status = _status;
   var _dbgUrl = "";
-  try { _dbgUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
+  try { _dbgUrl = _req.url ? String($request.url) : ""; } catch (e) {}
   if (_dbgUrl.indexOf("generateFilteredImage") !== -1) {
     console.log("[locketgold] filters: url=" + _dbgUrl.slice(0, 80) + " | status=" + status);
   }

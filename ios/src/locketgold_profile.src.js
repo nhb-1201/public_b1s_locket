@@ -46,6 +46,11 @@ var GOLD_PROFILE = {
 };
 
 // @b1s-include ./lib/license-gate.js
+/* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
+   trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
+   ReferenceError làm script chết im lặng. */
+var _req = (typeof $request !== "undefined" && $request) ? $request : {};
+var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
 
 /* Các key chứng thực tích xanh — ép true khi license hợp lệ (client-side view) */
 var VERIFIED_KEYS = /^(verified|is_verified|verified_badge|verified_user|badge_verified|has_verified|checkmark|has_checkmark|is_official|official|celebrity|is_celebrity|is_star|verified_check)$/i;
@@ -232,7 +237,7 @@ if (mode === "request") {
 } else {
   // MEDIA/CDN (ảnh, video, webp, font…) — bỏ qua HOÀN TOÀN: không gate, không delay.
   var _mUrl = "";
-  try { _mUrl = ($request && $request.url) ? String($request.url) : ""; } catch (e) {}
+  try { _mUrl = _req.url ? String($request.url) : ""; } catch (e) {}
   if (isMediaUrl(_mUrl)) { $done({}); return; }
   gate(
     function () {
@@ -240,9 +245,9 @@ if (mode === "request") {
       // AI filter (createFilter/generateFilteredImage) bị entitlement server-side: bom Gold giả KHÔNG giúp được —
       // app sẽ treo "ĐANG RỬA ẢNH" vô hạn. Trả lời fail-fast CHỈ khi server không 200 (user free).
       // User trả phí (server 200) đi tiếp bình thường qua unlock flow.
-      const uAI = ($request && $request.url) ? String($request.url) : "";
+      const uAI = _req.url ? String($request.url) : "";
       if (uAI.indexOf("/createFilter") !== -1 || uAI.indexOf("/generateFilteredImage") !== -1) {
-        const rs0 = ($response && ($response.status || $response.statusCode)) || 200;
+        const rs0 = (_resp.status || _resp.statusCode) || 200;
         if (rs0 !== 200) {
           console.log("[locketgold] profile: AI filter từ chối (status=" + rs0 + ") — fail-fast, app hiện lỗi ngay");
           $done({ status: rs0, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, body: JSON.stringify({ error: { message: "Entitlement required", code: "ENTITLEMENT_REQUIRED" } }) });
@@ -253,7 +258,7 @@ if (mode === "request") {
       // Bỏ qua mọi response không phải JSON text — file tải về/nhị phân phải đi nguyên vẹn
       try {
         var ct = "";
-        if ($response && $response.headers) {
+        if (_resp.headers) {
           for (var h in $response.headers) {
             if (Object.prototype.hasOwnProperty.call($response.headers, h) && String(h).toLowerCase() === "content-type") {
               ct = String($response.headers[h] || "").toLowerCase();
@@ -270,7 +275,7 @@ if (mode === "request") {
           var obj = JSON.parse(body);
           injectBadge(obj, 0);
           // ── MỞ KHOÁ PAYWALL FILTER (402/403/400) — filter AI/Camera bị khoá theo vùng hoặc theo gói
-          var rstatus = ($response && ($response.status || $response.statusCode)) || 200;
+          var rstatus = (_resp.status || _resp.statusCode) || 200;
           if (rstatus === 402 || rstatus === 403 || rstatus === 400 || (obj && obj.error)) {
             var details = (obj && obj.error && obj.error.details) ? obj.error.details : {};
             obj = {

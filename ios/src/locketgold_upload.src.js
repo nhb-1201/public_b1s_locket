@@ -25,15 +25,20 @@ var LICENSE_KEY = "__LICENSE_KEY__";
 // @b1s-include ./lib/http-util.js
 
 // @b1s-include ./lib/upload-frame.js
+/* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
+   trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
+   ReferenceError làm script chết im lặng. */
+var _req = (typeof $request !== "undefined" && $request) ? $request : {};
+var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
 
-var _url = ($request && $request.url) ? String($request.url) : "";
-var _method = String(($request && $request.method) || "GET").toUpperCase();
-var _rawHeaders = ($request && $request.headers) ? $request.headers : {};
+var _url = _req.url ? String($request.url) : "";
+var _method = String(_req.method || "GET").toUpperCase();
+var _rawHeaders = _req.headers ? $request.headers : {};
 
 // Guard: ảnh VỪA được "rửa ảnh" xong (generateFilteredImage → worker vẽ khung) thì KHÔNG vẽ khung lần 2 khi upload
 var _framedAt = 0;
 try {
-  if (typeof $prefs !== "undefined" && $prefs) _framedAt = Number($prefs.valueForKey("b1s_frame_applied_at") || 0);
+  _framedAt = Number(b1sStoreGet("b1s_frame_applied_at") || 0);
 } catch (e) { /* bỏ qua */ }
 var _alreadyFramed = _framedAt > 0 && Date.now() - _framedAt < 600000; // 10 phút
 
