@@ -129,3 +129,12 @@ CHANGELOG.md / LICENSE.md / SECURITY.md / README.md
 ---
 
 © 2026 **Nguyễn Hoàng Bách — B1sTeam** — xem [`LICENSE.md`](LICENSE.md) — báo lỗ hổng: `nhb.b1steam@gmail.com` / Zalo 083.3399.553
+
+## Cloudflare Tunnel (Internet-grade PAC)
+
+- `proxy.nhbz1s.id.vn` — Cloudflare Tunnel `b1steam-mitm` → http://127.0.0.1:8443
+  (tunnel RAM to tokenize; cert managed by CF zone `nhbz1s.id.vn`).
+- PAC URL public: `https://proxy.nhbz1s.id.vn/proxy.pac` — `proxy.pac` luôn dynamic IP (fallback 1.1.1.1 không có ở đây — đây là plain HTTP server tại pc).
+- Windows Service `Cloudflared` (AUTO_START SYSTEM) — tự restart nếu crash.
+- .mobileconfig Global HTTP Proxy (PAC): `proxy/b1steam-pac-profile.mobileconfig`
+  (gitignored — sinh bằng `python proxy/python/build_pac_profile.py`).

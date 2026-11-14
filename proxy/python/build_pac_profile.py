@@ -54,7 +54,7 @@ def main() -> None:
     if len(der_b64) < 300:
         raise SystemExit(f"CA DER base64 quá ngắn tại {CA_DER_B64}")
     ip = current_public_ip()
-    pac_url = f"http://{ip}:8443/proxy.pac"
+    pac_url = "https://proxy.nhbz1s.id.vn/proxy.pac"
     today = date.today().isoformat()
 
     ca_uuid = str(uuid.uuid4()).upper()
@@ -129,7 +129,7 @@ def main() -> None:
 """
     OUT.write_text(xml, encoding="utf-8")
     print(f"Written: {OUT}")
-    print(f"PAC URL: {pac_url}  (IP {ip})")
+    print(f"PAC URL (Cloudflare Tunnel): {pac_url}  (IP proxy: {ip})")
 
 
 if __name__ == "__main__":
