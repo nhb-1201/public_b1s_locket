@@ -8,7 +8,6 @@
 | Thành phần | Private key nằm ở đâu? | Ghi chú |
 |---|---|---|
 | Shadowrocket CA (khuyến nghị) | **Trên thiết bị bạn** | Shadowrocket sinh + lưu local — B1sTeam không biết |
-| B1sTeam Root CA (proxy LAN) | **Chỉ trên máy bạn** | `ca/*.key` gitignored; cert công khai `.crt` chia sẻ |
 | Backend (`locket.b1s.id.vn`) | Cloudflare (không xuất) | License + D1; không giữ CA |
 | DoH worker | — | Không log domain; không quan hệ tới nội dung request |
 | Frame workers | Cloudflare | Bắt buộc `x-b1s-proxy-key` hoặc `x-b1s-license + x-b1s-device` |

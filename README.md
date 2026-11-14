@@ -35,7 +35,6 @@
 
 ┌─ Tầng DNS (tùy chọn, mọi lúc) ────────────┐
 │  (.mobileconfig B1sTeam DNS — ia "B1sTeam DNS")          │
-│   ├─ Root CA B1sTeam (ECC P-256) — chỉ proxy LAN         │
 │   └─ DNSSettings → DoH: doh.b1s.id.vn/dns-query         │  ← hồ sơ "B1sTeam DNS"
 └─────────────────────────────────────────────┘
 ```
@@ -81,14 +80,6 @@
 ---
 
 
-## Proxy MITM LOCAL (tùy chọn, nâng cao)
-
-Python MITM proxy + watchdog tự restart khi chết (Task Scheduler ONSTART SYSTEM, pythonw shadow):
-- `proxy/python/mitm_proxy.py` — TLS MITM theo SNI (B1sTeam Root CA), allowlist RC/FC/Locket/CDN.
-- `proxy/python/public_ip.py` — auto-detect IP public (ipify/ifconfig.me, cache 300s) + `/proxy.pac`.
-- `proxy/python/build_pac_profile.py` — sinh .mobileconfig PAC cho Global HTTP Proxy.
-- `proxy/watchdog.py` — poll + /healthz mỗi 600–900s ngẫu nhiên, restart nếu chết.
-- `proxy/Install-AutoStart.ps1` — đăng ký `B1sTeam-Proxy-Watchdog` (ONSTART SYSTEM).
 
 Dùng khi: iPhone cùng Wi-Fi/Hotspot (192.168.1.212:443), hoặc muốn route Locket qua máy tính.
 
@@ -130,11 +121,3 @@ CHANGELOG.md / LICENSE.md / SECURITY.md / README.md
 
 © 2026 **Nguyễn Hoàng Bách — B1sTeam** — xem [`LICENSE.md`](LICENSE.md) — báo lỗ hổng: `nhb.b1steam@gmail.com` / Zalo 083.3399.553
 
-## Cloudflare Tunnel (Internet-grade PAC)
-
-- `proxy.nhbz1s.id.vn` — Cloudflare Tunnel `b1steam-mitm` → http://127.0.0.1:8443
-  (tunnel RAM to tokenize; cert managed by CF zone `nhbz1s.id.vn`).
-- PAC URL public: `https://proxy.nhbz1s.id.vn/proxy.pac` — `proxy.pac` luôn dynamic IP (fallback 1.1.1.1 không có ở đây — đây là plain HTTP server tại pc).
-- Windows Service `Cloudflared` (AUTO_START SYSTEM) — tự restart nếu crash.
-- .mobileconfig Global HTTP Proxy (PAC): `proxy/b1steam-pac-profile.mobileconfig`
-  (gitignored — sinh bằng `python proxy/python/build_pac_profile.py`).
