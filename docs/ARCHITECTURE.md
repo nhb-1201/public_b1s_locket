@@ -1,7 +1,120 @@
-# Kiến trúc hệ thống DNS thuần — B1sTeam
+# Kiến trúc — B1sTeam — LocketGold (Free) v7.8.0
 
-Tài liệu này mô tả chi tiết cách hệ thống **B1sTeam DNS** hoạt động từ lúc người dùng bấm
-“Cấp DNS cho tôi” đến khi tính năng Locket Gold hoạt động trên máy.
+Tài liệu này mô tả cách hệ thống hoạt động từ lúc người dùng bấm
+**"Tải LocketGold"** đến khi tính năng Gold hoạt động trên máy. Hai tầng, lựa chọn cho người dùng:
+
+1. **Shadowrocket (khuyến nghị)** — MITM trên máy iPhone, không server trung gian giải mã.
+2. **DoH (tùy chọn, bổ trợ)** — chặn quảng cáo/telemetry ở tầng DNS (`.mobileconfig`).
+
+---
+## 1. Kiến trúc tổng quan
+
+```
+
+┌─ iPhone / iPad ───────────────────────────────────┐
+│  Shadowrocket (App Store ID 932747118)            │
+│   └─ .conf LocketGold (license cá nhân hóa)        │
+│       ├─ [MITM] hostname=Locket/RC/FC/...          │
+│       ├─ [Script] 6 MITM scripts (v7.8.0)          │
+│       └─ MITM CA của Shadowrocket (do bạn tạo)     │
+└────────────────┬──────────────────────────────────┘
+                 │ HTTPS MITM on-device (cert bạn tin tưởng)
+                 ▼
+        ┌────────────────┐  verify < 60 min  ┌──────────────────────────┐
+        │  Locket API    │ ◄──────────────── │ locket.b1s.id.vn         │
+        │  RevenueCat    │                    │  D1: locketgold_licenses  │
+        │  Firebase RC   │                    │  1 key = 1 tài khoản web  │
+        └───────┬────────┘                    └──────────────────────────┘
+                │  POST generateFilteredImage
+                ▼
+        ┌─────────────────────────────────────────────┐
+        │  Frame workers (4 accounts CF, round-robin)  │
+        │  locket-filter-frame v2.0.0                  │
+        └─────────────────────────────────────────────┘
+
+┌─ Tầng DNS (tùy chọn, mọi lúc) ───────────────────────┐
+│  (.mobileconfig B1sTeam DNS)                          │
+│   ├─ Root CA B1sTeam (ECC P-256) — chỉ proxy LAN     │
+│   └─ DNSSettings → DoH: doh.b1s.id.vn / proxy LAN    │
+└───────────────────────────────────────────────────────┘
+```
+
+**Vai trò các thành phần**
+
+| Thành phần | Công nghệ | Nhiệm vụ |
+|---|---|---|
+| **Shadowrocket package** | `.conf` / `.sgmodule` + 6 MITM scripts (`ios/scripts/*.v7.8.0.js`) | MITM RC/Locket/FC ngay trên máy; mở khóa Gold + unlock khung Kawaii |
+| **Web portal** | `b1s.id.vn/locketvip` (b1steam_web `main`) | Landing "LocketGold (Free)" + wizard càiđặt + VipHonorCard |
+| **Backend** | `locket.b1s.id.vn` (CF Workers v3.3.5) | Verify license + serve module/.conf cá nhân hóa + VIP list + tick |
+| **Rewards/frames** | `locket-filter-frame` v2.0.0 | Vẽ khung Kawaii lên ảnh (4 accounts, round-robin + failover) |
+| **Edge gateway** | `b1steam-edge` v1.0.0 (4 accounts) | Relay minh bạch (`/rc`, `/vip/list`, `/health`), strict allowlist |
+| **DoH** | `doh.b1s.id.vn` (`locketgold-dns`) | RFC 8484 — phân giải / block ads / **không log** |
+| **Proxy (LAN, tùy chọn)** | Python (`proxy/python/mitm_proxy.py`) | Shadowrocket-free fallback LAN — 443 + 8443, watchdog auto-start |
+
+---
+## 2. Shadowrocket là đường chính
+
+```
+b1s.id.vn/locketvip → màn cài đặt 5 phút:
+  1. Tải Shadowrocket (App Store)
+  2. Đăng nhập → Tải .conf cá nhân (nhúng key B1S-… của bạn)
+  3. Shadowrocket → Cấu hình → alfretro-*.conf → HTTPS解密 → 生成证书 → 安装证书
+  4. Cài đặt iPhone → Cài đặt tin cậy chứng nhận → Shadowrocket CA → Bật
+  5. Bật Shadowrocket (góc trên-phải) → More → Locket — Gold hiện ngay
+```
+
+- **MITM CA do Shadowrocket sinh** trên máy bạn — không AI/server nào giữ private key.
+- `.conf` khai báo `[MITM] hostname =` RC/Locket/FC/RevenueCat/Firebase-Storage/CDN Locket.
+- `updateInterval=43200` (12h) → module tự cập nhật, ai quên mở cũng vẫn được bản mới.
+
+---
+## 3. Cấu trúc repo
+
+```text
+ios/            # Shadowrocket (v7.8.0) — nguồn chân lý
+  src/          # MITM scripts (*.src.js) — CHỈNH Ở ĐÂY, không sửa scripts/*.js
+  scripts/      # OUTPUT generated (commit luôn; cache-bust file name .v7.8.0.js)
+  alfretro-allinone.conf          # Nguồn chính SHADOWROCKET
+  locketgold.sgmodule             # GENERATED (build.mjs) — %APPEND% [MITM]
+  conf.html / module.html         # Landing cute → /locketvip
+  README.md / CHANGELOG.md
+dns/            # DoH worker (RFC 8484)
+proxy/          # Python MITM proxy LAN (+ watchdog, Task Scheduler, public-ip)
+edge/           # b1steam-edge gateway (relay minh bạch)
+frame-worker/   # locket-filter-frame v2.0.0 (dual auth)
+scanner/        # Endpoint/host scanner
+tools/          # gen-missing-assets.mjs (82 asset gốc B1sTeam)
+assets/         # frames/stickers/icons/welcome banner
+ca/             # B1sTeam Root CA (ECC P-256, 10 năm) — key gitignored
+docs/           # tài liệu này
+```
+
+---
+## 4. Chi tiết kỹ thuật (tham số)
+
+### 4.1 Shadowrocket MITM
+
+- Xác thực RC request/response: `b1s_unlock.v7.8.0.js` (biên tập LocalGold-Fence).
+- Locket API transform đệ quy (badge locket_gold, `is_gold`, `is_locked`...).
+- Remote Config `state=UPDATE + templateVersion=Date.now()` + `cache_ttl=0`.
+- VIP honor API (`/api/v2/locketgold/vip/list`) — danh sách được inject vào profile.
+
+### 4.2 DoH (RFC 8484)
+
+- `GET https://doh.b1s.id.vn/dns-query?dns=<base64url>`
+- Block list: admob, doubleclick, appsflyer, adjust, criteo, amp-api-edge, app-measurement, … → 0.0.0.0.
+- Recursive fallback 1.1.1.1 nếu không match → Apps vẫn resolve bình thường ngoài Locket.
+- Không log nội dung truy vấn; chỉ đếm (`dns_usage_counters`).
+
+### 4.3 Frame pipeline
+
+- generateFilteredImage: overlay (`khung_/pb_/photobooth/4cut/cmt_locket/sticker/`) → giữ ảnh gốc; mọi AI filter → forward tới edge worker với `x-b1s-license + x-b1s-device` (device-bound 60 phút).
+- Worker verify license qua `locket.b1s.id.vn/api/v2/locketgold/verify` (key + device id `mitm-<hash>`).
+- 4 edge phân tải round-robin + failover + 60s cooldown.
+
+---
+# Chi tiết vận hành & đặc tính (legacy DNS-first) — giữ nguyên nội dung dưới đây
+
 
 ---
 

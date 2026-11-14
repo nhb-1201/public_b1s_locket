@@ -1,68 +1,44 @@
-# Script MITM của B1sTeam — 100% tự viết
+# Script MITM của B1sTeam — LocketGold — 100% tự viết
 
-B1sTeam tự host toàn bộ script MITM trong thư mục này. **Không còn file JS nào của repo
+B1sTeam tự host toàn bộ script MITM trong thư mục này. **Không cần file JS nào của repo
 khác** — tất cả đã được viết lại (rewrite) để chạy trên engine chung của B1sTeam.
 
 > B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách · Zalo 083.3399.553
 
-## Danh sách script
+## Danh sách script (v7.8.0)
 
 | File | Phạm vi | Mô tả |
 |---|---|---|
-| `b1s_unlock.js` | 21 App Premium | **Engine MITM tổng quát** — 1 file xử lý mọi app: `merge` / `replace` / `revenuecat`, patch theo đường dẫn, `variants` (chọn cấu hình theo URL), `force` (ép key theo regex), sửa URL/header ở request phase. |
-| `b1s_youtube.js` | YouTube Premium | Scrub quảng cáo InnerTube (`adPlacements`, `playerAds`, `promotedVideoRenderer`…), ép `playabilityStatus.status = OK`, ép `HTML5_PREF_WANTS`. |
-| `b1s_spotify.js` | Spotify Premium | **Engine Protobuf tự viết** (varint / 64-bit / length-delimited / 32-bit) + Base64 thuần JS. Patch `ProductState`/`UserAttributes` theo chữ ký field, ép JSON `product = premium`. |
-| `locketgold_remote.js` | LocketGold | Ép Firebase Remote Config — ~196 entries (camera, widget frame, streak, caption, upsell…). |
-| `locketgold_profile.js` | LocketGold | Huy hiệu Gold + thông tin hồ sơ + paywall filter 402/403 + unblur. |
-| `locketgold_filters.js` | LocketGold | Mở khoá filter (paywall 402/403) + ép vùng US (header + query) + forward overlay → worker khung Kawaii. |
+| `b1s_unlock.v7.8.0.js` | RevenueCat / Locket API (dùng chung) + Badge Gold | Engine MITM tổng quát — 1 file xử lý mọi app: `merge`/`replace`/`revenuecat`, patch theo đường dẫn, `variants` + `force` (ép key theo regex). |
+| `locketgold_remote.v7.8.0.js` | LocketGold | Ép Firebase Remote Config → 131 entries (`state=UPDATE`, `templateVersion=Date.now()`), popup B1STEAM GOLD, unlock AI filters, camera filter config. |
+| `locketgold_profile.v7.8.0.js` | LocketGold | Huy hiệu Gold + unblur + paywall filter 402/403. |
+| `locketgold_locket.v7.8.0.js` | LocketGold | Badge Gold + `is_gold/is_locked` transform đệ quy + VIP honor inject + `changeProfileInfo` → 200 Gold. |
+| `locketgold_upload.v7.8.0.js` | khung Kawaii | `generateFilteredImage`: overlay filters (`khung_/pb_/photobooth/4cut/cmt_locket/sticker`) → giữ ảnh; AI filters → frame worker (`x-b1s-proxy-key`/`x-b1s-license`). |
+| `locketgold_vip.v7.8.0.js` | Vinh danh Gold | Inject danh sách Cộng đồng Gold (`locket.b1s.id.vn/api/v2/locketgold/vip/list`). |
+| `locketgold_filters.v7.8.0.js` | LocketGold | Mở khóa filter cá nhân + ép vùng US (header + query). |
 
 > **Build**: các file trên là OUTPUT của `ios/build.mjs` từ `ios/src/**` — không sửa tay.
-> License gate (fail-closed) nằm ở 1 nguồn duy nhất: `ios/src/lib/license-gate.js` — được inline vào mọi script khi build.
-> `locketgold_revenuecat.js` (legacy) đã bị xoá — `b1s_unlock.js` đảm nhiệm entitlement Gold.
+> License gate (fail-closed) nằm ở 1 nguồn duy nhất: `ios/src/lib/license-gate.js` —
+> inline vào mỗi script khi build. Xem chi tiết trong `docs/ARCHITECTURE.md`.
 
-## Cấu hình theo app — 2 đường (tương thích ngược)
+**Module (2026-11-14) — CDN, self-contained:**
 
-**Module mới (≥ 2026-11-13) — CDN jsDelivr, self-contained:**
+- `ios/alfretro-allinone.conf` → `ios/locketgold.sgmodule` (`%APPEND%` ở `[MITM]`).
+- Mỗi script được Shadowrocket tải trực tiếp từ CDN GitHub:
+  `https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/<file>.js`
 
-- Mọi script được Shadowrocket tải trực tiếp từ CDN GitHub:
-  `https://cdn.jsdelivr.net/gh/nhb-1201/public_b1s_locket@main/ios/scripts/<file>.js`
-  (hoặc raw: `https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/<file>.js`).
-  Script không nằm trên worker nữa → không dính rate-limit theo IP (CGNAT/proxy Vercel).
-- `b1s_unlock.js` nhúng sẵn toàn bộ `APP_UNLOCK_CONFIGS` (dòng `var B1S_CONFIGS = {...}`); `b1s_spotify.js` nhúng `spotify-premium`.
-- Key + slug app truyền qua `argument` (không chứa dấu phẩy — an toàn trong INI Shadowrocket), định dạng:
+**Tham số:**
 
-  ```
-  argument=B1S-XXXX-XXXX-XXXX|<slug>        # vd: argument=B1S-AA1B-CC2D-EE3F|vsco
-  argument=B1S-XXXX-XXXX-XXXX               # script không cần slug (locketgold_remote…)
-  argument=B1S-XXXX-XXXX-XXXX|request       # locketgold_profile request-mode
-  argument=B1S-XXXX-XXXX-XXXX|response      # locketgold_profile response-mode
-  ```
-
-  Script đọc segment đầu làm `LICENSE_KEY`, segment thứ 2 làm slug; chọn config từ `B1S_CONFIGS[slug]`.
-
-**Module cũ (≤ 2026-11-12) — worker vá placeholder (giữ tương thích):**
-
-- `/api/v2/locketgold/script/<name>?key=KEY` trên worker vẫn chạy: worker thay đúng 2 dòng placeholder
-  `var LICENSE_KEY = "__LICENSE_KEY__";` và `var B1S_CONFIG = { "__B1S_CONFIG__": 1 };` rồi trả file ở dạng `no-store`.
-- Nếu script không thấy `$argument` hợp lệ → dùng giá trị placeholder đã vá (module cũ vẫn hoạt động bình thường).
+```
+argument=B1S-XXXX-XXXX-XXXX                   # license key của bạn
+```
 
 ## Quy tắc an toàn (B1sTeam tự áp)
 
 - **KHÔNG** script nào gọi máy chủ lạ / telemetry / tracking.
-- **KHÔNG** gọi `translate.google.com` (đã loại bỏ hoàn toàn từ bản gốc của bên thứ ba).
-- **KHÔNG** gửi uid / username / dữ liệu người dùng ra ngoài — mọi thay đổi diễn ra cục bộ trên máy.
-- **License gate fail-closed**: key sai, sai máy, hoặc offline > 72h → script trả nguyên body gốc
-  (không bơm cờ nào). Xác thực qua `GET /api/v2/locketgold/verify` (cache 72h trên máy).
-
-## Lưu ý
-
-- Script MITM làm thay đổi **phản hồi API của app trên thiết bị người dùng** — không thay đổi dữ liệu
-  trên máy chủ của app, không thu thập dữ liệu người dùng.
-- Nếu app phía hãng sửa/xoá endpoint tương ứng thì script có thể ngừng hoạt động tạm thời
-  (B1sTeam sẽ cập nhật).
-- Khi B1sTeam cập nhật script, chỉ cần push file mới vào thư mục này — module tự lấy bản mới
-  (script-path trỏ CDN `cdn.jsdelivr.net/gh/...@main`, jsDelivr cache ~12h; module vẫn hoạt động khi worker chết).
-- Sau mỗi lần sửa `ios/src/**`, chạy `node ios/build.mjs` và commit cả `src/` lẫn `scripts/` (CI có thể kiểm bằng `--check`).
+- **KHÔNG** gửi uid/username/dữ liệu người dùng ra ngoài — mọi thay đổi diễn ra cục bộ trên máy.
+- **License gate fail-closed**: key sai, sai máy, hoặc offline > 72h → script trả nguyên body gốc.
+- Xác thực qua `GET /api/v2/locketgold/verify` (cache 72h trên máy, rate-limit 120/10 phút).
 
 ---
 

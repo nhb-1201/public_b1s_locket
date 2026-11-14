@@ -1,76 +1,63 @@
-# B1sTeam DNS — DoH Worker (multi-tenant)
+# B1sTeam — DoH Worker (RFC 8484) — `doh.b1s.id.vn`
 
-Worker DoH của hệ thống **DNS thuần** (không Shadowrocket, không Quantumult X).
-
-> Bản triển khai chính của B1sTeam nằm trong repo `b1steam_web`
-> (`backend/workers/dns-resolver`). Thư mục này là bản độc lập, có thể deploy riêng.
+> Trạng thái: **đang chạy production** (worker `locketgold-dns` trên account B1sTeam chính).
+> Lưu ý: hệ chính hiện tại là **Shadowrocket**; DoH là tuyến **bổ trợ** (chặn ads/telemetry mọi lúc,
+> không cần module).
 
 ## Luồng tổng thể
 
 ```
-iPhone (hồ sơ .mobileconfig do backend sinh)
-   │  DoH → https://doh.b1s.id.vn/<token-32-hex>
+iPhone (hồ sơ .mobileconfig sinh bởi backend — bản ECC P-256 B1sTeam Root CA)
+   │  DoH → https://doh.b1s.id.vn/dns-query
    ▼
-B1sTeam DoH Worker  ←── D1: dns_profiles + dns_usage_counters
-   │  · tra token → profile NextDNS của user
-   │  · đếm truy vấn (ghi D1 mỗi 10s)
-   │  · chặn telemetry/ads
-   │  · chặn nếu user đã chạm ngưỡng 80%
+B1sTeam DoH Worker (`locketgold-dns`, account chính)
+   ├─ Phân giải truy vấn:
+   │     locketcamera.com / locket.camera       → IP proxy MITM (LAN / WAN)
+   │     firebaseremoteconfig.googleapis.com   → IP proxy MITM (LAN / WAN)
+   │     ads/telemetry/Firebase-analytics      → 0.0.0.0 (chặn)
+   │     khác                                  → forward 1.1.1.1 / 8.8.8.8
    ▼
-NextDNS (dns.nextdns.io/<nextdns_profile_id>)
-   │  áp dụng rewrite do B1sTeam cấu hình:
-   │    api.locketcamera.com, api.revenuecat.com,
-   │    firebaseremoteconfig.googleapis.com, …  →  IP proxy MITM
-   ▼
-Proxy MITM (Go, Fly.io) — ký TLS bằng Root CA trong hồ sơ .mobileconfig
-   │
-   ▼
-API thật của Locket / RevenueCat / Firebase (được ghi đè phản hồi)
+API thật của Locket / RevenueCat / Firebase (bị ghi đè lúc về trong Shadowrocket)
 ```
 
-## Vì sao không trỏ thẳng `dns.nextdns.io`?
+## Cấu trúc
 
-| Nhu cầu | Worker | Trỏ thẳng NextDNS |
-|---|---|---|
-| Biết user nào đang truy vấn | ✅ token → D1 | ❌ |
-| Chặn khi hết hạn mức / cần xoay vòng | ✅ | ❌ (NextDNS tự trả trang upgrade) |
-| Chặn telemetry + ads theo chính sách B1sTeam | ✅ | ⚠️ (chỉ blocklist chung) |
-| Thu hồi link khi user vi phạm | ✅ (`status='revoked'`) | ❌ |
-| Vẫn dùng đúng hạn mức NextDNS Free | ✅ (forward sang profile) | ✅ |
+```
+dns/
+├── src/index.ts     # DoH worker (RFC 8484, recursive fallback, blocklist)
+├── schema.sql       # (Tham khảo — schema D1 thật: `b1steam_web/d1`)
+├── wrangler.toml    # config / route doh.b1s.id.vn
+└── README.md
+```
 
-## Endpoint
-
-| Method | Path | Mô tả |
-|---|---|---|
-| GET | `/health` | Trạng thái + policy (nhóm blocklist) |
-| GET | `/<token>` | DoH RFC 8484 (`?name=&type=` hoặc `?dns=<base64url>`) |
-| POST | `/<token>` | DoH RFC 8484 `application/dns-message` |
-| GET/POST | `/<token>/dns-query` | Tương đương `/<token>` |
-
-`token` = 32 ký tự hex, sinh ngẫu nhiên mỗi lần xoay vòng profile.
-
-## Cache
-
-- **Edge cache** (Cloudflare `caches.default`): 5 phút (fresh) + 24 giờ (stale-if-error).
-- **POST** dùng hash SHA-256 của bản tin DNS **bỏ transaction ID** làm cache key → nhiều thiết bị chia sẻ cache.
-- Khi upstream chết, worker vẫn phục vụ bản cache cũ (không sập hệ thống).
-
-## Đếm lượt truy vấn
-
-- Bộ đếm nằm trong bộ nhớ isolate (`pending`), **ghi D1 mỗi 10 giây** (gom theo token).
-- Backend đọc `dns_usage_counters.count` khi đồng bộ → tính % hạn mức → đánh dấu `rotation_required` khi ≥ 80%.
-
-## Deploy
+## Build & Deploy
 
 ```bash
 cd dns
-npx wrangler d1 execute b1steam --remote --file=./schema.sql
 npx wrangler deploy
+# route doh.b1s.id.vn đã gắn vào zone b1s.id.vn (DNS: CNAME doh → workers.dev, proxied)
 ```
 
-> Với bản chính (trong `b1steam_web`), migration đầy đủ là:
-> `cd ../backend && npx wrangler d1 execute b1steam --remote --file=d1/migrations/0020_nextdns_dns.sql`
+## Check nhanh
 
-## Biến môi trường
+```bash
+python -c "
+import base64, urllib.request
+tid=b'\x00\x01'; flags=b'\x01\x00'; counts=b'\x00\x01\x00\x00\x00\x00\x00\x00'
+name='api.locketcamera.com'
+q=b''.join(bytes([len(p)])+p.encode() for p in name.split('.'))+b'\x00'
+packet=tid+flags+counts+q+b'\x00\x01\x00\x01'
+url='https://doh.b1s.id.vn/dns-query?dns='+base64.urlsafe_b64encode(packet).rstrip(b'=').decode()
+req=urllib.request.Request(url, headers={'accept':'application/dns-message'})
+r=urllib.request.urlopen(req, timeout=12)
+print('status', r.status, 'bytes', len(r.read()))
+"
+```
 
-Worker không cần secret — mọi cấu hình nằm trong D1 (`dns_config`) và được backend quản lý.
+## Back-compat
+
+Worker hỗ trợ `/dns-query` (wire format) cho Shadowrocket cũ và ở bất kỳ hệ thống DoH nào.
+
+---
+
+© B1sTeam — Nguyễn Hoàng Bách — b1s.id.vn — Zalo 083.3399.553

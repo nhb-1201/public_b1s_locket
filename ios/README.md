@@ -1,4 +1,4 @@
-# LocketGold — iOS (Shadowrocket) — B1sTeam v7.0
+# LocketGold (Free) ✦ — iOS (Shadowrocket) — B1sTeam v7.8.0
 
 > B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
 

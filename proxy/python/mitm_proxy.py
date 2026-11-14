@@ -72,6 +72,17 @@ FRAME_EDGES = [
     "https://locket-filter-frame.beslin.workers.dev",
     "https://locket-filter-frame.b1steam-edge-05.workers.dev",
 ]
+_frame_state: dict = {"idx": 0, "fails": {}}
+
+
+def _mark_frame_edge(edge: str, ok: bool) -> None:
+    st = _frame_state["fails"].get(edge) or [0, 0.0]
+    if ok:
+        st[0] = 0
+    else:
+        st[0] += 1
+        st[1] = time.time()
+    _frame_state["fails"][edge] = st
 
 
 def is_allowed_host(host: str) -> bool:
@@ -473,7 +484,18 @@ MAX_BODY = int(os.environ.get("MAX_BODY_BYTES", str(12 * 1024 * 1024)))
 
 def frame_edge() -> str:
     v = os.environ.get("FRAME_WORKER_URL", "").strip()
-    return v.rstrip("/") if v else random.choice(FRAME_EDGES)
+    if v:
+        return v.rstrip("/")
+    now = time.time()
+    for _ in range(len(FRAME_EDGES)):
+        edge = FRAME_EDGES[_frame_state["idx"] % len(FRAME_EDGES)]
+        _frame_state["idx"] += 1
+        fails, since = _frame_state["fails"].get(edge, [0, 0.0])
+        if fails >= 2 and (now - since) < 60:
+            continue  # edge trong cooldown — thử edge kế
+        return edge
+    _frame_state["idx"] += 1
+    return FRAME_EDGES[_frame_state["idx"] % len(FRAME_EDGES)]
 
 
 def proxy_key() -> str:
@@ -623,6 +645,7 @@ class Handler(BaseHTTPRequestHandler):
             if photo_url and is_overlay_filter(filter_id):
                 self._send_bytes(200, build_overlay_response(photo_url), "application/json; charset=utf-8")
                 return
+            fw = None
             try:
                 fw = frame_edge()
                 headers = {
@@ -632,9 +655,12 @@ class Handler(BaseHTTPRequestHandler):
                     "X-B1s-Module-Origin": "B1sTeam",
                 }
                 r = requests.post(fw + "/apply-frame", data=body, headers=headers, timeout=30)
+                _mark_frame_edge(fw, r.status_code < 500)
                 self._send_bytes(r.status_code, clean_filter_response(r.content), "application/json; charset=utf-8")
                 return
             except Exception as e:
+                if fw:
+                    _mark_frame_edge(fw, False)
                 log.error("frame worker error: %s", str(e)[:200])
                 self._send_bytes(502, json.dumps({"error": {"message": "frame worker unreachable"}}).encode(), "application/json; charset=utf-8")
                 return
