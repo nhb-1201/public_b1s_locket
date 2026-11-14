@@ -22,7 +22,7 @@ import vm from "node:vm";
 const ROOT = dirname(fileURLToPath(import.meta.url));
 
 /* Version (nguon su that duy nhat: version.json o thu muc goc repo) */
-const VERSION_JSON = join(ROOT, "..", "version.json");
+const VERSION_JSON = join(ROOT, "version.json"); // module dùng version riêng (không đụng root version.json)
 let VERSION = { version: "0.0.0", updated: "unknown", channel: "dev", product: "LocketGold" };
 try {
   VERSION = JSON.parse(readFileSync(VERSION_JSON, "utf8"));

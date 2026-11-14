@@ -24,6 +24,7 @@ var LICENSE_KEY = "__LICENSE_KEY__";
 // @b1s-include ./lib/license-gate.js
 
 // @b1s-include ./lib/http-util.js
+// @b1s-include ./lib/edge-select.js
 /* Accessor an toàn: $request/$response có thể KHÔNG tồn tại (chạy script thủ công trong
    trình soạn thảo của Shadowrocket, hoặc engine không cấp) — dùng $request trực tiếp sẽ ném
    ReferenceError làm script chết im lặng. */
@@ -130,7 +131,7 @@ if (IS_REQUEST_PHASE) {
             // Đánh dấu ảnh đã được khung (App upload ngay sau khi rửa ảnh → upload-frame không vẽ lại)
             try { b1sStoreSet("b1s_frame_applied_at", String(Date.now())); } catch (e) {}
             console.log("[locketgold] filters: FORWARD fid=" + fid + " → locket-filter-frame");
-            $done({ url: "https://locket-filter-frame.nhb-120111.workers.dev/apply-frame", headers: fwd, body: _req.body });
+            $done({ url: frameEdge() + "/apply-frame", headers: fwd, body: _req.body });
             return;
           }
         }

@@ -7,7 +7,7 @@ var _resp = (typeof $response !== "undefined" && $response) ? $response : {};
    Yêu cầu file nguồn đã include: lib/http-util.js (hasOwn/headerValue), lib/b64.js
    (bytesToB64/b64ToBytes/binaryStringToBytes) và lib/license-gate.js (deviceId). */
 
-var FRAME_RAW_URL = "https://locket-filter-frame.nhb-120111.workers.dev/frame-raw";
+// @b1s-include ./edge-select.js
 var MAX_UPLOAD_BYTES = 12 * 1024 * 1024; // 12 MB — ảnh Locket sau nén ~1–2 MB
 
 /** URL thuộc bucket Firebase/GCS của Locket? */
@@ -72,26 +72,43 @@ function handleLocketUpload(url, rawHeaders) {
   var b64 = bytesToB64(bytes);
   var dev = "";
   try { dev = deviceId(); } catch (e) {}
-  console.log("[locketgold] upload: xử lý " + bytes.length + " B → /frame-raw (khung Kawaii Gold)");
-  $httpClient.post({
-    url: FRAME_RAW_URL,
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "x-b1s-license": LICENSE_KEY || "",
-      "x-b1s-device": dev,
-    },
-    body: JSON.stringify({ image_base64: b64, filter_id: "khung_gold" }),
-    timeout: 25,
-  }, function (err, resp, data) {
+  console.log("[locketgold] upload: xử lý " + bytes.length + " B → /frame-raw (khung Kawaii Gold) — phân bổ ngẫu nhiên qua 4 edge Cloudflare");
+  // Xáo trộn thứ tự edge — phân bổ tải đều giữa 4 tài khoản Cloudflare phụ, lỗi 1 edge → thử edge khác
+  var edgeOrder = B1S_FRAME_EDGES.slice();
+  for (var ei = edgeOrder.length - 1; ei > 0; ei--) {
+    var ej = Math.floor(Math.random() * (ei + 1));
+    var tmp = edgeOrder[ei]; edgeOrder[ei] = edgeOrder[ej]; edgeOrder[ej] = tmp;
+  }
+
+  function tryEdge(idx) {
+    if (idx >= edgeOrder.length) {
+      console.log("[locketgold] upload: cả 4 edge đều lỗi — passthrough ảnh gốc");
+      $done({});
+      return;
+    }
+    $httpClient.post({
+      url: edgeOrder[idx] + "/frame-raw",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "x-b1s-license": LICENSE_KEY || "",
+        "x-b1s-device": dev,
+      },
+      body: JSON.stringify({ image_base64: b64, filter_id: "khung_gold" }),
+      timeout: 25,
+    }, function (err, resp, data) {
+      tryEdgeResult(idx, err, resp, data);
+    });
+  }
+
+  function tryEdgeResult(edgeIndex, err, resp, data) {
     try {
-      if (err) { console.log("[locketgold] upload: worker lỗi: " + String(err).slice(0, 80)); $done({}); return; }
+      if (err) { console.log("[locketgold] upload: edge " + edgeIndex + " lỗi: " + String(err).slice(0, 60) + " — thử edge khác"); tryEdge(edgeIndex + 1); return; }
       var raw = (typeof data === "string" && data) ? data : (resp && typeof resp.body === "string" ? resp.body : "");
       var j = JSON.parse(raw || "{}");
       if (!j || j.ok !== true || !j.image_base64) {
-        console.log("[locketgold] upload: worker từ chối — passthrough ảnh gốc");
-        $done({});
-        return;
+        console.log("[locketgold] upload: edge " + edgeIndex + " từ chối — thử edge khác");
+        tryEdge(edgeIndex + 1); return;
       }
       var framed = b64ToBytes(j.image_base64);
       if (!framed || !framed.length) { $done({}); return; }
@@ -110,8 +127,10 @@ function handleLocketUpload(url, rawHeaders) {
       console.log("[locketgold] upload: OK — " + framed.length + " B (ảnh đã có khung Kawaii Gold)");
       $done({ headers: headers, bodyBytes: framed });
     } catch (e2) {
-      console.log("[locketgold] upload: exception: " + String(e2).slice(0, 80));
-      $done({}); // fail-open — ảnh đi nguyên trạng
+      console.log("[locketgold] upload: exception: " + String(e2).slice(0, 80) + " — thử edge khác");
+      tryEdge(edgeIndex + 1);
     }
-  });
+  }
+
+  tryEdge(0);
 }
