@@ -149,3 +149,26 @@ Mọi `script-path` có `?v=7.6.1` ⇒ Shadowrocket tải đúng bản mới (lo
 Test mới: `test-merged-locket` 24/24 (badge, paywall 402, unblur, vinh danh, header US, changeProfileInfo,
 passthrough bio, forward overlay, fail-closed).
 
+
+## v7.7.1 — Hệ thống Version + Ngày cập nhật cho TOÀN BỘ (2026-11-14)
+
+Yêu cầu: "toàn bộ phải có version và ngày update để xác định được mới hay cũ".
+
+**Nguồn sự thật duy nhất:** `version.json` ở gốc repo
+```json
+{ "product": "LocketGold B1sTeam", "version": "7.7.1", "updated": "2026-11-14", "channel": "stable" }
+```
+
+| Lớp | Cách hiển thị version / ngày |
+|---|---|
+| **Script MITM** (6 file) | Mỗi script build có `B1S_VERSION` · `B1S_UPDATED` · `B1S_BUILD` (ISO timestamp) + banner đầu file; license-gate **log 1 dòng mỗi script**: `[locketgold] remote v7.7.1 · 2026-11-14 · build 2026-11-14T…` (đọc log PacketTunnel là biết bản nào đang chạy) |
+| **`.conf` / `.sgmodule`** | `#!version=7.7.1` + `#!updated=2026-11-14` + dòng chú thích `# B1sTeam v7.7.1 · cap nhat 2026-11-14 · build …`; mọi `script-path` có `?v=7.7.1` (cache-bust) |
+| **`ios/build.mjs`** | Đọc `version.json` → chèn hằng version vào mọi script; **validate**: `.conf` phải có `#!version` khớp, mọi `?v=` phải khớp, phải có `?v=` (cache-bust), và **bắt URL hỏng** (`$1` / `.js$version`) → build fail nếu lệch |
+| **Backend** `locket.b1s.id.vn` | `VERSION 3.3.0` + `BUILD_DATE` + `BUILD_AT` trong **mọi response** (`builtAt`, `updated`, `moduleVersion`) + endpoint mới `GET /api/v2/locketgold/version` |
+| **DNS worker** `doh.b1s.id.vn` | `7.2.0` + `updated` + `builtAt` trong `/health` và `/policy` |
+| **Frame worker** `frame.b1s.id.vn` | `1.3.0` + `updated` + `builtAt` trong `/health` (JSON) |
+| **Web** `b1s.id.vn/alfretro` | Mục **"Phiên bản"**: module vX + ngày + backend vY + build time (live từ `/version`), so sánh với bản .conf đã tải (wizard tự lưu `#!version=` vào localStorage) → badge "bản mới nhất" / "có bản mới"; kèm hướng dẫn đọc version trong log Shadowrocket + link nhật ký thay đổi |
+
+Test mới `test-version` 16/16 (version.json · #!version/#!updated · ?v= · .sgmodule · mọi script có hằng version +
+log version · build validation).
+

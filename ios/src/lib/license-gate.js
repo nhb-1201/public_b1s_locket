@@ -36,6 +36,7 @@ var B1S_KEY_OK_AT = "b1s_lg_ok_at";
 var B1S_KEY_FAIL_AT = "b1s_lg_fail_at";
 var B1S_KEY_FAIL_DEV = "b1s_lg_fail_dev"; // device id lúc fail — id đổi ⇒ thử lại ngay
 
+var lgVersionLogged = false; // log version 1 lần mỗi script
 var memDeviceId = null;
 var memOkAt = 0;      // mốc verify OK gần nhất (bộ nhớ)
 var memFailAt = 0;    // mốc verify fail gần nhất (bộ nhớ)
@@ -191,6 +192,15 @@ function verifyWith(base, deviceIdValue, onDone) {
  */
 function gate(allow, deny, tag) {
   var T = tag || "b1s";
+  // Log version + ngày cập nhật (1 lần mỗi script) — đọc log PacketTunnel là biết đang chạy bản nào
+  if (!lgVersionLogged) {
+    lgVersionLogged = true;
+    try {
+      console.log("[locketgold] " + T + " v" + (typeof B1S_VERSION !== "undefined" ? B1S_VERSION : "?") +
+        " · " + (typeof B1S_UPDATED !== "undefined" ? B1S_UPDATED : "?") +
+        " · build " + (typeof B1S_BUILD !== "undefined" ? B1S_BUILD : "?"));
+    } catch (e) { /* ignore */ }
+  }
   if (!licenseKeyUsable()) { noteFailed(); return deny(); }
 
   if (Date.now() - lastVerifiedAt() < B1S_VERIFY_CACHE_MS) return allow(); // cache 7 ngày

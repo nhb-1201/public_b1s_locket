@@ -21,7 +21,10 @@
  * B1sTeam — b1s.id.vn · Zalo 083.3399.553 · Nguyễn Hoàng Bách
  */
 
-const VERSION = "7.1.0";
+const VERSION = "7.2.0";
+/** Ngay build — hien trong /health + /policy. */
+const BUILD_DATE = "2026-11-14";
+const BUILD_AT = "2026-11-14T05:25:00Z";
 const UPSTREAMS = ["https://1.1.1.1/dns-query", "https://8.8.8.8/dns-query", "https://9.9.9.9/dns-query"];
 const CACHE_TTL = 300;      // giây — pin cache ở edge Cloudflare (5 phút)
 const CACHE_STALE = 86400;  // giây — tuổi tối đa bản stale khi upstream chết (24h)
@@ -355,6 +358,8 @@ export default {
           service: "b1steam-doh",
           release: "B1sTeam",
           version: VERSION,
+          updated: BUILD_DATE,
+          builtAt: BUILD_AT,
           doh: "https://doh.b1s.id.vn/dns-query",
           policy: { blocked: BLOCKED_DOMAINS, groups: BLOCK_GROUPS, upstreams: UPSTREAMS, staleIfError: true, singleFile: true },
           ts: new Date().toISOString(),

@@ -20,6 +20,22 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
+
+/* Version (nguon su that duy nhat: version.json o thu muc goc repo) */
+const VERSION_JSON = join(ROOT, "..", "version.json");
+let VERSION = { version: "0.0.0", updated: "unknown", channel: "dev", product: "LocketGold" };
+try {
+  VERSION = JSON.parse(readFileSync(VERSION_JSON, "utf8"));
+} catch (e) {
+  console.error("Khong doc duoc version.json:", e.message);
+}
+const BUILD_AT = new Date().toISOString().replace(".000Z", "Z");
+const VERSION_BLOCK =
+  `/* B1sTeam — ${VERSION.product} v${VERSION.version} · cap nhat ${VERSION.updated} · build ${BUILD_AT} */\n`
+  + `var B1S_VERSION = "${VERSION.version}";\n`
+  + `var B1S_UPDATED = "${VERSION.updated}";\n`
+  + `var B1S_BUILD = "${BUILD_AT}";\n`;
+
 const SRC = join(ROOT, "src");
 const LIB = join(SRC, "lib");
 const OUT = join(ROOT, "scripts");
@@ -60,7 +76,16 @@ function buildScripts() {
     const target = join(OUT, name);
     const body = inline(source).replace(/\r\n/g, "\n");
     // Nếu source đã có dòng author thì giữ nguyên — ngược lại thêm.
-    const content = body.startsWith(AUTHOR) ? STAMP + body : STAMP + body;
+    // Chen hang version + banner ngay sau dong author (neu co) de log tren may luon biet version.
+    let out = body;
+    const authorIdx = out.indexOf(AUTHOR.trim());
+    if (authorIdx === 0) {
+      const afterAuthor = authorIdx + AUTHOR.trim().length;
+      out = out.slice(0, afterAuthor) + "\n" + VERSION_BLOCK + out.slice(afterAuthor);
+    } else {
+      out = VERSION_BLOCK + out;
+    }
+    const content = STAMP + out;
     results.push({ source, target, content });
   }
   return results;
@@ -70,6 +95,30 @@ function buildScripts() {
 function buildModule() {
   const confPath = join(REPO_IOS, "alfretro-allinone.conf");
   const conf = readFileSync(confPath, "utf8").replace(/\r\n/g, "\n");
+  // Dong bo version: .conf phai khai #!version khop version.json
+  const confVer = (conf.match(/^#!version=(.+)$/m) || [])[1];
+  if (!confVer) {
+    console.error("STALE  .conf thieu dong #!version= — them #!version=" + VERSION.version + " vao alfretro-allinone.conf");
+    process.exit(1);
+  }
+  if (conf.includes("$1") || /\.js\$\d/.test(conf)) {
+    console.error("STALE  .conf có script-path hỏng (ký tự '$1' hoặc .js$version) — sửa lại URL script-path");
+    process.exit(1);
+  }
+  const noV = [...conf.matchAll(/script-path=([^\s,]+)/g)].filter((m) => !m[1].includes("?v="));
+  if (noV.length) {
+    console.error("STALE  " + noV.length + " script-path thiếu ?v=" + VERSION.version + " (cache-bust) — sửa lại .conf");
+    process.exit(1);
+  }
+  const badV = [...conf.matchAll(/\?v=([0-9]+\.[0-9]+\.[0-9]+)/g)].filter((m) => m[1] !== String(VERSION.version));
+  if (badV.length) {
+    console.error("STALE  .conf có ?v= không khớp version.json (" + [...new Set(badV.map((m) => m[1]))].join(", ") + ") — cần ?v=" + VERSION.version);
+    process.exit(1);
+  }
+  if (confVer.trim() !== String(VERSION.version)) {
+    console.error("STALE  .conf dang #!version=" + confVer.trim() + " nhung version.json la " + VERSION.version + " — cap nhat ca hai");
+    process.exit(1);
+  }
   const moduleBody = conf
     .replace("#!name=B1sTeam — AlFreToU · All-In-One (.conf)", "#!name=B1sTeam — AlFreToU · All-In-One (.module)")
     .replace(/\[MITM\]\nhostname = /, "[MITM]\nhostname = %APPEND%, ")
@@ -82,6 +131,7 @@ function buildModule() {
 }
 
 const outputs = [...buildScripts(), buildModule()];
+console.log(`BUILD  ${VERSION.product} v${VERSION.version} · cap nhat ${VERSION.updated} · ${BUILD_AT}`);
 let stale = 0;
 for (const { source, target, content } of outputs) {
   let current = null;
