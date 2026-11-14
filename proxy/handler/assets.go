@@ -11,8 +11,8 @@ import "strings"
 //
 // Set via the ASSET_CDN_BASE environment variable.
 const (
-	// defaultAssetBaseURL is the B1sTeam asset host.
-	defaultAssetBaseURL = "https://frame.b1s.id.vn/assets"
+	// defaultAssetBaseURL points at the B1sTeam raw assets base (public, CORS friendly).
+	defaultAssetBaseURL = "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets"
 )
 
 // legacyAssetPrefixes are the hosts embedded in the shipped catalog. They are all

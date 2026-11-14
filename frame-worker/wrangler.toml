@@ -12,9 +12,9 @@ custom_domain = true
 # Secret bat buoc (dat bang: wrangler secret put PROXY_SHARED_KEY).
 #   PROXY_SHARED_KEY  — secret chia se voi MITM proxy (header x-b1s-proxy-key). Toi thieu 16 ky tu.
 # Var (cau hinh, khong phai secret):
-#   ASSET_RAW_BASE    — raw base cua repo chua assets (mac dinh raw.githubusercontent.com/Xwuan19/locket-gold-hub/main)
+#   ASSET_RAW_BASE    — raw base cua repo chua assets (mac dinh raw.githubusercontent.com/nhb-1201/public_b1s_locket/main)
 [vars]
-ASSET_RAW_BASE = "https://raw.githubusercontent.com/Xwuan19/locket-gold-hub/main"
+ASSET_RAW_BASE = "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main"
 
 [[rules]]
 type = "CompiledWasm"

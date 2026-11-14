@@ -141,7 +141,7 @@ export default {
     // /assets/* — URL trong camera_filter_config tro vao day.
     // File nhi phan nam trong repo locket-gold-hub (raw.githubusercontent.com) → 301 redirect.
     if (url.pathname.startsWith("/assets/")) {
-      const base = (env.ASSET_RAW_BASE || "https://raw.githubusercontent.com/Xwuan19/locket-gold-hub/main").replace(/\/+$/, "");
+      const base = (env.ASSET_RAW_BASE || "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main").replace(/\/+$/, "");
       return new Response(null, {
         status: 301,
         headers: {

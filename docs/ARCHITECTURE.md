@@ -13,7 +13,7 @@ Tài liệu này mô tả chi tiết cách hệ thống **B1sTeam DNS** hoạt �
 | **Backend API** | Next.js Route Handlers (Cloudflare Workers / OpenNext) — repo `b1steam_web` nhánh `backend` | Quản lý tài khoản/profile NextDNS, hạn mức, xoay vòng, cấp hồ sơ iOS, Vinh danh Gold |
 | **DoH Worker** | Cloudflare Worker (TypeScript) — repo này, `dns/` | Cửa vào DoH, đếm lượt truy vấn, chặn telemetry/ads, REFUSED khi chạm ngưỡng |
 | **Proxy MITM** | Go (Fly.io) — repo này, `proxy/` | Ký TLS bằng Root CA, ghi đè phản hồi Firebase RC / RevenueCat / Locket API |
-| **Frame Worker** | Cloudflare Worker (WASM) — repo `locket-filter-frame` | Vẽ khung Kawaii lên ảnh người dùng |
+| **Frame Worker** | Cloudflare Worker (WASM) — repo này, `frame-worker/` | Vẽ khung Kawaii lên ảnh người dùng; phục vụ `/assets/*` (301 sang raw repo) và `/apply-frame`, `/frame-raw` |
 | **Database** | Cloudflare D1 (`b1steam`) | `dns_nextdns_accounts`, `dns_profiles`, `dns_usage_counters`, `dns_usage_snapshots`, `dns_events`, `dns_config`, `locketgold_vip_honor` |
 
 ---
@@ -187,3 +187,19 @@ CREATE UNIQUE INDEX idx_dns_nextdns_accounts_ready
 - Rate-limit theo user cho `provision` (10/lần), `rotate` (5/lần), VIP join/leave (10/lần).
 - Không log nội dung truy vấn DNS — chỉ đếm số lượng.
 - Khi bị chạm ngưỡng, người dùng bị chặn hoàn toàn cho tới khi cài lại hồ sơ.
+
+---
+
+## 8. Asset catalog — 82 file thiếu
+
+`proxy/handler/camera_filter_config.json` chứa ~2.457 tham chiếu `<domain>/assets/<path>` cho catalog
+Photobooth + Cue (504 filter `cutout`/`normal`). 82 file unique (`stickers/stk_*.png`, `frames/khung_*.png`,
+`frames/pb_*.png`, …) **không có trong repo này** — trước đây chúng nằm trên CDN bên thứ 3 (nay 404, và đây là
+tác phẩm của tác giả riêng). Khi chưa có file:
+
+- Các khung/cue trong **picker** bị thiếu; các tính năng Locket Gold khác **không bị ảnh hưởng**.
+- Server-side vẽ khung đi đường `/apply-frame` với 14 khung Kawaii trong `assets/images/kawaii/` + `assets/frames/` — vẫn chạy.
+
+Cách bổ sung: thả đúng tên file (`assets/stickers|frames/<filename>.png` đúng như catalog tham chiếu), rồi cho
+worker phục vụ `/assets/*` (hoặc trỏ `ASSET_CDN_BASE`/`ASSET_RAW_BASE` về nơi chứa file).
+
