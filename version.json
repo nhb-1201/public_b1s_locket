@@ -1,8 +1,8 @@
 {
-  "product": "LocketGold B1sTeam",
-  "version": "2.0.0",
+  "product": "LocketGold (Free) — B1sTeam",
+  "version": "3.0.0",
   "updated": "2026-11-14",
   "channel": "stable",
-  "system": "DNS thuần — NextDNS per-account, không Shadowrocket",
-  "note": "Hệ thống DNS thuần: 1 tài khoản NextDNS riêng / user, tự tạo sẵn tài khoản kế tiếp, xoay vòng theo tài khoản khi chạm 80%."
+  "system": "Shadowrocket module (iOS) — primary",
+  "note": "Repo CDN của LocketGold: .conf/.sgmodule + scripts + assets + proxy (Python, LAN) + DoH worker (optional) + B1sTeam Root CA. Cache-bust bằng version trong tên file (scripts/*.v7.8.0.js)."
 }

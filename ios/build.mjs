@@ -120,7 +120,7 @@ function buildModule() {
     process.exit(1);
   }
   const moduleBody = conf
-    .replace("#!name=B1sTeam — AlFreToU · All-In-One (.conf)", "#!name=B1sTeam — AlFreToU · All-In-One (.module)")
+    .replace("#!name=B1sTeam — LocketGold (Free)", "#!name=B1sTeam — LocketGold (Free) (.module)")
     .replace(/\[MITM\]\nhostname = /, "[MITM]\nhostname = %APPEND%, ")
     .replace(/#!desc=([^\n]*)/, (m) => m.replace(".conf", ".module"));
   const content =

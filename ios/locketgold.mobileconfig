@@ -13,7 +13,7 @@
     <key>PayloadDisplayName</key>
     <string>LocketGold DoH · B1sTeam ✦</string>
     <key>PayloadDescription</key>
-    <string>DNS riêng cho LocketGold (Locket &amp; Firebase qua B1sTeam DoH — chặn quảng cáo/telemetry). RevenueCat cố ý giữ nguyên để Shadowrocket mitm luôn nhận được phản hồi Gold. Web/app khác giữ DNS gốc — miễn phí vĩnh viễn · b1s.id.vn/alfretro</string>
+    <string>DNS riêng cho LocketGold (Locket &amp; Firebase qua B1sTeam DoH — chặn quảng cáo/telemetry). RevenueCat cố ý giữ nguyên để Shadowrocket mitm luôn nhận được phản hồi Gold. Web/app khác giữ DNS gốc — miễn phí vĩnh viễn · b1s.id.vn/locketvip</string>
     <key>PayloadOrganization</key>
     <string>B1sTeam — b1s.id.vn · @b1steam</string>
     <key>PayloadRemovalDisallowed</key>

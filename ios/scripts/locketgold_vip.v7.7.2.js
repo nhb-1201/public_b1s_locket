@@ -14,7 +14,7 @@ var B1S_BUILD = "2026-11-14T10:32:30.426Z";
  *
  *   Nguyên tắc riêng tư:
  *     · KHÔNG tự động đăng ký bạn vào vinh danh — việc này do bạn chủ động làm
- *       trên b1s.id.vn/alfretro (nhập username Locket).
+ *       trên b1s.id.vn/locketvip (nhập username Locket).
  *     · KHÔNG ghi gì lên server Locket, KHÔNG đụng bio/credit của người khác.
  *     · Danh sách fetch tối đa 1 lần / 12 giờ, cache bền trên máy, không chặn request.
  *

@@ -4,7 +4,7 @@
 
 ## Cách cài hiện tại (khuyến nghị)
 
-1. Vào **[b1s.id.vn/alfretro](https://b1s.id.vn/alfretro)** → đăng nhập tài khoản B1sTeam.
+1. Vào **[b1s.id.vn/locketvip](https://b1s.id.vn/locketvip)** → đăng nhập tài khoản B1sTeam.
 2. Vào **[b1s.id.vn/da-kich-hoat](https://b1s.id.vn/da-kich-hoat)** → bấm **Kích hoạt miễn phí** (0₫, vĩnh viễn).
 3. Bấm **Tải file .conf về máy** — Shadowrocket tự nhận `alfretro-<tail>.conf` (key của bạn nhúng sẵn,
    gồm toàn bộ script LocketGold + 23 App Premium + DoH).

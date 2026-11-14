@@ -1,8 +1,8 @@
 {
-  "product": "LocketGold B1sTeam",
-  "version": "7.7.2",
+  "product": "LocketGold (Free) — B1sTeam",
+  "version": "7.8.0",
   "updated": "2026-11-14",
   "channel": "stable",
   "system": "Shadowrocket module (iOS)",
-  "note": "Nguon su that duy nhat cho module/.conf/scripts. Root version.json thuoc he thong khac (DNS)."
+  "note": "Nguồn sự thật duy nhất cho module/.conf/scripts. ios/alfretro-allinone.conf là file cấu hình chính; build.mjs regen scripts + .sgmodule (tính %APPEND% cho module)."
 }

@@ -276,10 +276,10 @@ var FORCE_ENTRIES = {
   /* ── Dev info trong app: các hàng link Settings trỏ về chủ shop ──
      Bấm vào "Help/Safety/Parent Center / Instagram / TikTok / X" trong Settings của Locket
      đều mở về kênh B1sTeam — nơi có đầy đủ: Nguyễn Hoàng Bách · Zalo 083.3399.553 · b1s.id.vn */
-  "help_center_url": "https://b1s.id.vn/alfretro",
-  "safety_center_url": "https://b1s.id.vn/alfretro",
-  "parent_center_url": "https://b1s.id.vn/alfretro",
-  "rewarded_referral_rule_url": "https://b1s.id.vn/alfretro",
+  "help_center_url": "https://b1s.id.vn/locketvip",
+  "safety_center_url": "https://b1s.id.vn/locketvip",
+  "parent_center_url": "https://b1s.id.vn/locketvip",
+  "rewarded_referral_rule_url": "https://b1s.id.vn/locketvip",
   "settings_instagram_url": "https://zalo.me/0833399553",
   "settings_tiktok_url": "https://zalo.me/0833399553",
   "settings_twitter_url": "https://zalo.me/0833399553",

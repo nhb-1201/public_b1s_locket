@@ -9,7 +9,7 @@ Tài liệu này mô tả chi tiết cách hệ thống **B1sTeam DNS** hoạt �
 
 | Thành phần | Công nghệ | Nhiệm vụ |
 |---|---|---|
-| **Web portal** | Next.js (Vercel) — repo `b1steam_web` nhánh `main` | Landing `/alfretro`, `/dns`, `/quantri/dns`, `/locketgold/vip` |
+| **Web portal** | Next.js (Vercel) — repo `b1steam_web` nhánh `main` | Landing `/locketvip`, `/dns`, `/quantri/dns`, `/locketgold/vip` |
 | **AR / Sticker assets** | 27 frame + 55 sticker do B1sTeam tự sinh bằng `tools/gen-missing-assets.mjs` (SVG → PNG) | Phục vụ RemoteConfig + frame worker; AR overlay phía client |
 | **Backend API** | Next.js Route Handlers (Cloudflare Workers / OpenNext) — repo `b1steam_web` nhánh `backend` | Quản lý tài khoản/profile NextDNS, hạn mức, xoay vòng, cấp hồ sơ iOS, Vinh danh Gold |
 | **DoH Worker** | Cloudflare Worker (TypeScript) — repo này, `dns/` | Cửa vào DoH, đếm lượt truy vấn, chặn telemetry/ads, REFUSED khi chạm ngưỡng |
