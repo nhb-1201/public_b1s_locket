@@ -125,3 +125,27 @@ Kiểm chứng end-to-end (tính đúng thuật toán client rồi gọi API th�
 `B1S-8C3G-ZVY3-WBNQ` → `mitm-1f1badf1` → `valid=true, bound=true` (đã re-bind từ id cũ) ✓
 `B1S-F4DB-SKNA-Y4KA` → `mitm-35999d86` → `valid=true, bound=true` ✓
 
+
+## v7.7.0 — Gộp script API Locket (Shadowrocket chỉ chạy 1 script/phase) (2026-11-14)
+
+Log PacketTunnel 11:40 phát hiện điểm mấu chốt: **Shadowrocket chỉ chạy MỘT script khớp đầu tiên cho mỗi phase**.
+Vì `[locketgold_filters_response]` đứng trước `[locketgold_user]` (profile) và `[locketgold_vip]` trong `[Script]`
+⇒ **`locketgold_profile.js` (badge Gold + unblur + verified) và `locketgold_vip.js` KHÔNG BAO GIỜ CHẠY**
+⇒ app không mở khoá gì ("không có gì xảy ra").
+
+Sửa: gộp Profile + Filters + Vinh danh vào **MỘT script** `locketgold_locket.js`:
+- REQUEST: bỏ header cache + ép vùng US + forward `generateFilteredImage` (overlay) sang worker vẽ khung
+  + `changeProfileInfo` → 200 Gold+Verified (trừ khi user đang LƯU bio thật → passthrough).
+  **Thêm `requires-body=true`** (bản cũ thiếu ⇒ `$request.body` không có ⇒ forward khung không bao giờ chạy).
+- RESPONSE: inject badge Gold/Verified + credit, mở paywall 402/403/400, gỡ blur, ép cờ mở khoá mọi node,
+  badge Gold cho thành viên vinh danh.
+- 1 gate duy nhất, đúng 1 lần gọi `$done`.
+
+`.conf` còn **6 script entries**, không trùng pattern theo phase:
+RC(unlock) · Firebase RC(request+response) · **Locket(request+response)** · storage upload.
+Script cũ (profile/filters/vip) **giữ nguyên trong repo** để .conf đã cài từ trước vẫn chạy được.
+Mọi `script-path` có `?v=7.6.1` ⇒ Shadowrocket tải đúng bản mới (log cho thấy request đầu tiên vẫn chạy bản cache cũ).
+
+Test mới: `test-merged-locket` 24/24 (badge, paywall 402, unblur, vinh danh, header US, changeProfileInfo,
+passthrough bio, forward overlay, fail-closed).
+
