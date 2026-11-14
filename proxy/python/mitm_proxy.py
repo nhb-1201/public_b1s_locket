@@ -681,8 +681,9 @@ def pac_content() -> bytes:
 
 
 def _handle_plain_http(sock, addr) -> None:
-    """Pipeline Plain HTTP (không TLS): chỉ trả về PAC + /healthz."""
+    """Pipeline Plain HTTP (không TLS): PAC + /healthz + CONNECT tunnel."""
     sock.settimeout(10)
+    connect_handled = False
     try:
         data = b""
         while b"\r\n\r\n" not in data and len(data) < 16384:
@@ -695,6 +696,12 @@ def _handle_plain_http(sock, addr) -> None:
         method = parts[0] if parts else ""
         path = parts[1].split("?")[0].split("#")[0] if len(parts) > 1 else "/"
         headers_only = method.upper() == "HEAD"
+
+        if method.upper() == "CONNECT":
+            # iOS Global HTTP Proxy: client CONNECT host:443 → TLS MITM pipeline
+            authority = parts[1] if len(parts) > 1 else ""
+            connect_handled = _handle_connect(sock, addr, authority)
+            return
 
         if path == "/proxy.pac":
             body = pac_content()
@@ -721,10 +728,11 @@ def _handle_plain_http(sock, addr) -> None:
     except Exception:
         log.exception("plain http error from %s", addr)
     finally:
-        try:
-            sock.close()
-        except OSError:
-            pass
+        if not connect_handled:
+            try:
+                sock.close()
+            except OSError:
+                pass
 
 
 class _DummyServer:
@@ -736,14 +744,8 @@ class _DummyServer:
         log.info(fmt, *args)
 
 
-def _handle_connection(raw_sock, addr) -> None:
-    try:
-        first = raw_sock.recv(1, socket.MSG_PEEK)
-    except Exception:
-        first = b""
-    if not first or first[0] != 0x16:
-        _handle_plain_http(raw_sock, addr)
-        return
+def _tls_mitm_pipeline(raw_sock, addr) -> None:
+    """TLS MITM pipeline: peek SNI → ký leaf → wrap → HTTP handler."""
     try:
         host = peek_sni(raw_sock)
     except Exception:
@@ -788,6 +790,52 @@ def _handle_connection(raw_sock, addr) -> None:
             tls_sock.close()
         except OSError:
             pass
+
+
+def _handle_connect(raw_sock, addr, authority: str) -> bool:
+    """Xử lý CONNECT host:port (Global HTTP Proxy / PAC route).
+
+    Trả True nếu kết nối đã được nhận làm tunnel (socket sống tiếp tục TLS),
+    False nếu bị từ chối (caller đóng socket).
+    """
+    host = ""
+    port = 443
+    if authority:
+        host_part, _, port_part = authority.partition(":")
+        host = host_part.strip().lower().rstrip(".")
+        try:
+            port = int(port_part) if port_part.strip() else 443
+        except ValueError:
+            port = 443
+    if port != 443 or not is_allowed_host(host):
+        log.warning("CONNECT reject authority=%s from %s", authority, addr)
+        try:
+            raw_sock.sendall(b"HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+        except OSError:
+            pass
+        try:
+            raw_sock.close()
+        except OSError:
+            pass
+        return False
+    try:
+        raw_sock.sendall(b"HTTP/1.1 200 Connection Established\r\nProxy-agent: B1sTeamProxy/1.0\r\n\r\n")
+    except OSError:
+        return False
+    log.info("CONNECT tunnel established to %s:%d from %s", host, port, addr)
+    _tls_mitm_pipeline(raw_sock, addr)
+    return True
+
+
+def _handle_connection(raw_sock, addr) -> None:
+    try:
+        first = raw_sock.recv(1, socket.MSG_PEEK)
+    except Exception:
+        first = b""
+    if not first or first[0] != 0x16:
+        _handle_plain_http(raw_sock, addr)
+        return
+    _tls_mitm_pipeline(raw_sock, addr)
 
 
 def main():
