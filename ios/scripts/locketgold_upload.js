@@ -239,8 +239,10 @@ function gate(allow, deny, tag) {
   var failedDev = lastFailedDevice();
   // Cooldown CHỈ áp cho đúng device id đã fail. Id đổi (client mới / cài lại app) → thử lại ngay,
   // tránh việc "fail của bản cũ" khoá luôn bản mới ⇒ app không mở khoá gì trong 10 phút.
+  // Cooldown CHỈ có hiệu lực cho ĐÚNG device id đã fail. Marker của bản cũ (không ghi fail_dev)
+  // hoặc id khác (client mới / cài lại app) → thử verify ngay, không chờ.
   var cooldownApplies = failedAt > 0 && Date.now() - failedAt < B1S_FAIL_COOLDOWN_MS &&
-    (!failedDev || failedDev === id);
+    !!failedDev && failedDev === id;
   if (cooldownApplies) {
     try { console.log("[locketgold] " + T + ": verify cooldown 10p (sau khi FAIL)"); } catch (e) {}
     return deny();
