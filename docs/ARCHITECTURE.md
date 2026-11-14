@@ -130,7 +130,7 @@ Nếu cron chưa kịp tạo sẵn, `rotateDnsProfile()` tự tạo tài khoản
 
 - Hạn mức 300k/tháng bên NextDNS Free đếm theo **tài khoản**.
 - Tài khoản mới = hạn mức mới hoàn toàn.
-- Email tài khoản là địa chỉ tự sinh (`dns-<user>-<random>@<NEXTDNS_MAIL_DOMAIN>`), mật khẩu ngẫu nhiên
+- Email tài khoản là địa chỉ ngẫu nhiên `[a-z0-9]{9–16}@nhbz1s.id.vn` (local-part toàn bộ a-z0-9 độ dài 9–16, không lộ user_id thật), mật khẩu 24 ký tự ngẫu nhiên (`B1s` + 24 ký tự từ 72 ký hiệu ~126 bit entropy)
   đủ mạnh, cả hai đều mã hoá ECC P-256 hybrid trong D1.
 
 ---
