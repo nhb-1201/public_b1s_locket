@@ -31,9 +31,12 @@ import socket
 import ssl
 import tempfile
 import threading
+import time
 from datetime import datetime, timedelta, UTC
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
+
+import ipaddress
 
 import requests
 from cryptography import x509
@@ -113,6 +116,12 @@ def forge_leaf(host: str):
         x509.NameAttribute(NameOID.ORGANIZATION_NAME, "B1sTeam"),
         x509.NameAttribute(NameOID.COUNTRY_NAME, "VN"),
     ])
+    is_ip = False
+    try:
+        ipaddress.ip_address(host)
+        is_ip = True
+    except ValueError:
+        is_ip = False
     key = ec.generate_private_key(ec.SECP256R1())
     cert = (
         x509.CertificateBuilder()
@@ -132,7 +141,12 @@ def forge_leaf(host: str):
             critical=True,
         )
         .add_extension(x509.ExtendedKeyUsage([x509.ExtendedKeyUsageOID.SERVER_AUTH]), critical=False)
-        .add_extension(x509.SubjectAlternativeName([x509.DNSName(host)]), critical=False)
+        .add_extension(
+            x509.SubjectAlternativeName(
+                [x509.IPAddress(ipaddress.ip_address(host))] if is_ip else [x509.DNSName(host)]
+            ),
+            critical=False,
+        )
         .add_extension(
             x509.AuthorityKeyIdentifier.from_issuer_public_key(_ca_cert.public_key()),
             critical=False,
@@ -628,6 +642,91 @@ class Handler(BaseHTTPRequestHandler):
         self._call_upstream(method, host, path, body)
 
 
+# ───────────────────────────── PAC (Global HTTP Proxy route) ─────────────────────────────
+# File PAC liệt kê đúng các host được MITM, trỏ về IP công khai của máy (port 8443).
+# Thiết bị iOS cài "Global HTTP Proxy" (.mobileconfig) với PAC URL https://<IP>:<port>/proxy.pac
+# (hoặc cấu hình PAC trên Mac). Proxy xuống → app rơi về DIRECT (fallback).
+
+PAC_HOSTNAMES = [
+    "locketcamera.com",
+    "locket.camera",
+    "revenuecat.com",
+    "rc-backup.com",
+    "rev.cat",
+    "firebaseremoteconfig.googleapis.com",
+    "firebaseremoteconfig.google.com",
+    "us-central1-locket-4252a.cloudfunctions.net",
+]
+
+
+def pac_content() -> bytes:
+    try:
+        import public_ip as public_ip_mod
+        ip = public_ip_mod.detect_public_ip(ttl=300) or "0.0.0.0"
+    except Exception as e:
+        log.warning("detect_public_ip failed: %s", e)
+        ip = "0.0.0.0"
+    try:
+        port = int((os.environ.get("PUBLIC_PROXY_PORT") or "8443").strip())
+    except ValueError:
+        port = 8443
+    lines = ["function FindProxyForURL(url, host) {", "  var h = host.toLowerCase();"]
+    for i, domain in enumerate(PAC_HOSTNAMES):
+        lines.append(
+            f'  if (h === "{domain}" || shExpMatch(h, "*.{domain}")) return "PROXY {ip}:{port}; DIRECT";'
+        )
+    lines.append('  return "DIRECT";')
+    lines.append("}")
+    return "\n".join(lines).encode("utf-8")
+
+
+def _handle_plain_http(sock, addr) -> None:
+    """Pipeline Plain HTTP (không TLS): chỉ trả về PAC + /healthz."""
+    sock.settimeout(10)
+    try:
+        data = b""
+        while b"\r\n\r\n" not in data and len(data) < 16384:
+            chunk = sock.recv(4096)
+            if not chunk:
+                break
+            data += chunk
+        line = data.split(b"\r\n", 1)[0].decode("latin-1", "ignore").strip()
+        parts = line.split()
+        method = parts[0] if parts else ""
+        path = parts[1].split("?")[0].split("#")[0] if len(parts) > 1 else "/"
+        headers_only = method.upper() == "HEAD"
+
+        if path == "/proxy.pac":
+            body = pac_content()
+            status, ctype = "200 OK", "application/x-ns-proxy-autoconfig"
+        elif path == "/healthz":
+            body, status, ctype = b"ok", "200 OK", "text/plain; charset=utf-8"
+        else:
+            body, status, ctype = b'{"error":"not found"}', "404 Not Found", "application/json"
+
+        resp = (
+            f"HTTP/1.1 {status}\r\n"
+            f"Content-Type: {ctype}\r\n"
+            f"Content-Length: {len(body)}\r\n"
+            f"Cache-Control: no-store\r\n"
+            f"Connection: close\r\n"
+            f"Access-Control-Allow-Origin: *\r\n"
+            f"\r\n"
+        ).encode("latin-1")
+        if not headers_only:
+            resp += body
+        sock.sendall(resp)
+    except (socket.timeout, TimeoutError, BrokenPipeError, ConnectionResetError):
+        pass
+    except Exception:
+        log.exception("plain http error from %s", addr)
+    finally:
+        try:
+            sock.close()
+        except OSError:
+            pass
+
+
 class _DummyServer:
     """Tối thiểu cho BaseHTTPRequestHandler (không dùng để serve)."""
 
@@ -638,6 +737,13 @@ class _DummyServer:
 
 
 def _handle_connection(raw_sock, addr) -> None:
+    try:
+        first = raw_sock.recv(1, socket.MSG_PEEK)
+    except Exception:
+        first = b""
+    if not first or first[0] != 0x16:
+        _handle_plain_http(raw_sock, addr)
+        return
     try:
         host = peek_sni(raw_sock)
     except Exception:
@@ -692,21 +798,38 @@ def main():
     load_ca(ca_cert, ca_key)
 
     bind = os.environ.get("BIND", "0.0.0.0")
-    port = int(os.environ.get("PORT", "443"))
+    ports_raw = os.environ.get("PORTS", "").strip()
+    ports = [int(p) for p in ports_raw.split(",") if p.strip().isdigit()]
+    if not ports:
+        ports = [int(os.environ.get("PORT", "443"))]
 
-    listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    listener.bind((bind, port))
-    listener.listen(256)
-    log.info("B1sTeam MITM Proxy listening on %s:%d (TLS)", bind, port)
+    listeners = []
+    for port in ports:
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind((bind, port))
+        listener.listen(256)
+        listeners.append((port, listener))
+        log.info("B1sTeam MITM Proxy listening on %s:%d (TLS + plain HTTP PAC)", bind, port)
+
+    def _accept_loop(port: int, listener) -> None:
+        try:
+            while True:
+                raw_sock, addr = listener.accept()
+                threading.Thread(target=_handle_connection, args=(raw_sock, addr), daemon=True).start()
+        except OSError:
+            pass
+
+    for port, listener in listeners:
+        threading.Thread(target=_accept_loop, args=(port, listener), daemon=True).start()
+
     try:
-        while True:
-            raw_sock, addr = listener.accept()
-            threading.Thread(target=_handle_connection, args=(raw_sock, addr), daemon=True).start()
+        threading.Event().wait()
     except KeyboardInterrupt:
         log.info("shutdown")
     finally:
-        listener.close()
+        for _, listener in listeners:
+            listener.close()
 
 
 if __name__ == "__main__":

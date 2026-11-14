@@ -91,6 +91,15 @@ def proxy_env() -> dict:
     return env
 
 
+def health_port(env: dict) -> int:
+    ports = (env.get("PORTS") or "").strip()
+    if ports:
+        first = ports.split(",")[0].strip()
+        if first.isdigit():
+            return int(first)
+    return int(env.get("PORT", "443"))
+
+
 def start_proxy(env: dict) -> subprocess.Popen:
     cmd = [sys.executable, str(PROXY_SCRIPT)]
     if sys.platform == "win32":
@@ -130,8 +139,15 @@ def health_once(port: int, timeout: float = 10.0) -> bool:
 
 def main() -> None:
     env = proxy_env()
-    port = int(env.get("PORT", "443"))
-    log(f"watchdog start — proxy={PROXY_SCRIPT} port={port}")
+    port = health_port(env)
+    public_ip = "unknown"
+    try:
+        sys.path.insert(0, str(PROXY_SCRIPT.parent))
+        import public_ip as _public_ip
+        public_ip = _public_ip.detect_public_ip(ttl=600) or "unavailable"
+    except Exception as e:
+        public_ip = f"error ({e})"
+    log(f"watchdog start — proxy={PROXY_SCRIPT} health_port={port} public_ip={public_ip}")
 
     if not PROXY_SCRIPT.exists():
         log(f"FATAL: proxy script not found at {PROXY_SCRIPT}")

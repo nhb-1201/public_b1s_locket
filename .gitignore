@@ -46,3 +46,5 @@ proxy/proxy.env
 
 __pycache__/
 
+proxy/.public-ip
+proxy/b1steam-pac-profile.mobileconfig

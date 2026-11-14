@@ -107,3 +107,48 @@ powershell -ExecutionPolicy Bypass -File .\Install-AutoStart.ps1 -Remove   # go 
 - **Chua cau hinh DNS cong khai**: doh.b1s.id.vn can tro toi resolver worker (branch `backend` cua
   b1steam_web) hoac router/DHCP phan phoi DNS. DoH nay phai tra ve IP proxy (LAN 192.168.1.212 cho
   WiFi, hoac IP public khi co).
+
+
+---
+
+## 7. Internet route — NAT 8443 + PAC (không cần DNS, không cần tài khoản)
+
+### Thực tế cổng
+| Đường | Dùng được cho |
+|---|---|
+| `0.0.0.0:443` | LAN/Wi-Fi — thiết bị cùng mạng trỏ về IP LAN (`192.168.1.212`) kể cả khi DNS không sửa |
+| `0.0.0.0:8443` | Internet sau khi NAT 8443 → PC:443/8443 (theo rule router đang có) |
+
+Ứng dụng iOS luôn gọi thẳng port 443 — nên để **transparent MITM** hoạt động từ Internet, router
+phải NAT external **443** → PC (xem mục bên dưới "Phương án thay thế"). Port 8443 dùng được ngay
+nhưng cho **Global HTTP Proxy (PAC)** — thiết bị tự route các host cần MITM qua proxy.
+
+### Cơ chế tự lấy IP công khai (IP động)
+- `proxy/python/public_ip.py` — gọi `api.ipify.org` (fallback ifconfig.me), cache 300s tại
+  `proxy/.public-ip` (gitignored), trả IP hiện tại.
+- Watchdog chạy lại mỗi 600–900s, tự nhận diện IP mới và log. Nếu IP đổi, PAC **tự phục vụ IP mới**
+  (detect mỗi lần trả PAC, cache 5 phút).
+
+### PAC (proxy auto-config)
+- `GET http://<IP>:8443/proxy.pac` — liệt kê đúng 8 host MITM (locket/RC/FC/cloudfunctions),
+  mọi thứ khác → `DIRECT`. Proxy chết → apps về mạng bình thường (không gãy Internet).
+- Cùng port với TLS MITM (phân biệt bằng byte đầu tiên: `0x16` = TLS handshake, còn lại = HTTP).
+
+### Cài lên iPhone (đường 8443)
+1. Chạy `python proxy/python/build_pac_profile.py` — sinh `proxy/b1steam-pac-profile.mobileconfig`
+   (đã embed **B1sTeam Root CA** + PAC URL với IP hiện tại; file gitignored — IP không lên repo).
+2. AirDrop/email file `.mobileconfig` sang iPhone → Cài đặt → Hồ sơ đã tải → Cài đặt.
+3. Cài đặt → Cài đặt chung → Giới thiệu → Cài đặt tin cậy chứng nhận → bật **B1sTeam Root CA**.
+4. Từ giờ Locket trên iPhone (mọi mạng) đi qua proxy của máy này.
+
+> IP động sẽ đổi. Khi đó chạy lại `python proxy/python/build_pac_profile.py` rồi cài lại hồ sơ.
+> App Locket phải honor Global HTTP Proxy (URLSession) để nhận PAC — đa số app Apple làm vậy.
+> Nếu không thấy traffic: kiểm tra `proxy/watchdog.log` + log của proxy.
+
+### Phương án thay thế cho transparent MITM 443 từ Internet
+- Router NAT external **443** → PC:**443** (external 8443 không cứu được app iOS vì apps gọi 443), hoặc
+- Ser public port 443 ở máy khác (VPS/Fly) chạy thẳng `mitm_proxy.py` — proxy nhận mọi SNI hợp lệ.
+
+### healthz công khai
+- `GET http://<IP>:8443/healthz` → `ok` (theo dõi ngoài, không cần SNI/TLS).
+- `curl https://127.0.0.1:8443/healthz --cacert ca/b1steam-root-ca.crt --resolve <host>:443:...`
