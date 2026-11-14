@@ -18,9 +18,10 @@ build
 .env.*
 !.env.example
 
-# Private keys
+# Private keys (NEVER commit)
 *.key
 ca/*.key
+proxy/ca/*.key
 
 # Wrangler state
 .wrangler/
@@ -38,4 +39,8 @@ Thumbs.db
 *.bak
 *.backup
 
+# Proxy runtime (NEVER commit)
+proxy/proxy.env
+proxy/.public-ip
+proxy/b1steam-pac-profile.mobileconfig
 __pycache__/
