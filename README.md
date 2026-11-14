@@ -51,6 +51,8 @@ public_b1s_locket/
 ├── assets/              # 🖼️ Khung Kawaii, icons, banner (phục vụ RemoteConfig + frame worker)
 │   ├── frames/
 │   ├── images/kawaii/
+│   ├── upstream-archive/   # 📦 Toàn bộ asset Xwuan19/locket-gold-hub (91 ảnh marketing +
+│   │                       #    21 font OFL) — kèm UPSTREAM-ASSETS.md ghi nguồn/giấy phép
 │   └── icon-*.svg, welcome_banner.*, banner.svg, locket_gold.jpg
 ├── ca/                  # 🔐 Root CA (crt public — `.gitignore` chặn `.key`)
 ├── scanner/             # 🔍 Quét endpoint/domain trong mã nguồn
