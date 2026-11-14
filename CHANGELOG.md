@@ -105,3 +105,23 @@ thủ công trong trình soạn thảo → thêm accessor `_req`/`_resp` cho m�
 Backend 3.2.0: verify tự **gắn lại** khi client đổi thuật toán id (stored `dev-*` → `mitm-*`) ⇒ không ai
 bị kẹt "sai máy" sau khi cài lại app; khoá theo máy vẫn giữ (máy khác vẫn device_mismatch).
 
+
+## v7.6.1 — Fix "không có gì xảy ra" (log PacketTunnel 11:40) (2026-11-14)
+
+Log mới (sau khi cài .conf v7.6.0) cho thấy: **verify trả false ⇒ mọi script DENY** (đúng kiểu fail-closed),
+nên app không mở khoá gì. Nguyên nhân + sửa:
+
+1. **Device id của máy ≠ id đã gắn trong D1** (`dev-95qjv8ndl7mmwepfzj1`) ⇒ luôn `device_mismatch`.
+   Bản cũ sinh id NGẪU NHIÊN mỗi lần chạy (storage không giữ) ⇒ không bao giờ khớp.
+   → Nay id **TẤT ĐỊNH theo key**: `mitm-` + FNV1a32(key) ⇒ giống nhau trên MỌI script, MỌI lần cài,
+     không phụ thuộc `$prefs`/`$persistentStore`. Backend chấp nhận & re-bind nhóm `mitm-*`.
+2. **Cooldown 10 phút của bản cũ chặn luôn bản mới** ⇒ 10 phút "không có gì xảy ra".
+   → Cooldown giờ **gắn theo device id**: id đổi (client mới / cài lại app) ⇒ thử verify lại ngay.
+3. **Script cache cũ vẫn chạy ở request đầu tiên** (log: "script update" xảy ra *sau* lần chạy đầu).
+   → Mọi `script-path` giờ có `?v=7.6.0` ⇒ URL đổi theo version ⇒ Shadowrocket tải đúng bản mới.
+4. Log chẩn đoán rõ hơn: `[locketgold] <tag>: verify FAIL (device=mitm-xxxx…)` + `device id đổi → thử verify lại`.
+
+Kiểm chứng end-to-end (tính đúng thuật toán client rồi gọi API thật):
+`B1S-8C3G-ZVY3-WBNQ` → `mitm-1f1badf1` → `valid=true, bound=true` (đã re-bind từ id cũ) ✓
+`B1S-F4DB-SKNA-Y4KA` → `mitm-35999d86` → `valid=true, bound=true` ✓
+

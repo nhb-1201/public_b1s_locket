@@ -34,6 +34,7 @@ var B1S_KEY_DEVICE = "b1s_lg_device_id";
 var B1S_KEY_SALT = "b1s_lg_salt";
 var B1S_KEY_OK_AT = "b1s_lg_ok_at";
 var B1S_KEY_FAIL_AT = "b1s_lg_fail_at";
+var B1S_KEY_FAIL_DEV = "b1s_lg_fail_dev"; // device id lúc fail — id đổi ⇒ thử lại ngay
 
 var memDeviceId = null;
 var memOkAt = 0;      // mốc verify OK gần nhất (bộ nhớ)
@@ -107,26 +108,15 @@ function b1sRandomHex(len) {
 }
 
 /**
- * Device id ổn định:
- *   · store hoạt động  → salt lưu được → id = mitm-<hash(key|salt)>  (KHÓA THEO MÁY thật)
- *   · store hỏng       → id = mitm-<hash(key)>                        (ổn định, không khóa máy)
- * Không bao giờ random mỗi lần chạy → không còn device_mismatch vô lý.
+ * Device id TẤT ĐỊNH theo license key — giống nhau trên MỌI script và MỌI lần cài đặt.
+ *   id = "mitm-" + FNV1a32(license_key)
+ * Không dùng storage ⇒ không bao giờ đổi, không bao giờ lệch giữa các script.
+ * Backend: id "mitm-*" được coi là họ của key đó (khoá theo key/tài khoản, đổi máy không cần gỡ).
  */
 function deviceId() {
-  var cached = b1sStoreGet(B1S_KEY_DEVICE);
-  if (cached) return cached;
   if (memDeviceId) return memDeviceId;
-
-  var salt = b1sStoreGet(B1S_KEY_SALT);
-  if (!salt) {
-    salt = b1sRandomHex(10);
-    var written = b1sStoreSet(B1S_KEY_SALT, salt);
-    if (!written || b1sStoreGet(B1S_KEY_SALT) !== salt) salt = ""; // store hỏng → không salt
-  }
-  var id = salt ? ("mitm-" + b1sHash32(LICENSE_KEY + "|" + salt)) : ("mitm-" + b1sHash32(LICENSE_KEY));
-  b1sStoreSet(B1S_KEY_DEVICE, id);
-  memDeviceId = id;
-  return id;
+  memDeviceId = "mitm-" + b1sHash32(String(LICENSE_KEY || ""));
+  return memDeviceId;
 }
 
 function lastVerifiedAt() {
@@ -141,11 +131,18 @@ function markVerified() {
 
 function noteFailed() {
   b1sStoreSet(B1S_KEY_FAIL_AT, String(Date.now()));
+  try { b1sStoreSet(B1S_KEY_FAIL_DEV, deviceId()); } catch (e) { /* ignore */ }
 }
 
 function lastFailedAt() {
   var v = b1sStoreGet(B1S_KEY_FAIL_AT);
   return v ? Number(v) || 0 : 0;
+}
+
+/** Device id đã fail gần nhất (rỗng = chưa có) */
+function lastFailedDevice() {
+  var v = b1sStoreGet(B1S_KEY_FAIL_DEV);
+  return v ? String(v) : "";
 }
 
 /** Máy đã từng verify OK < 30 ngày nhưng lần này không hỏi được → cho mạy tiếp. */
@@ -199,19 +196,27 @@ function gate(allow, deny, tag) {
   if (Date.now() - lastVerifiedAt() < B1S_VERIFY_CACHE_MS) return allow(); // cache 7 ngày
   if (Date.now() - memOkAt < B1S_MEM_OK_MS) return allow();               // cache 6 giờ trong bộ nhớ
 
+  var id = deviceId();
   var failedAt = Math.max(lastFailedAt(), memFailAt);
-  if (failedAt > 0 && Date.now() - failedAt < B1S_FAIL_COOLDOWN_MS) {
+  var failedDev = lastFailedDevice();
+  // Cooldown CHỈ áp cho đúng device id đã fail. Id đổi (client mới / cài lại app) → thử lại ngay,
+  // tránh việc "fail của bản cũ" khoá luôn bản mới ⇒ app không mở khoá gì trong 10 phút.
+  var cooldownApplies = failedAt > 0 && Date.now() - failedAt < B1S_FAIL_COOLDOWN_MS &&
+    (!failedDev || failedDev === id);
+  if (cooldownApplies) {
     try { console.log("[locketgold] " + T + ": verify cooldown 10p (sau khi FAIL)"); } catch (e) {}
     return deny();
   }
-
-  var id = deviceId();
+  if (failedAt > 0 && !cooldownApplies) {
+    try { console.log("[locketgold] " + T + ": device id đổi → thử verify lại (bỏ cooldown)"); } catch (e) {}
+  }
   if (!id) { noteFailed(); return deny(); }
 
   verifyWith(B1S_VERIFY_PRIMARY, id, function (okPrimary) {
     if (okPrimary) { markVerified(); return allow(); }
     verifyWith(B1S_VERIFY_FALLBACK, id, function (okFallback) {
       if (okFallback) { markVerified(); return allow(); }
+      try { console.log("[locketgold] " + T + ": verify FAIL (device=" + id.slice(0, 12) + "…)"); } catch (e) {}
       if (offlineGraceActive()) {
         try { console.log("[locketgold] " + T + ": OFFLINE-GRACE"); } catch (e) {}
         return allow();
