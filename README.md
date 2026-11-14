@@ -80,6 +80,18 @@
 
 ---
 
+
+## Proxy MITM LOCAL (tùy chọn, nâng cao)
+
+Python MITM proxy + watchdog tự restart khi chết (Task Scheduler ONSTART SYSTEM, pythonw shadow):
+- `proxy/python/mitm_proxy.py` — TLS MITM theo SNI (B1sTeam Root CA), allowlist RC/FC/Locket/CDN.
+- `proxy/python/public_ip.py` — auto-detect IP public (ipify/ifconfig.me, cache 300s) + `/proxy.pac`.
+- `proxy/python/build_pac_profile.py` — sinh .mobileconfig PAC cho Global HTTP Proxy.
+- `proxy/watchdog.py` — poll + /healthz mỗi 600–900s ngẫu nhiên, restart nếu chết.
+- `proxy/Install-AutoStart.ps1` — đăng ký `B1sTeam-Proxy-Watchdog` (ONSTART SYSTEM).
+
+Dùng khi: iPhone cùng Wi-Fi/Hotspot (192.168.1.212:443), hoặc muốn route Locket qua máy tính.
+
 ## Cấu trúc repo
 
 ```text
