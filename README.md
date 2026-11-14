@@ -81,10 +81,8 @@ public_b1s_locket/
 NextDNS Free = **300.000 truy vấn / 30 ngày theo tài khoản** → mỗi vòng xoay = **1 tài khoản NextDNS mới**:
 
 1. Đạt ngưỡng cảnh báo (60%, cấu hình) → cron tự **tạo sẵn** tài khoản + profile mới (`ready`).
-2. Đạt ngưỡng xoay vòng (80%, cấu hình) → DoH chặn (REFUSED) + **in-app + email** yêu cầu người dùng
-   vào **b1s.id.vn/dns** → bấm **“Cập nhật DNS”** (link mới ngay vì đã tạo sẵn) → tải `.mobileconfig` → cài đè.
+2. Đạt ngưỡng xoay vòng (80%, cấu hình) → cron **tự động xoay vòng** ngay: kích hoạt tài khoản NextDNS mới (hoặc tạo ngay nếu chưa kịp), DoH chặn link cũ (REFUSED), **in-app + email** báo user; user chỉ cần vào **b1s.id.vn/dns** → tải hồ sơ `.mobileconfig` mới → cài đè (không cần gỡ; không cần bấm nút gì thêm).
 3. Tải `.mobileconfig` xong → hệ thống tự tắt `user_update_required`.
-4. Nếu chưa tạo sẵn kịp → nút “Cập nhật DNS” sẽ tự tạo tài khoản mới ngay tại thời điểm bấm.
 
 ## 5. Bảo mật
 

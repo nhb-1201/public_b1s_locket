@@ -107,20 +107,24 @@ cron (mỗi giờ) ──> GET /api/v2/internal/dns-sync (HMAC)
                        │      tạo tài khoản NextDNS mới + profile + rewrites,
                        │      status='ready', is_current=0 (idempotent)
                        └─ ≥ 80% (threshold_percent) → rotation_required = 1,
-                            status = 'rotation_required',
-                            gửi in-app notification + email cho user,
-                            DoH Worker CHẶN link (REFUSED)
-                                                        │
-user vào /dns ──────────────────────────────────────┴─> thấy banner "Bắt buộc cập nhật DNS"
-                          bấm "Cập nhật DNS" → rotateDnsProfile():
-                            · revoke profile hiện tại (+superseded tài khoản)
-                            · kích hoạt tài khoản 'ready' (MỚI NGAY LẬP TỨC)
-                            · user_update_required = 1
-                          tải lại .mobileconfig → cài đè → user_update_required tự về 0
+                             status = 'rotation_required',
+                             gửi in-app notification + email cho user,
+                             DoH Worker CHẶN link (REFUSED)
+                             → rotateDnsProfile() NGAY LẬP TỨC (tự động):
+                               · revoke profile hiện tại (+superseded tài khoản)
+                               · kích hoạt tài khoản 'ready' đã tạo sẵn
+                                 (hoặc tạo mới ngay nếu cron chưa kịp)
+                               · is_current = 1, user_update_required = 1
+                                                             │
+user vào /dns ─────────────────────────────────────────────┴─> thấy banner "Bắt buộc cập nhật DNS"
+                          bấm "Tải hồ sơ & cài đè" → tải lại .mobileconfig
+                          · user_update_required tự về 0 (tải xong)
+                          cài đè lên hồ sơ cũ (không cần gỡ)
 ```
 
-**Không tự xoay vòng**: cron không bao giờ tự đổi tài khoản — user luôn là người tới `/dns`
-và cài đè hồ sơ. Nếu cron chưa kịp tạo sẵn, `rotateDnsProfile()` tự tạo tài khoản mới ngay lúc bấm.
+**Tự động xoay vòng 100%**: khi chạm ngưỡng 80%, cron tự kích hoạt tài khoản NextDNS mới
+trong lần chạy kế tiếp — user không cần bấm gì, chỉ cần cài lại `.mobileconfig` cho thiết bị.
+Nếu cron chưa kịp tạo sẵn, `rotateDnsProfile()` tự tạo tài khoản mới ngay tại thời điểm đó.
 
 **Vì sao xoay bằng “tài khoản mới” chứ không “profile mới cùng tài khoản”?**
 
@@ -176,7 +180,7 @@ CREATE UNIQUE INDEX idx_dns_nextdns_accounts_ready
 | GET | `/api/v2/admin/dns/profiles` | admin | Danh sách profile + stats (sẵn sàng, cần cập nhật) |
 | POST | `/api/v2/admin/dns/profiles` | admin | `sync` · `rotate` · `preprovision` · `revoke` · `delete` |
 | GET/PATCH | `/api/v2/admin/dns/config` | admin | Cấu hình runtime (`threshold_percent`, `warn_percent`, `preprovision_percent`, …) |
-| GET | `/api/v2/internal/dns-sync` | cron (HMAC) | Đồng bộ + preprovision (không tự xoay vòng) |
+| GET | `/api/v2/internal/dns-sync` | cron (HMAC) | Đồng bộ + preprovision + TỰ ĐỘNG XOAY VÒNG |
 
 ---
 
