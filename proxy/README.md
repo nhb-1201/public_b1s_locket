@@ -133,6 +133,7 @@ nhưng cho **Global HTTP Proxy (PAC)** — thiết bị tự route các host c�
 - `GET http://<IP>:8443/proxy.pac` — liệt kê đúng 8 host MITM (locket/RC/FC/cloudfunctions),
   mọi thứ khác → `DIRECT`. Proxy chết → apps về mạng bình thường (không gãy Internet).
 - Cùng port với TLS MITM (phân biệt bằng byte đầu tiên: `0x16` = TLS handshake, còn lại = HTTP).
+- Hỗ trợ `CONNECT host:443` (chuẩn Global HTTP Proxy): 200 cho host allowlist + TLS MITM tiếp nối, 403 mọi host khác.
 
 ### Cài lên iPhone (đường 8443)
 1. Chạy `python proxy/python/build_pac_profile.py` — sinh `proxy/b1steam-pac-profile.mobileconfig`
