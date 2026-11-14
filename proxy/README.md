@@ -72,3 +72,38 @@ curl -k https://<proxy-host>:8443/healthz
 - **Root CA phải ổn định.** Đổi CA ⇒ mọi máy đã cài hồ sơ phải cài lại từ đầu.
 - `camera_filter_config.json` được `go:embed` ⇒ thay đổi file cần rebuild image.
 - `ASSET_CDN_BASE` chỉ nên trỏ tới nơi **bạn kiểm soát** — đừng phụ thuộc worker của người khác.
+
+
+---
+
+## 6. Ban Python chay that (B1sTeam, port 443 + Task Scheduler)
+
+> Go/Fly.io cua muc 4 la kien truc cu (Fly machine chet, khong co credentials trong may). Ban Python
+> la runtime hien tai, tu ky leaf theo SNI bang B1sTeam Root CA, khong phu thuoc Fly.
+
+### Cau truc
+| File | Tac dung |
+|---|---|
+| `python/mitm_proxy.py` | MITM proxy: peek ClientHello lay SNI -> ky leaf (B1sTeam Root CA) -> TLS -> HTTP: ghi de RC/FC/Locket responses, ve khung qua frame worker, /healthz |
+| `python/firebase_overrides.py` | 131 override RemoteConfig (generated tu Go source) |
+| `watchdog.py` | Giu proxy song: poll process, health-check /healthz moi 600-900s ngau nhien (qua SNI hop le + B1sTeam CA), restart khi chet/sai 2 lan lien tiep |
+| `Install-AutoStart.ps1` | Dang ky Task Scheduler `B1sTeam-Proxy-Watchdog` (ONSTART, SYSTEM, restart 999 lan neu fail) |
+| `proxy.env` (gitignored) / `proxy.env.example` | PROXY_SHARED_KEY cho frame worker, PORT, BIND |
+
+### Chay
+```powershell
+python mitm_proxy.py            # thu cong (PORT/BIND doc tu env)
+python watchdog.py              # watchdog (Task Scheduler tu goi)
+schtasks /run /tn B1sTeam-Proxy-Watchdog   # start tay
+powershell -ExecutionPolicy Bypass -File .\Install-AutoStart.ps1   # cai auto-start
+powershell -ExecutionPolicy Bypass -File .\Install-AutoStart.ps1 -Remove   # go auto-start
+```
+
+### Trang thai
+- Proxy chay o `0.0.0.0:443`, thiet bi trong WiFi LAN (vd iPhone, PC 192.168.1.212) tro toi day khi DNS
+  tra ve IP nay.
+- `.mobileconfig` (B1sTeam DNS — LocketGold) chua B1sTeam Root CA -> may tu tin leaf cua proxy.
+- Log: `proxy/watchdog.log` (xoay vong 5MB).
+- **Chua cau hinh DNS cong khai**: doh.b1s.id.vn can tro toi resolver worker (branch `backend` cua
+  b1steam_web) hoac router/DHCP phan phoi DNS. DoH nay phai tra ve IP proxy (LAN 192.168.1.212 cho
+  WiFi, hoac IP public khi co).

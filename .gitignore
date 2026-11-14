@@ -39,3 +39,10 @@ Thumbs.db
 *.tmp
 *.bak
 *.backup
+
+# Proxy runtime (KHONG commit)
+proxy/proxy.env
+
+
+__pycache__/
+
