@@ -34,7 +34,7 @@ func loadRCConfig(t *testing.T) rcConfig {
 
 func TestRCRemoteFiltersHaveWorkingURLs(t *testing.T) {
 	cfg := loadRCConfig(t)
-	if len(cfg.RemoteFilters) < 200 {
+	if len(cfg.RemoteFilters) < 100 {
 		t.Fatalf("remoteFilters too small: %d", len(cfg.RemoteFilters))
 	}
 	for _, f := range cfg.RemoteFilters {
@@ -96,37 +96,20 @@ func TestRCPickerAndGroupsReferenceExistingFilters(t *testing.T) {
 	}
 }
 
+// NOTE: 119 frame b1s_locketvip_* tạm thời KHÔNG đăng ký trong RC — cấu hình 1.23MB
+// làm app Locket rơi về defaults (mất nút filter). Khi app xác nhận chạy ổn ở 712KB
+// sẽ tái thêm tối ưu. Test này chỉ kiểm tra tính toàn vẹn cấu trúc.
 func TestRCContainsB1sLocketVipFrames(t *testing.T) {
 	cfg := loadRCConfig(t)
-	found := map[string]bool{}
+	found := 0
 	for _, f := range cfg.RemoteFilters {
-		id, _ := f["id"].(string)
-		if strings.HasPrefix(id, "b1s_locketvip_") {
-			found[id] = true
+		if id, _ := f["id"].(string); strings.HasPrefix(id, "b1s_locketvip_") {
+			found++
 		}
 	}
-	if len(found) < 100 {
-		t.Fatalf("expected at least 100 b1s_locketvip frames, got %d", len(found))
-	}
+	t.Logf("b1s_locketvip frames registered: %d", found)
 
-	// group_b1steam exists with all of them
-	var groupOK bool
-	for _, groups := range [][]map[string]any{cfg.FilterGroups, cfg.FilterGroups2} {
-		for _, g := range groups {
-			if g["id"] != "group_b1steam" {
-				continue
-			}
-			list, _ := g["filterIds"].([]any)
-			if len(list) >= 100 {
-				groupOK = true
-			}
-		}
-	}
-	if !groupOK {
-		t.Fatal("group_b1steam missing or too small")
-	}
-
-	// every registered frame URL maps to a file we ship
+	// mọi URL frame trong RC phải trỏ về file tồn tại trong repo
 	manifestPath := filepath.Join("..", "..", "assets", "rc", "frames")
 	count := 0
 	for path := range walkDir(manifestPath) {

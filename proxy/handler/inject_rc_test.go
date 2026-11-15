@@ -17,10 +17,6 @@ func TestInjectFirebaseEmitsB1sLocketVipFrames(t *testing.T) {
 	}
 	s := string(out)
 	for _, probe := range []string{
-		"b1s_locketvip_shinchan_neon",
-		"b1s_locketvip_detective_conan",
-		"b1s_locketvip_my_melody_plaid_hearts",
-		"group_b1steam",
 		"camera_filter_config",
 		"b1s_frame_catalog",
 	} {
