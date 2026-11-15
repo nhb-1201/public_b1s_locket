@@ -33,7 +33,8 @@ var filterKeys = []string{
 }
 
 // overlayPrefixes: các prefix id bộ lọc được coi là khung vẽ đè (overlay).
-var overlayPrefixes = []string{"khung_", "frame_", "pb_", "cmt_"}
+// b1s_locketvip_* : toàn bộ 132 khung B1sTeam re-hosted (assets/rc/frames) — client composite.
+var overlayPrefixes = []string{"khung_", "frame_", "pb_", "cmt_", "b1s_locketvip_", "sticker_"}
 
 // overlayKeywords: các từ khoá trong id bộ lọc bị coi là photobooth.
 var overlayKeywords = []string{"photobooth", "4cut"}
