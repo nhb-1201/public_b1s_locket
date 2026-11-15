@@ -118,7 +118,7 @@ docs/           # tài liệu này
 
 | Thành phần | Công nghệ | Nhiệm vụ |
 |---|---|---|
-| **Web portal** | Next.js (Vercel) — repo `b1steam_web` nhánh `main` | Single-page `/locketvip` (landing + kích hoạt + hướng dẫn từng bước, nhớ tiến trình), `/quantri/dns` `/locketgold/*`; `/dns` → 308 `/locketvip` |
+| **Web portal** | Next.js (Vercel) — repo `b1steam_web` nhánh `main` | Single-page `/locketvip` (landing + kích hoạt + hướng dẫn từng bước 10 bước, nhớ tiến trình — bước 10: DNS riêng), `/quantri/dns` `/locketgold/*`; `/dns` → 308 `/locketvip` |
 | **AR / Sticker assets** | 27 frame + 55 sticker do B1sTeam tự sinh bằng `tools/gen-missing-assets.mjs` (SVG → PNG) | Phục vụ RemoteConfig + frame worker; AR overlay phía client |
 | **Backend API** | Next.js Route Handlers (Cloudflare Workers / OpenNext) — repo `b1steam_web` nhánh `backend` | Quản lý tài khoản/profile NextDNS, hạn mức, xoay vòng, cấp hồ sơ iOS, Vinh danh Gold |
 | **DoH Worker** | Cloudflare Worker (TypeScript) — repo này, `dns/` | Cửa vào DoH, đếm lượt truy vấn, chặn telemetry/ads, REFUSED khi chạm ngưỡng |

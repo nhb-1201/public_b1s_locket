@@ -1,5 +1,14 @@
 # CHANGELOG — LocketGold (public_b1s_locket)
 
+## [3.3.0] — 2026-11-15
+
+**Thêm lại "Bước 10 — DNS DoH của tôi" (NextDNS riêng per user)**
+
+- Web `/locketvip` (wizard): sau Bước 9 (Gold ✦) thêm **Bước 10 — DNS DOH CỦA TÔI**: nhúng `DnsDashboard` ngay trong bước — đăng nhập → **Cấp DNS** (NextDNS riêng 300.000 truy vấn / 30 ngày) → tải `B1sTeam-DNS-gN.mobileconfig` → Cài đặt. Shadowrocket vẫn là đường mở Gold; DoH bổ trợ.
+- Xoá v3.2.0 note "DoH đã gỡ" — khôi phục `DnsDashboard` + `dns-client` từ git.
+- 10 bước hoàn chỉnh, tiến trình (localStorage `b1steam-install-wizard-v2`) nhớ tới bước 10.
+- Docs: 10 bước; DoH quay lại thành bước bổ trợ khuyến nghị (không bắt buộc).
+
 ## [3.2.0] — 2026-11-15
 
 **Gỡ DNS riêng khỏi hướng dẫn người dùng; web thành wizard cài đặt nhớ tiến trình**
