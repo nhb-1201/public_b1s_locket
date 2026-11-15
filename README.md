@@ -1,9 +1,9 @@
 # 💎 LocketGold (Free) ✦ — B1sTeam
 
-> **Shadowrocket MITM + DoH (bổ trợ) + Frames — Gold VIP vĩnh viễn 0₫.**
+> **Shadowrocket MITM + Frames — Gold VIP vĩnh viễn 0₫.**
 > Toàn bộ source do **B1sTeam** (Nguyễn Hoàng Bách) sở hữu và vận hành.
-> Kiến trúc đơn giản: 1 app (Shadowrocket), 1 file (.conf), 1 phút — xong.
-> DNS là khi bạn **muốn** chặn telemetry/ads toàn máy; không bắt buộc để Gold chạy.
+> Kiến trúc đơn giản: 1 app (Shadowrocket), 1 file (.conf), 5 phút — xong.
+> **DoH / DNS riêng đã gỡ khỏi hướng dẫn người dùng** (2026-11-15) — Shadowrocket MITM là đường duy nhất.
 
 **B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách · Zalo 083.3399.553**
 
@@ -33,37 +33,39 @@
      │  Frame workers (4 accounts CF, round-robin+failover) │
      │  locket-filter-frame v2.0.0 (dual-auth)          │
      └──────────────────────────────────────────────────┘
-
-┌─ Tầng DNS (bổ trợ, mọi lúc) ───────────────────┐
-│  (.mobileconfig "B1sTeam DNS — LocketGold")     │
-│   └─ DNSSettings → DoH: doh.b1s.id.vn/<token>   │
-└─────────────────────────────────────────────────┘
 ```
 
-**3 thành phần chính:**
+**2 thành phần chính:**
 
 | # | Thành phần | Vai trò |
 |---|---|---|
 | 1 | **Shadowrocket** (`ios/alfretro-allinone.conf` v7.8.0) | MITM / unlock Gold / kill ads + telemetry |
-| 2 | **DoH** (worker `b1steam-dns` @ `doh.b1s.id.vn`) | RFC 8484 — blocklist 7 nhóm (telemetry/ads-global/ads-vn), pass-through Locket, fallback 1.1.1.1, stale-if-error 24h, **không log domain** |
-| 3 | **Frame workers** (4 accounts CF) | Vẽ Khung Kawaii lên ảnh (round-robin, cooldown nếu lỗi) |
+| 2 | **Frame workers** (4 accounts CF) | Vẽ Khung Kawaii lên ảnh (round-robin, cooldown nếu lỗi) |
+
+<details><summary>Hạ tầng DoH (không cần cho người dùng cuối)</summary>
+
+DoH worker `b1steam-dns` (doh.b1s.id.vn, RFC 8484) vẫn chạy production cho mục đích nội bộ/kỹ thuật,
+nhưng **người dùng không cài .mobileconfig và không cần tài khoản NextDNS riêng nữa** — đã gỡ khỏi toàn bộ hướng dẫn người dùng (2026-11-15). MITM on-device là đường duy nhất.
+
+</details>
 
 ---
 
-## Cài đặt từng bước (10 bước — 5 phút)
+## Cài đặt từng bước (9 bước — 5 phút)
 
 1. **Cài Shadowrocket** — App Store → tìm **Shadowrocket** (ID 932747118, ~$2.99 — mua 1 lần). App chính thức của App Store, không jailbreak.
-2. **Tải .conf của bạn** — vô **b1s.id.vn/locketvip** → đăng nhập → bấm **Kích hoạt free** → bấm **Tải .conf** (license đã nhúng sẵn; file `alfretro-*.conf` / `.sgmodule` — cả 2 đều đọc được).
+2. **Tải .conf của bạn** — vô **b1s.id.vn/locketvip** → đăng nhập → bấm **Kích hoạt free** → bấm **Tải .conf** (license đã nhúng sẵn; file `alfretro-*.conf` / `.sgmodule` — cả 2 đều đọc được). *Trên web: bấm ngay Bước 2 trong phần “Hướng dẫn từng bước” — file tải về kèm hướng dẫn, tiến trình được nhớ tự động.*
 3. **Bật HTTPS giải mã (MITM)** — Shadowrocket → tab **Cấu hình** → chạm vào file vừa tải → nút **(i)** → **HTTPS解密 (HTTPS Decryption)**: BẬT, hostnames giữ nguyên (Locket · RevenueCat · Firebase).
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** → đợi ~2s — chứng chỉ gốc được tạo ngay trên máy bạn.
 5. **Cài hồ sơ chứng chỉ** — Safari tự mở “Hồ sơ đã tải” → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → chọn **Shadowrocket Root CA** → **Cài đặt** → nhập mật mã → **Xong**.
 6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → **Tiếp tục**. Thiếu bước này → Gold **không** hiện.
 7. **Bật VPN** — Shadowrocket → tab **Home** → gạt lên **BẬT** → iOS hỏi “Cho phép cấu hình VPN?” → **Cho phép** → biểu tượng **VPN** hiện trên status bar.
 8. **Xóa Locket → tải lại** — xóa hẳn Locket khỏi máy → App Store → tải lại **Locket** → đăng nhập lại bằng Apple ID / Google cũ — app sẽ đọc lại entitlement Gold vừa được MITM.
-9. **Mở Locket → Gold ✦** — đợi 5–10 giây → huy hiệu Gold ✦, video 60s · 163+ caption · khung Kawaii · Widget Gold · 0 quảng cáo.
-10. **Cần DNS? Cài trước khi tắt VPN** — nếu Locket / B1sTeam hiện yêu cầu cài DNS (hoặc bạn muốn chặn quảng cáo toàn máy): **b1s.id.vn/locketvip#dns** → **Cấp DNS riêng** → tải **B1sTeam-DNS*.mobileconfig** → Cài đặt → quay lại Locket. **Chỉ tắt VPN SAU KHI DNS cài xong.**
+9. **Mở Locket → Gold ✦** — đợi 5–10 giây → huy hiệu Gold ✦, video 60s · 163+ caption · khung Kawaii · Widget Gold · 0 quảng cáo. **Hoàn thành ✦**
 
-> Xong ✦ Gold vĩnh viễn 0₫. Giữ VPN bật khi dùng Locket; tắt VPN chỉ an toàn khi DoH đã cài. File `.conf` chứa license riêng của bạn — không chia sẻ. Đổi máy / mất cert → lặp lại bước 3 → 6.
+> Xong ✦ Gold vĩnh viễn 0₫. Giữ VPN bật khi dùng Locket. File `.conf` chứa license riêng của bạn — không chia sẻ. Đổi máy / mất cert → lặp lại bước 3 → 6.
+>
+> **DoH / DNS riêng đã gỡ khỏi hướng dẫn** (2026-11-15): người dùng không cần cài `.mobileconfig` hay tài khoản NextDNS riêng nữa — Shadowrocket MITM là đường duy nhất cần thiết.
 
 ---
 
@@ -92,7 +94,7 @@ ios/            # Shadowrocket (v7.8.0) — nguồn chân lý Shadowrocket
   alfretro-allinone.conf   # Nguồn chính
   locketgold.sgmodule      # GENERATED (build.mjs) — %APPEND% [MITM]
   conf.html / module.html  # Landing cute → /locketvip
-  locketgold.mobileconfig  # Demo .mobileconfig bổ trợ DoH (cho ReadMe; .mobileconfig cá nhân gen bởi backend)
+  locketgold.mobileconfig  # [legacy] .mobileconfig demo — DoH đã gỡ khỏi hướng dẫn người dùng (2026-11-15)
   README.md     # Hướng dẫn người dùng cuối
 edge/           # B1sTeam Edge Gateway (workers 14.31, strict allowlist, zero logging)
 frame-worker/   # locket-filter-frame v2.0.0 (dual auth)
@@ -110,7 +112,7 @@ CHANGELOG.md / LICENSE.md / SECURITY.md / README.md
 3. CDN HTTPS (`raw.githubusercontent.com`) + backend `locket.b1s.id.vn` custom domain HTTPS.
 4. Verify `GET .../verify?key=&device_id=` **rate-limit 120 req/10min/key** + device deterministic id `mitm-<hash>`.
 5. MITM allowlist: Locket/RC/FC/Firebase — **không app nào khác bị can thiệp**.
-6. DoH: không log domain; đếm query tổng; REFUSED chỉ áp khi người dùng của token đó quá hạn mức.
+6. DoH (nội bộ/kỹ thuật, không dành cho người dùng cuối): không log domain; đếm query tổng; REFUSED chỉ áp khi người dùng của token đó quá hạn mức.
 7. Frame worker cần `x-b1s-proxy-key` **hoặc** `x-b1s-license` + `x-b1s-device` (device-bound 60 phút).
 
 ---

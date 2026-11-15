@@ -1,5 +1,14 @@
 # CHANGELOG — LocketGold (public_b1s_locket)
 
+## [3.2.0] — 2026-11-15
+
+**Gỡ DNS riêng khỏi hướng dẫn người dùng; web thành wizard cài đặt nhớ tiến trình**
+
+- Web `/locketvip`: bỏ hẳn section DNS/DoH (`DnsDashboard`, `x-b1s-license` DoH) khỏi trang người dùng; hướng dẫn 10 bước → **9 bước**, chuyển thành **wizard từng bước** (nút Quay lại / Tiếp tục + các chấm bước), **nhớ tiến trình trong localStorage** (`b1steam-install-wizard-v1`) — tắt máy/thoát web mở lại về đúng bước đã dừng; Bước 2 **kèm file tải .conf trực tiếp** (đăng nhập → tải ngay, license nhúng sẵn).
+- Redirect `/dns` → `/locketvip` (bỏ `#dns`).
+- Repo docs: 9 bước cài đặt; DoH/DNS riêng thiết lập "chỉ nội bộ/kỹ thuật", người dùng không cài `.mobileconfig`.
+- Xoá components không dùng: `DnsDashboard`, `dns-client`, `DnsActivationSection`.
+
 ## [3.1.0] — 2026-11-14
 
 **DoH v1.3.0 production + repo prune (chỉ Shadowrocket + DoH + MITM + JS)**

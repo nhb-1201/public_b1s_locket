@@ -2,7 +2,7 @@
 
 > B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
 
-## Cài từng bước (10 bước — 5 phút, khớp b1s.id.vn/locketvip)
+## Cài từng bước (9 bước — 5 phút, khớp b1s.id.vn/locketvip)
 
 1. **Cài Shadowrocket** — App Store (ID 932747118, ~$2.99 — mua 1 lần).
 2. **Tải .conf của bạn** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Tải .conf** (key nhúng sẵn; `.conf` / `.sgmodule` đều được).
@@ -12,10 +12,11 @@
 6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → Tiếp tục.
 7. **Bật VPN** — tab **Home** → gạt **BẬT** → iOS hỏi cho phép thêm cấu hình VPN → **Cho phép**.
 8. **Xóa Locket → tải lại** — xóa hẳn, tải lại từ App Store, đăng nhập lại bằng Apple/Google ID cũ.
-9. **Mở Locket → Gold ✦** — đợi 5–10s → huy hiệu Gold, 60s video, caption, khung Kawaii, Widget Gold, 0 quảng cáo.
-10. **Cần DNS?** — nếu Locket / B1sTeam hiện yêu cầu: [b1s.id.vn/locketvip#dns](https://b1s.id.vn/locketvip#dns) → **Cấp DNS riêng** → tải **B1sTeam-DNS.mobileconfig** → Cài đặt → quay lại Locket → **sau đó mới được tắt VPN.**
+9. **Mở Locket → Gold ✦** — đợi 5–10s → huy hiệu Gold, 60s video, caption, khung Kawaii, Widget Gold, 0 quảng cáo → **Hoàn thành ✦**.
 
-> Xong ✦ Gold vĩnh viễn 0₫. Giữ VPN bật khi dùng Locket; tắt VPN chỉ an toàn khi DoH đã cài. File .conf chứa license riêng — không chia sẻ. Đổi máy → lặp lại bước 3 → 6.
+> Xong ✦ Gold vĩnh viễn 0₫. Giữ VPN bật khi dùng Locket. File .conf chứa license riêng — không chia sẻ. Đổi máy → lặp lại bước 3 → 6.
+>
+> **DoH / DNS riêng đã gỡ khỏi hướng dẫn** (2026-11-15) — Shadowrocket MITM là đường duy nhất.
 
 ## Build (dành cho B1sTeam)
 
