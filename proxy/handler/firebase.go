@@ -10,98 +10,8 @@ import (
 // FirebaseAttentionMessage — banner thông báo gắn vào Remote Config (branding).
 const FirebaseAttentionMessage = "B1sTeam Activated (Gold Lifetime)!"
 
-// FirebaseGoldFlags — toàn bộ cờ bật Gold/VIP trong Remote Config (giá trị chuỗi).
-//
-// Mirror shadowrocket/js/b1s_firebase_response.js (file MITM on-device đã chạy ổn định).
-// Remote Config của Firebase dùng giá trị chuỗi, nên mọi cờ ghi "true" / "enabled".
-var FirebaseGoldFlags = map[string]string{
-	// ── Gold / VIP ──
-	"is_gold":                "true",
-	"is_premium":             "true",
-	"is_subscriber":          "true",
-	"is_subscribed":          "true",
-	"subscribed":             "true",
-	"gold_enabled":           "true",
-	"premium_enabled":        "true",
-	"has_gold":               "true",
-	"has_premium":            "true",
-	"has_access":             "true",
-	"locket_gold_enabled":    "true",
-	"gold_badge_profile_menu": "true",
-	"gold_since_badge":       "true",
-	"profile_badge_visible":  "true",
-	"beta_features_enabled":  "true",
-	"all_filters_free":       "true",
-	"can_use_ai_filter":      "true",
-	"can_generate_filtered_image": "true",
-
-	// ── Khung VIP (camera / photo / widget) ──
-	"camera_frame_enabled":        "true",
-	"photo_frame_enabled":         "true",
-	"frames_enabled":              "true",
-	"camera_frames":               "enabled",
-	"photo_frames":                "enabled",
-	"frames":                      "enabled",
-	"camera_frame_overlay_enabled": "true",
-	"photo_frame_overlay_enabled":  "true",
-	"custom_widget_frames_enabled": "true",
-	"widget_frames_enabled":       "true",
-	"widget_frame_enabled":        "true",
-	"app_icon_picker_enabled":     "true",
-	"app_icons_enabled":           "true",
-
-	// ── Caption VIP ──
-	"captions_enabled":                   "true",
-	"overlay_navigator_enabled":          "true",
-	"link_caption_link_enabled":          "true",
-	"music_caption_enabled":              "true",
-	"music_caption_song_preview_enabled": "true",
-
-	// ── Widget Gold ──
-	"widget_frame_event_max_images":     "5",
-	"widget_badge_enabled":              "true",
-	"widget_badge_v2":                   "true",
-	"widget_stale_state_enabled":        "false",
-	"widget_last_sent_indicator":        "false",
-	"android_widget_frame_event_enabled": "true",
-
-	// ── Streak recovery ──
-	"streak_recovery":            "enabled",
-	"streak_visualization":       "true",
-	"streak_visualization_style": "gradient",
-
-	// ── Tắt quảng cáo + telemetry ──
-	"remove_ads":                   "enabled",
-	"history_ads_mode":             "off",
-	"history_ads_prefetch_count":   "0",
-	"history_ads_prefetch_immediate": "false",
-	"history_ads_prefetch_reroute": "false",
-	"history_ads_dynamic_insertion": "false",
-	"history_ads_refresh_prefetch_on_foreground": "false",
-	"history_ads_floor_price":      "0",
-	"history_ads_floor_price_att":  "0",
-	"history_ad_log_displayed_on_background": "false",
-	"history_ads_debug_menu":       "false",
-	"sentry_sample_rate":           "0",
-	"sentry_network_tracing":       "false",
-	"sentry_performance_tracking":  "false",
-	"sentry_trace_sample_rate":     "0",
-	"sentry_profiles_sample_rate":  "0",
-
-	// ── Camera premium ──
-	"camera_roll_video_enabled":         "true",
-	"camera_roll_video_upload_enabled":  "true",
-	"longer_camera_roll_videos_enabled": "true",
-	"camera_roll_video_max_duration":    "60.0",
-	"camera_roll_max_duration":          "60.0",
-	"max_video_duration":                "60.0",
-	"video_max_duration":                "60.0",
-	"gold_max_duration":                 "60.0",
-	"video_quality_mbps":                "2.5",
-	"zoom_enabled":                      "true",
-	"flash_button":                      "true",
-	"telephoto":                         "true",
-}
+// FirebaseGoldFlags — bản thân chỉ tồn tại cho compat; mọi flag thật ở firebase_entries.go
+// (build tự động từ _remote_entries.fragment.js — 327 entries).
 
 // FirebasePremiumGates — danh sách mọi feature premium → "enabled".
 var FirebasePremiumGates = []string{
@@ -348,11 +258,17 @@ func mergeFrameEntry(existing string, frames []Frame) string {
 
 // InjectFirebase — ép toàn bộ cờ Gold/VIP + merge catalog khung vào Remote Config.
 //
-// Mirror shadowrocket/js/b1s_firebase_response.js (file MITM on-device):
-//   · entries format: { "name": "value-string" }  (Firebase Remote Config v1)
-//   · parameters / parameterGroups (format cũ) — tương thích dự phòng
-//
-// catalog có thể nil → chỉ ép cờ; workers rỗng → frame URL fallback worker mặc định.
+// Mirror shadowrocket/js/b1s_firebase_response.js + ios build of that fragment.
+// 327 real Locket entries ({entries:{flag:value}}) are copied verbatim — these
+// include camera//mic//captions/filters/frames keys and the B1sTeam branding.
+// On top of that, we:
+//   1. Set cache_ttl_seconds=0 to force the app to refetch after install
+//   2. Set state=UPDATE + templateVersion=<now()> to mark config as fresh
+//   3. Inject feature_gates (all premium gates → "enabled")
+//   4. Inject upsell_features (all gates → false)
+//   5. Merge the B1sTeam Kawaii frame catalog
+//   6. feature_discovery_popup_config → B1sTeam Gold popup
+//   7. Legacy: forceGoldParam for parameterGroups/parameters keys that look gold
 func InjectFirebase(body []byte, catalog *FrameCatalog, workers []string) ([]byte, error) {
 	root, err := decodeObject(body)
 	if err != nil {
@@ -361,34 +277,37 @@ func InjectFirebase(body []byte, catalog *FrameCatalog, workers []string) ([]byt
 
 	entries := childObject(root, "entries")
 
-	// 1) Ép TTL cache = 0 để app luôn đọc RC mới (không "cập nhật thầm lặng").
+	// 1) Merge 327 entries thật của Locket (+ B1sTeam overlay) vào entries map.
+	for k, v := range FirebaseRealEntries {
+		if entries[k] == nil || entries[k] == "" {
+			entries[k] = v
+		} else if _, ok := entries[k].(string); ok {
+			entries[k] = v // overwrite — B1sTeam wins
+		}
+	}
+
+	// 2) Force cache_ttl = 0 để app tự fetch ngay sau khi cài MITM.
 	entries["cache_ttl_seconds"] = "0"
 	entries["client_cache_ttl_sec"] = "0"
 
-	// 2) Ép toàn bộ cờ Gold/VIP/máy ảnh/streak/quảng cáo (chuỗi).
-	for k, v := range FirebaseGoldFlags {
-		entries[k] = v
-	}
-	entries["streak_config"] = buildStreakConfig()
-
-	// 3) Cấu hình JSON lồng nhau (caption / overlay / camera / upsell / paywall).
+	// 3) JSON lồng nhau — caption / overlay / camera / upsell / streak/paywall / RC.
 	entries["overlays_v2_config"] = buildOverlaysV2Config()
 	entries["overlay_dynamic_captions"] = buildOverlayDynamicCaptions()
 	entries["paywall_presentation_config"] = buildPaywallPresentationConfig()
 	entries["upsell_features"] = buildUpsellFeatures()
 	entries["camera_video_recording"] = buildCameraVideoRecording()
+	entries["streak_config"] = buildStreakConfig()
 	entries["feature_gates"] = buildPremiumGates()
 
-	// 4) Popup branding B1sTeam (mở app lần đầu).
+	// 4) Popup branding B1sTeam.
 	entries["feature_discovery_popup_config"] = buildPopupWelcome(time.Now().Unix())
 
-	// 5) Catalog khung Kawaii (nhúng URL worker để app tải ảnh khung được).
+	// 5) Catalog khung Kawaii.
 	if catalog != nil && len(catalog.Frames) > 0 {
 		wf := make([]Frame, 0, len(catalog.Frames))
 		for _, f := range catalog.Frames {
 			wf = append(wf, f)
 		}
-		// b1s_frame_catalog — bản đã gộp id/name/group/premium (giữ nguyên catalog làm DB)
 		b1sCatalog := make([]map[string]any, 0, len(wf))
 		for _, f := range wf {
 			b1sCatalog = append(b1sCatalog, frameEntryFor(f, frameWorkerPick(workers, f.ID)))
@@ -401,14 +320,13 @@ func InjectFirebase(body []byte, catalog *FrameCatalog, workers []string) ([]byt
 			"placement": "above",
 			"frames":    b1sCatalog,
 		})
-		// Ảnh khung widget + photo: app hiển thị khung cho ảnh bạn chụp (event).
 		frameEvent := map[string]any{
-			"uid":               "b1steam_frame_event",
-			"url":               frameWorkerPick(workers, "frame-14-crayon") + "/f/frame-14-crayon",
-			"placement":         "above",
+			"uid":                 "b1steam_frame_event",
+			"url":                 frameWorkerPick(workers, "frame-14-crayon") + "/f/frame-14-crayon",
+			"placement":           "above",
 			"use_local_time_zone": true,
-			"start_at":          "2020-01-01T00:00:00",
-			"end_at":            "2099-12-31T23:59:59",
+			"start_at":            "2020-01-01T00:00:00",
+			"end_at":              "2099-12-31T23:59:59",
 		}
 		entries["photo_frame_event"] = toJSONString(frameEvent)
 		entries["widget_frame_event"] = toJSONString(frameEvent)
@@ -422,7 +340,7 @@ func InjectFirebase(body []byte, catalog *FrameCatalog, workers []string) ([]byt
 
 	root["entries"] = entries
 
-	// Cờ cấp cao (đọc nhanh từ client, không cần parse entries) + branding.
+	// Top-level flags + branding.
 	root["vip"] = true
 	root["is_gold"] = true
 	root["enable_gold"] = true
@@ -430,7 +348,7 @@ func InjectFirebase(body []byte, catalog *FrameCatalog, workers []string) ([]byt
 	root["state"] = "UPDATE"
 	root["templateVersion"] = time.Now().UTC().Format(time.RFC3339Nano)
 
-	// 6) Format cũ (parameters / parameterGroups) — tương thích dự phòng.
+	// legacy parameters/parameterGroups (khi app refactor sang format khác)
 	if params := childObject(root, "parameters"); len(params) > 0 {
 		for name, p := range params {
 			forceLegacyParam(name, p)
