@@ -13,7 +13,7 @@
     <key>PayloadDisplayName</key>
     <string>B1sTeam DNS — LocketGold</string>
     <key>PayloadDescription</key>
-    <string>B1sTeam DNS — Locket &amp; Firebase đi qua DoH riệng của bạn (https://doh.b1s.id.vn/&lt;token của bạn&gt;). Chặn quảng cáo/telemetry, fallback 1.1.1.1 khi rảnh. Web/app khác giữ DNS gốc. DoH là bổ trợ — Shadowrocket MITM là đường chính cho LocketGold.</string>
+    <string>B1sTeam DNS cho LocketGold (DoH) + B1sTeam Root CA để iOS tin cậy MITM của B1sTeam. Hồ sơ được sinh server-side per user từ b1s.id.vn/locketvip → Kích hoạt → Bước 10 (Cài DNS riêng). File trong repo này là mẫu — KHÔNG cài trực tiếp.</string>
     <key>PayloadOrganization</key>
     <string>B1sTeam — b1s.id.vn</string>
     <key>PayloadRemovalDisallowed</key>
@@ -22,17 +22,45 @@
     <array>
       <dict>
         <key>PayloadType</key>
+        <string>com.apple.security.root</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+        <key>PayloadIdentifier</key>
+        <string>vn.b1steam.locketgold.rootca</string>
+        <key>PayloadUUID</key>
+        <string>D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
+        <key>PayloadDisplayName</key>
+        <string>B1sTeam Root CA (EC P-256)</string>
+        <key>PayloadDescription</key>
+        <string>B1sTeam Root CA — proxy MITM Locket/RevenueCat/Firebase qua Shadowrocket MITM của bạn. Sau khi cài: Cài đặt → Cài đặt chung → Giới thiệu → Cài đặt gốc chứng chỉ → bật B1sTeam Root CA.</string>
+        <key>PayloadOrganization</key>
+        <string>B1sTeam — b1s.id.vn</string>
+        <key>PayloadCertificateFileName</key>
+        <string>b1steam-root-ca.crt</string>
+        <key>PayloadCertificateType</key>
+        <string>PKCS1</string>
+        <key>PayloadCertificateUUID</key>
+        <string>D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
+        <key>PayloadCertificateThumbprint</key>
+        <string>DD3829EB1FE6248D86BD4E35C757C97BF6B126B3</string>
+        <key>PayloadCertificate</key>
+        <data>MIICUjCCAfigAwIBAgIUJ/8Cmo5swGGjrcJPvq1ByEiVJzswCgYIKoZIzj0EAwIwdTEYMBYGA1UEAwwPQjFzVGVhbSBSb290IENBMRAwDgYDVQQKDAdCMXNUZWFtMR8wHQYDVQQLDBZCMXNUZWFtIFRydXN0IFNlcnZpY2VzMRkwFwYDVQQHDBBIbyBDaGkgTWluaCBDaXR5MQswCQYDVQQGEwJWTjAeFw0yNjExMTQxMTQxMDlaFw0zNjExMTExMTQxMDlaMHUxGDAWBgNVBAMMD0Ixc1RlYW0gUm9vdCBDQTEQMA4GA1UECgwHQjFzVGVhbTEfMB0GA1UECwwWQjFzVGVhbSBUcnVzdCBTZXJ2aWNlczEZMBcGA1UEBwwQSG8gQ2hpIE1pbmggQ2l0eTELMAkGA1UEBhMCVk4wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQBXjOHbOIDZBQzpYUIR24BikHG3sTa/SShdNe0TyJ+y7vZqvPdAlccvNbH3LPqqGAy4+CG8h2HbAnlF+gK2GCMo2YwZDASBgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQU8YhbjJNo6Bwu9QSBJy4Fr9movi8wHwYDVR0jBBgwFoAU8YhbjJNo6Bwu9QSBJy4Fr9movi8wCgYIKoZIzj0EAwIDSAAwRQIgRBtsyPw+1iqSztBp3U78IsGbkCmjuz9xZgfXa1IfsDACIQDK1CrYyLqrW2nIRxIws1kjhCs3pSAtiwKGuJIx8pqM9Q==</data>
+        <key>ProhibitDisablement</key>
+        <false/>
+      </dict>
+      <dict>
+        <key>PayloadType</key>
         <string>com.apple.dnsSettings.managed</string>
         <key>PayloadVersion</key>
         <integer>1</integer>
         <key>PayloadIdentifier</key>
         <string>vn.b1steam.locketgold.mmb.dns</string>
         <key>PayloadUUID</key>
-        <string>D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
+        <string>E8B7C2A4-3F1D-4A6E-9C5B-7D2A91F04B64</string>
         <key>PayloadDisplayName</key>
         <string>B1sTeam DNS — LocketGold</string>
         <key>PayloadDescription</key>
-        <string>B1sTeam DNS — Locket &amp; Firebase qua DoH. Token của bạn được tạo khi đăng ký trên b1s.id.vn/dns. DoH là bổ trợ cho quảng cáo — Shadowrocket là đường chính để unlock Gold.</string>
+        <string>B1sTeam DoH riêng cho bạn — LocketGold chạy sạch, không cần Shadowrocket cho quảng cáo. Đăng ký tại b1s.id.vn/locketvip → Bước 10.</string>
         <key>PayloadOrganization</key>
         <string>B1sTeam — b1s.id.vn</string>
         <key>DNSSettings</key>
@@ -40,7 +68,7 @@
           <key>DNSProtocol</key>
           <string>HTTPS</string>
           <key>ServerURL</key>
-          <string>https://doh.b1s.id.vn/&lt;token của bạn&gt;</string>
+          <string>https://doh.b1s.id.vn/&#62;token của bạn&lt;</string>
           <key>SupplementalMatchDomains</key>
           <array>
             <string>locketcamera.com</string>
@@ -49,7 +77,13 @@
             <string>locket.camera</string>
             <string>firebaseremoteconfig.googleapis.com</string>
             <string>firebaseremoteconfig.google.com</string>
+            <string>www.remoteconfig.googleapis.com</string>
             <string>us-central1-locket-4252a.cloudfunctions.net</string>
+            <string>api.revenuecat.com</string>
+            <string>api.rc-backup.com</string>
+            <string>rev.cat</string>
+            <string>firebasestorage.googleapis.com</string>
+            <string>storage.googleapis.com</string>
           </array>
         </dict>
         <key>ProhibitDisablement</key>
