@@ -37,13 +37,7 @@
         <string>B1sTeam — b1s.id.vn</string>
         <key>PayloadCertificateFileName</key>
         <string>b1steam-root-ca.crt</string>
-        <key>PayloadCertificateType</key>
-        <string>PKCS1</string>
-        <key>PayloadCertificateUUID</key>
-        <string>D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
-        <key>PayloadCertificateThumbprint</key>
-        <string>DD3829EB1FE6248D86BD4E35C757C97BF6B126B3</string>
-        <key>PayloadCertificate</key>
+        <key>PayloadContent</key>
         <data>MIICUjCCAfigAwIBAgIUJ/8Cmo5swGGjrcJPvq1ByEiVJzswCgYIKoZIzj0EAwIwdTEYMBYGA1UEAwwPQjFzVGVhbSBSb290IENBMRAwDgYDVQQKDAdCMXNUZWFtMR8wHQYDVQQLDBZCMXNUZWFtIFRydXN0IFNlcnZpY2VzMRkwFwYDVQQHDBBIbyBDaGkgTWluaCBDaXR5MQswCQYDVQQGEwJWTjAeFw0yNjExMTQxMTQxMDlaFw0zNjExMTExMTQxMDlaMHUxGDAWBgNVBAMMD0Ixc1RlYW0gUm9vdCBDQTEQMA4GA1UECgwHQjFzVGVhbTEfMB0GA1UECwwWQjFzVGVhbSBUcnVzdCBTZXJ2aWNlczEZMBcGA1UEBwwQSG8gQ2hpIE1pbmggQ2l0eTELMAkGA1UEBhMCVk4wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQBXjOHbOIDZBQzpYUIR24BikHG3sTa/SShdNe0TyJ+y7vZqvPdAlccvNbH3LPqqGAy4+CG8h2HbAnlF+gK2GCMo2YwZDASBgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQU8YhbjJNo6Bwu9QSBJy4Fr9movi8wHwYDVR0jBBgwFoAU8YhbjJNo6Bwu9QSBJy4Fr9movi8wCgYIKoZIzj0EAwIDSAAwRQIgRBtsyPw+1iqSztBp3U78IsGbkCmjuz9xZgfXa1IfsDACIQDK1CrYyLqrW2nIRxIws1kjhCs3pSAtiwKGuJIx8pqM9Q==</data>
         <key>ProhibitDisablement</key>
         <false/>
@@ -68,7 +62,7 @@
           <key>DNSProtocol</key>
           <string>HTTPS</string>
           <key>ServerURL</key>
-          <string>https://doh.b1s.id.vn/&#62;token của bạn&lt;</string>
+          <string>https://doh.b1s.id.vn/fly/dns-query</string>
           <key>SupplementalMatchDomains</key>
           <array>
             <string>locketcamera.com</string>
