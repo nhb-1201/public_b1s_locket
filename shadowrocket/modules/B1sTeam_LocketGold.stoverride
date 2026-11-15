@@ -1,0 +1,111 @@
+# B1sTeam — LocketGold (Free) — Shadowrocket Script Override (.stoverride)
+# author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
+#
+# Định dạng "Script Override" của Shadowrocket — dùng khi bạn đã có sẵn một
+# module/conf khác và chỉ muốn ghép thêm bộ script B1sTeam.
+# Cùng bộ script js/*.js với B1sTeam_LocketGold.sgmodule.
+#
+# ⚠ Shadowrocket chạy script khớp ĐẦU TIÊN cho mỗi phase ⇒ thứ tự dưới đây có ý nghĩa.
+
+name: B1sTeam — LocketGold (Free)
+desc: LocketGold trọn đời 0₫ (MITM on-device): RevenueCat Gold vĩnh viễn, Firebase RC bật cờ VIP, gỡ blur + mở paywall, khung Kawaii qua worker B1sTeam, photobooth/overlay, badge Gold. B1sTeam — b1s.id.vn
+version: 4.0.0
+author: B1sTeam · Nguyễn Hoàng Bách
+homepage: https://b1s.id.vn/locketvip
+
+http:
+  mitm:
+    - "api.revenuecat.com"
+    - "*.rc-backup.com"
+    - "rev.cat"
+    - "*.firebaseremoteconfig.googleapis.com"
+    - "*.firebaseremoteconfig.google.com"
+    - "*.remoteconfig.googleapis.com"
+    - "*.locketcamera.com"
+    - "locket.camera"
+    - "us-central1-locket-4252a.cloudfunctions.net"
+    - "*.firebasestorage.googleapis.com"
+    - "storage.googleapis.com"
+  script:
+    # ── 1. PHOTOBOOTH / OVERLAY ──
+    - match: ^https?:\/\/(firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/.*
+      name: b1s_upload_frame
+      type: request
+      requires-body: true
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_upload_frame.js
+    - match: ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*generateFilteredImage.*
+      name: b1s_photobooth_request
+      type: request
+      requires-body: true
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_photobooth_request.js
+    - match: ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*generateFilteredImage.*
+      name: b1s_photobooth_response
+      type: response
+      requires-body: true
+      max-size: -1
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_photobooth_response.js
+    # ── 2. PROFILE / BADGE GOLD ──
+    - match: ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*(changeProfileInfo|\/profile|\/users\/).*
+      name: b1s_profile_request
+      type: request
+      requires-body: true
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_profile_request.js
+    - match: ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*(changeProfileInfo|\/profile|\/users\/).*
+      name: b1s_profile_response
+      type: response
+      requires-body: true
+      max-size: -1
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_profile_response.js
+    # ── 3. KHUNG (frame router) ──
+    - match: ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*frame.*
+      name: b1s_frame_router
+      type: response
+      requires-body: true
+      max-size: -1
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_frame_router.js
+    # ── 4. LOCKET API tổng quát ──
+    - match: ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*
+      name: b1s_locket_api_response
+      type: response
+      requires-body: true
+      max-size: -1
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_locket_api_response.js
+    # ── 5. REVENUECAT ──
+    - match: ^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.*
+      name: b1s_revenuecat_request
+      type: request
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_revenuecat_request.js
+    - match: ^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.*
+      name: b1s_revenuecat_response
+      type: response
+      requires-body: true
+      max-size: -1
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_revenuecat_response.js
+    # ── 6. FIREBASE REMOTE CONFIG ──
+    - match: ^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.*
+      name: b1s_firebase_request
+      type: request
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_firebase_request.js
+    - match: ^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.*
+      name: b1s_firebase_response
+      type: response
+      requires-body: true
+      max-size: -1
+      timeout: 30
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_firebase_response.js
+    # ── 7. HEADER LICENSE (lưới an toàn — luôn đứng cuối) ──
+    - match: ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*
+      name: b1s_conf_header
+      type: request
+      timeout: 20
+      script-path: https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_conf_header.js

@@ -1,0 +1,138 @@
+# B1sTeam — LocketGold (Free) — Shadowrocket Module (bộ script tách lớp)
+# author: B1sTeam | b1s.id.vn | @b1steam | github.com/nhb-1201/public_b1s_locket
+#
+# Mọi script trong module là mã B1sTeam tự viết — mỗi script MỘT MỐI QUAN TÂM
+# (request/response riêng, tự chứa, không phụ thuộc script khác).
+#
+# ⚠ THỨ TỰ TRONG [Script] CÓ Ý NGHĨA:
+#   Shadowrocket chỉ chạy MỘT script khớp ĐẦU TIÊN cho mỗi phase.
+#   Vì vậy các pattern ở dưới được thiết kế KHÔNG chồng lấn nhau, và script
+#   tổng quát (locket_api_response / conf_header) luôn đứng CUỐI làm lưới an toàn.
+#
+# License key: placeholder __LICENSE_KEY__ được backend thay lúc sinh bản phát hành.
+# Cài: Shadowrocket → Module → "+" → dán link module → BẬT → Cấu hình → (i) → HTTPS解密 BẬT.
+
+#!name = B1sTeam — LocketGold (Free)
+#!version = 4.0.0
+#!updated = 2026-11-14
+#!desc = LocketGold trọn đời 0₫ trên iPhone (MITM on-device, không server trung gian): RevenueCat Gold vĩnh viễn, Firebase Remote Config bật cờ VIP, gỡ blur + mở paywall, khung Kawaii qua worker B1sTeam, photobooth/overlay, badge Gold. B1sTeam — b1s.id.vn
+#!author = B1sTeam · Nguyễn Hoàng Bách
+#!homepage = https://b1s.id.vn/locketvip
+#!url = https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold.sgmodule
+#!tgchannel = https://zalo.me/0833399553
+#!updateInterval = 43200
+
+[General]
+bypass-system = true
+skip-proxy = *.local,*.crashlytics.com,captive.apple.com
+tun-excluded-routes = 192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
+dns-server = doh://doh.b1s.id.vn/fly/dns-query,system
+ipv6 = false
+
+[Rule]
+# ── B1sTeam DoH (DNS-over-HTTPS) ──
+DOMAIN-SUFFIX,doh.b1s.id.vn,DIRECT
+DOMAIN-SUFFIX,b1s.id.vn,DIRECT
+DOMAIN-SUFFIX,locket.b1s.id.vn,DIRECT
+
+# ── Chặn telemetry / quảng cáo (Locket Gold đã bỏ quảng cáo) ──
+DOMAIN-SUFFIX,firebaselogging.googleapis.com,REJECT
+DOMAIN-SUFFIX,firebaselogging-pa.googleapis.com,REJECT
+DOMAIN-SUFFIX,admob.com,REJECT-DROP
+DOMAIN-SUFFIX,googlesyndication.com,REJECT-DROP
+DOMAIN-SUFFIX,doubleclick.net,REJECT-DROP
+DOMAIN-SUFFIX,googleadservices.com,REJECT-DROP
+DOMAIN-SUFFIX,appsflyer.com,REJECT-DROP
+DOMAIN-SUFFIX,appsflyersdk.com,REJECT-DROP
+DOMAIN-SUFFIX,adjust.com,REJECT-DROP
+DOMAIN-SUFFIX,criteo.com,REJECT-DROP
+DOMAIN-SUFFIX,sentry.io,REJECT-DROP
+DOMAIN-SUFFIX,ingest.sentry.io,REJECT-DROP
+DOMAIN-SUFFIX,amplitude.com,REJECT-DROP
+DOMAIN-SUFFIX,mixpanel.com,REJECT-DROP
+DOMAIN-SUFFIX,moloco.com,REJECT-DROP
+DOMAIN-SUFFIX,app-ads-services.com,REJECT-DROP
+DOMAIN-SUFFIX,app-analytics-services.com,REJECT-DROP
+DOMAIN-SUFFIX,app-measurement.com,REJECT-DROP
+DOMAIN-SUFFIX,adservice.google.com,REJECT-DROP
+DOMAIN-SUFFIX,ads.google.com,REJECT-DROP
+DOMAIN-SUFFIX,analytics.google.com,REJECT-DROP
+DOMAIN-SUFFIX,amp-api-edge.apps.apple.com,REJECT-DROP
+
+# ── Ép TCP cho Remote Config (HTTP/3 không qua MITM) ──
+AND,((DOMAIN-SUFFIX,firebaseremoteconfig.googleapis.com),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN-SUFFIX,firebaseremoteconfig.google.com),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN-SUFFIX,remoteconfig.googleapis.com),(PROTOCOL,UDP)),REJECT
+DOMAIN,firebaseremoteconfigrealtime.googleapis.com,REJECT-DROP
+
+# ── Host trong MITM: đi thẳng (không qua proxy trung gian) ──
+DOMAIN-SUFFIX,revenuecat.com,DIRECT
+DOMAIN-SUFFIX,rc-backup.com,DIRECT
+DOMAIN-SUFFIX,rev.cat,DIRECT
+DOMAIN-SUFFIX,firebaseremoteconfig.googleapis.com,DIRECT
+DOMAIN-SUFFIX,firebaseremoteconfig.google.com,DIRECT
+DOMAIN-SUFFIX,remoteconfig.googleapis.com,DIRECT
+DOMAIN-SUFFIX,locketcamera.com,DIRECT
+DOMAIN-SUFFIX,locket.camera,DIRECT
+DOMAIN-SUFFIX,cloudfunctions.net,DIRECT
+DOMAIN-SUFFIX,firebasestorage.googleapis.com,DIRECT
+DOMAIN-SUFFIX,storage.googleapis.com,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-1.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-2.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-3.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-4.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-5.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-6.workers.dev,DIRECT
+
+[Header Rewrite]
+# ── RevenueCat: gỡ ETag/cache ⇒ RC không trả 304 (body rỗng ⇒ mất Gold) ──
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del x-revenuecat-etag
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del X-RevenueCat-ETag
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del if-none-match
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del If-None-Match
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del if-modified-since
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del If-Modified-Since
+
+# ── Firebase Remote Config: gỡ ETag/cache ──
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del x-firebase-etag
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del x-goog-if-none-match
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del if-none-match
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del If-None-Match
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del if-modified-since
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del If-Modified-Since
+
+# ── Locket Camera API: gỡ cache ──
+^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del if-none-match
+^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del If-None-Match
+^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del if-modified-since
+^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del If-Modified-Since
+
+[Script]
+b1s_upload_frame = type=http-request,pattern=^https?:\/\/(firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_upload_frame.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__
+# ── 1. PHOTObOOTH / OVERLAY (narrow nhất — chạy trước) ──
+b1s_photobooth_request = type=http-request,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*generateFilteredImage.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_photobooth_request.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__
+b1s_photobooth_response = type=http-response,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*generateFilteredImage.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_photobooth_response.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+
+# ── 2. PROFILE / BADGE GOLD ──
+b1s_profile_request = type=http-request,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*(changeProfileInfo|\/profile|\/users\/).*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_profile_request.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__
+b1s_profile_response = type=http-response,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*(changeProfileInfo|\/profile|\/users\/).*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_profile_response.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+
+# ── 3. KHUNG (frame router → worker B1sTeam xoay vòng) ──
+b1s_frame_router = type=http-response,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*frame.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_frame_router.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+
+# ── 4. LOCKET API tổng quát (gỡ blur + mở paywall + badge uid) ──
+b1s_locket_api_response = type=http-response,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_locket_api_response.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+
+# ── 5. REVENUECAT (Gold vĩnh viễn) ──
+b1s_revenuecat_request = type=http-request,pattern=^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_revenuecat_request.js,timeout=30,argument=__LICENSE_KEY__
+b1s_revenuecat_response = type=http-response,pattern=^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_revenuecat_response.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+
+# ── 6. FIREBASE REMOTE CONFIG (cờ VIP) ──
+b1s_firebase_request = type=http-request,pattern=^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_firebase_request.js,timeout=30,argument=__LICENSE_KEY__
+b1s_firebase_response = type=http-response,pattern=^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_firebase_response.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+
+# ── 7. HEADER LICENSE (lưới an toàn — luôn đứng cuối) ──
+b1s_conf_header = type=http-request,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_conf_header.js,timeout=20,argument=__LICENSE_KEY__
+
+[MITM]
+hostname = %APPEND% api.revenuecat.com, *.rc-backup.com, rev.cat, *.firebaseremoteconfig.googleapis.com, *.firebaseremoteconfig.google.com, *.remoteconfig.googleapis.com, *.locketcamera.com, locket.camera, us-central1-locket-4252a.cloudfunctions.net, *.firebasestorage.googleapis.com, storage.googleapis.com

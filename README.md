@@ -1,126 +1,187 @@
-# 💎 LocketGold (Free) ✦ — B1sTeam
+# LocketGold (Free) ✦ B1sTeam
 
-> **Shadowrocket MITM + Frames + DoH (Bước 10, bổ trợ) — Gold VIP vĩnh viễn 0₫.**
-> Toàn bộ source do **B1sTeam** (Nguyễn Hoàng Bách) sở hữu và vận hành.
-> Kiến trúc đơn giản: 1 app (Shadowrocket), 1 file (.conf) — 9 bước là Gold, bước 10 cài DNS riêng nếu muốn.
+> **Mở khoá Gold vĩnh viễn cho Locket — 0₫, mã nguồn mở, tự host được.**
+> B1sTeam — [b1s.id.vn](https://b1s.id.vn) · Zalo `083.3399.553`
 
-**B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách · Zalo 083.3399.553**
+`public_b1s_locket` là **source-of-truth của toàn bộ hệ thống LocketGold (Free)**:
+từ module Shadowrocket, proxy MITM bằng Go chạy trên Fly.io, Root CA, DoH + NextDNS
+xoay vòng, worker Cloudflare phục vụ khung, tới API, admin panel và SQL migration.
 
 ---
 
-## Kiến trúc
+## 1. Cài nhanh (iPhone)
+
+| Bước | Việc cần làm |
+|------|--------------|
+| 1 | Cài **Shadowrocket** (App Store ID `932747118`, ~$2.99 mua 1 lần) |
+| 2 | Cài **Module** — bấm nút 1-Click ở [`index.html`](./index.html) hoặc vào [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** |
+| 3 | **Tạo chứng chỉ**: Shadowrocket → Cấu hình → (i) → HTTPS giải mã → *Tạo* |
+| 4 | **Cài hồ sơ**: Safari mở hồ sơ → Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị → *Cài đặt* |
+| 5 | **Tin cậy**: Cài đặt → Chung → Giới thiệu → *Cài đặt gốc chứng chỉ* → **BẬT** chứng chỉ |
+| 6 | **Bật VPN** → xóa Locket → tải lại → đăng nhập cũ → **Gold ✦** |
+
+> Bước 5 là **bắt buộc** — thiếu nó thì iOS không giải mã được → không có Gold.
+> Hướng dẫn chi tiết 10 bước (kèm DNS riêng ở bước cuối): [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip).
+
+### Deep-link cài 1 chạm
 
 ```
-
-┌─ iPhone / iPad ────────────────────────────┐
-│  Shadowrocket (App Store ID 932747118)      │
-│   └─ alfretro-<tail>.conf                   │  ← tải tại b1s.id.vn/locketvip
-│       ├─ [MITM] hostname=Locket/RC/FC/...   │
-│       ├─ [Script] 6 MITM scripts (v7.8.0)   │
-│       └─ MITM CA của Shadowrocket           │  ← bạn tự tạo & tự tin trên máy bạn
-└────────────────┬────────────────────────────┘
-                 │ HTTPS MITM on-device (chứng thư bạn tin tưởng)
-                 ▼
-     ┌─────────────────┐  verify < 60 phút  ┌──────────────────────────┐
-     │  Locket API     │ ◄──────────────── │ locket.b1s.id.vn         │
-     │  RevenueCat     │                    │  D1: locketgold_licenses  │
-     │  Firebase RC    │                    │  1 key = 1 tài khoản web  │
-     └───────┬─────────┘                    └──────────────────────────┘
-             │  POST generateFilteredImage (license + device auth)
-             ▼
-     ┌──────────────────────────────────────────────────┐
-     │  Frame workers (4 accounts CF, round-robin+failover) │
-     │  locket-filter-frame v2.0.0 (dual-auth)          │
-     └──────────────────────────────────────────────────┘
-┌─ Tầng DNS (Bước 10 — bổ trợ, tuỳ chọn) ─────┐
-│  (.mobileconfig do backend gen per user)     │
-│   └─ DNSSettings → DoH: doh.b1s.id.vn/<token>│
-└───────────────────────────────────────────────┘
+shadowrocket://install?module=<RAW_URL>          ← module (URL KHÔNG encodeURIComponent)
+shadowrocket://config/add/<RAW_URL>              ← .conf
 ```
 
-**3 thành phần chính:**
-
-| # | Thành phần | Vai trò |
-|---|---|---|
-| 1 | **Shadowrocket** (`ios/alfretro-allinone.conf` v7.8.0) | MITM / unlock Gold / kill ads + telemetry |
-| 2 | **Frame workers** (4 accounts CF) | Vẽ Khung Kawaii lên ảnh (round-robin, cooldown nếu lỗi) |
-| 3 | **DoH** (worker `b1steam-dns` @ `doh.b1s.id.vn`, app-level per user) | RFC 8484 — NextDNS riêng (300k/30 ngày), fallback 1.1.1.1, stale-if-error 24h, **không log domain** |
+`shadowrocket://import?module=` **không hoạt động** trên iOS — đừng dùng.
 
 ---
 
-## Cài đặt từng bước (10 bước — vài phút)
+## 2. Cấu trúc repo
 
-1. **Cài Shadowrocket** — App Store → tìm **Shadowrocket** (ID 932747118, ~$2.99 — mua 1 lần). App chính thức của App Store, không jailbreak.
-2. **Cài Module LocketGold** — vào **b1s.id.vn/locketvip** → đăng nhập → bấm **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** *(hoặc Bước 2 → Copy Module URL)* → Shadowrocket tự mở, hỏi **“Add this module?”** → OK. **1-Click**: mở `raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/module-install.html?key=<key>` trong Safari → Shadowrocket hỏi thêm → OK. Shadowrocket → tab **Module** → “LocketGold (Free)” ✓. *Trên web: Bước 2 — tiến trình được nhớ tự động.*
-3. **Bật Module + HTTPS解密 (MITM)** — Shadowrocket → tab **Module** → bật “LocketGold (Free)” → tab **Cấu hình** → (i) cấu hình hiện hành → **HTTPS解密**: BẬT, hostnames giữ nguyên (Locket · RevenueCat · Firebase).
-4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** → đợi ~2s — chứng chỉ gốc được tạo ngay trên máy bạn.
-5. **Cài hồ sơ chứng chỉ** — Safari tự mở “Hồ sơ đã tải” → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → chọn **Shadowrocket Root CA** → **Cài đặt** → nhập mật mã → **Xong**.
-6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → **Tiếp tục**. Thiếu bước này → Gold **không** hiện.
-7. **Bật VPN** — Shadowrocket → tab **Home** → chạm để bật cấu hình (hoặc Module) → iOS hỏi “Cho phép cấu hình VPN?” → **Cho phép** → status bar hiện **VPN** (“Đã kết nối”). **Không thấy gì xảy ra?** → tab Module → “LocketGold (Free)” phải **BẬT** + tab Cấu hình → (i) → **HTTPS解密** BẬT + lặp lại Bước 4–6.
-8. **Xóa Locket → tải lại** — xóa hẳn Locket khỏi máy → App Store → tải lại **Locket** → đăng nhập lại bằng Apple ID / Google cũ — app sẽ đọc lại entitlement Gold vừa được MITM.
-9. **Mở Locket → Gold ✦** — đợi 5–10 giây → huy hiệu Gold ✦, video 60s · 163+ caption · khung Kawaii · Widget Gold · 0 quảng cáo.
-10. **Cài DNS riêng (DoH) — bước cuối, bổ trợ** — vào **b1s.id.vn/locketvip#cai-dat** → lật tới **Bước 10 → Cấp DNS**: 1 tài khoản **NextDNS riêng** (300.000 truy vấn / 30 ngày) + **DoH RFC 8484** — chặn quảng cáo/telemetry toàn máy kể cả khi Shadowrocket tắt. Cài 1 hồ sơ `.mobileconfig` là xong. Shadowrocket vẫn là đường mở Gold — DoH chỉ giúp máy sạch hơn.
-
-> Xong ✦ Gold vĩnh viễn 0₫. Giữ VPN bật khi dùng Locket. File `.conf` chứa license riêng của bạn — không chia sẻ. Đổi máy / mất cert → lặp lại bước 3 → 6.
-
----
-
-## Full tính năng khả dụng
-
-| Tuyến | Những gì sẽ bật |
-|---|---|
-| **RevenueCat** | Entitlement **Gold Lifetime 2099**, subscriptions (`locket_1600_1y`, `com.locket02.premium.yearly`), 4 dòng subscriptions, `Attention: B1sTeam Activated (Gold Lifetime)!` |
-| **Firebase Remote Config** | `state=UPDATE`, `templateVersion=Date.now()`, 131 entries (`feature_gates`, `campaign_badges`, `feature_discovery_popup_config` v.v.) |
-| **Locket API** | `badge=locket_gold`, `is_gold=true`, `is_locked=false`, `requires_gold=false`, `unlocked=true`, unblur |
-| **generateFilteredImage** | Overlay (`khung_/pb_/photobooth/4cut/cmt_locket/sticker/`) → giữ nguyên; AI filters → frame worker |
-| **changeProfileInfo** | Trả 200 tức thì badge Gold + Verified (không round trip) |
-| **Ads/telemetry** | admob, doubleclick, appsflyer, adjust, moloco, criteo, amplitude, mixpanel, sentry.io, amp-api-edge → REJECT-DROP |
-| **Groups** | 5 thành viên mỗi nhóm (Locket Gold) |
-| **Streak Recovery** | Tự động bật |
-| **Khung Kawaii** | 14 khung hiển thị trong ảnh/widget của bạn |
-
----
-
-## Cấu trúc repo
-
-```text
-ios/            # Shadowrocket (v7.8.0) — nguồn chân lý Shadowrocket
-  src/          # MITM scripts source (src/*.src.js) — KHÔNG sửa scripts/*.js
-  scripts/      # OUTPUT generated (commit được; cache-bust qua file name .v7.8.0.js)
-  alfretro-allinone.conf   # Nguồn chính
-  locketgold.sgmodule      # Module Shadowrocket (source-of-truth — %APPEND% [MITM])
-  conf.html / module.html  # Landing cute → /locketvip
-  locketgold.mobileconfig  # Demo .mobileconfig (bổ trợ DoH); file cá nhân gen bởi backend qua /api/v2/dns/mobileconfig
-  README.md     # Hướng dẫn người dùng cuối
-edge/           # B1sTeam Edge Gateway (workers 14.31, strict allowlist, zero logging)
-frame-worker/   # locket-filter-frame v2.0.0 (dual auth)
-assets/         # frames/stickers/icons/banners (CDN + RemoteConfig)
-docs/           # ARCHITECTURE.md — chi tiết kỹ thuật
-CHANGELOG.md / LICENSE.md / SECURITY.md / README.md
+```
+public_b1s_locket/
+├─ index.html               Trang landing (1-click install, live status, gallery)
+├─ shadowrocket/            ★ Module + script MITM (nguồn chân lý)
+│   ├─ js/                  12 script tự chứa (RevenueCat · Firebase · Locket API · Photobooth · Frames)
+│   ├─ modules/             .sgmodule · .snippet · .plugin · .stoverride · .module
+│   ├─ assets/frames/       Ảnh khung + catalog.json
+│   ├─ build.mjs            Build/kiểm tra script + nhúng `__LICENSE_KEY__`
+│   └─ README.md
+├─ proxy/                   ★ MITM proxy Go (Fly.io)
+│   ├─ main.go              TLS listener :8443 · reverse proxy · /health · .mobileconfig tĩnh
+│   ├─ config/config.go     Env-driven config (allow-list SNI, rate-limit, worker pool)
+│   ├─ tls/ca.go            Root CA ECDSA P-256 · forge leaf · SAN list
+│   ├─ tls/cache.go         Cache leaf theo host (TTL 24h · max 256)
+│   ├─ handler/             revenuecat · firebase · locket_api · photobooth · frames
+│   ├─ Dockerfile           Build multi-stage · static binary (CGO_ENABLED=0)
+│   └─ fly.toml             app b1steam-locketgold · region sin · TCP 443 + HTTP 8080
+├─ ca/                      Root CA + sinh hồ sơ iOS (Python, chỉ cần `cryptography`)
+├─ dns/                     ★ Cloudflare Worker DoH
+│   ├─ src/index.js          /<token>/dns-query (NextDNS riêng) · /fly/dns-query (allow-list → Fly)
+│   ├─ src/whitelist.js      danh sách host Locket/RevenueCat/Firebase
+│   ├─ src/rotator.js        xoay vòng NextDNS 80%
+│   ├─ src/ratelimit.js      60 truy vấn / 10 phút / IP
+│   └─ wrangler.toml
+├─ nextdns/                 API client NextDNS + engine xoay vòng 80%
+├─ workers/frames/          6 worker luân phiên phục vụ khung Kawaii (b1steam-frames-1..6)
+├─ api/                     Handler Vercel: module · conf · .mobileconfig · nextdns-create/usage · health
+├─ admin/                   Bảng quản trị (HTML tĩnh) + API HMAC-session
+├─ scanner/                 Quét IP/domain hardcode trong cây module
+├─ sql/migrations/          DDL SQLite/D1 + seed
+├─ tests/                   node:test — license · mobileconfig · rotation · scanner
+├─ ios/                     .conf + .sgmodule dựng sẵn + hồ sơ .mobileconfig mẫu
+├─ assets/                  Icon · khung · sticker
+└─ docs/ARCHITECTURE.md     Sơ đồ luồng dữ liệu chi tiết
 ```
 
 ---
 
-## Security (bảo mật)
+## 3. Kiến trúc
 
-1. **Shadowrocket CA trên máy bạn** — B1sTeam không bao giờ biết private key — không AI/server nào có thể thay hình.
-2. `.conf` **cá nhân hóa** qua license key, server-side (`__LICENSE_KEY__` được thay lúc tải về; không public ở repo).
-3. CDN HTTPS (`raw.githubusercontent.com`) + backend `locket.b1s.id.vn` custom domain HTTPS.
-4. Verify `GET .../verify?key=&device_id=` **rate-limit 120 req/10min/key** + device deterministic id `mitm-<hash>`.
-5. MITM allowlist: Locket/RC/FC/Firebase — **không app nào khác bị can thiệp**.
-6. DoH (Bước 10, tuỳ chọn): không log domain; đếm query tổng; REFUSED chỉ áp khi người dùng của token đó quá hạn mức; 1 tài khoản NextDNS riêng per user.
-7. Frame worker cần `x-b1s-proxy-key` **hoặc** `x-b1s-license` + `x-b1s-device` (device-bound 60 phút).
+```
+ iPhone
+   │  HTTPS (RevenueCat · Firebase · Locket API)
+   ▼
+┌────────────────────────┐   MITM (on-device)   ┌───────────────────────────┐
+│ Shadowrocket           │ ────────────────────► │ Script MITM B1sTeam      │
+│ + Module B1sTeam       │                       │ (shadowrocket/js/*.js)   │
+│ + CA (do bạn tạo)      │ ◄──────────────────── │ ghi đè entitlement Gold  │
+└────────────────────────┘   JSON đã sửa         └───────────────────────────┘
+   │  DNS (DoH)
+   ▼
+┌─────────────────────────────────────────────┐
+│ doh.b1s.id.vn  (Cloudflare Worker)           │
+│  /<token>/dns-query  → NextDNS riêng user    │
+│  /fly/dns-query      → allow-list → IP Fly   │
+└─────────────────────────────────────────────┘
+   │
+   ▼
+┌─────────────────────────────────────────────┐
+│ Fly.io  b1steam-locketgold  (raw TCP :443)  │
+│  Go MITM proxy — forge leaf EC P-256         │
+│  allow-list SNI · rate-limit · không log body│
+└─────────────────────────────────────────────┘
+   │
+   ▼
+┌─────────────────────────────────────────────┐
+│ b1steam-frames-1..6  (Cloudflare Workers)    │
+│  phục vụ khung Kawaii — round-robin          │
+└─────────────────────────────────────────────┘
+```
+
+Chi tiết từng luồng: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).
 
 ---
 
-## Giới hạn & rủi ro (trung thực)
+## 4. Bảo mật
 
-- Chỉ **iOS/iPadOS**. Android không chạy được MITM → không có Gold.
-- App Store chính thức (~$2.99, 1 lần duy nhất).
-- Locket thay đổi API → MITM scripts cần cập nhật (`updateInterval=43200` = 12h, tự update).
-- B1sTeam **không liên kết** với Locket Labs / Apple / RevenueCat / Google.
-- Không phá khóa ga/non-Locket — chỉ ảnh hưởng các hostname trong `.conf` allowlist.
+| Lớp | Cơ chế |
+|-----|--------|
+| Truyền tải | TLS 1.2+ · ECDHE-ECDSA · leaf ECDSA P-256 |
+| MITM | Chỉ giải mã SNI trong **allow-list**; ngoài danh sách → từ chối |
+| CA | Root CA tự ký ECDSA P-256, private key ngoài repo, không log |
+| License | Key `B1S-XXXX-XXXX-XXXX` ký **HMAC-SHA256**, khóa theo thiết bị, so sánh constant-time |
+| Rate-limit | Fly MITM 100 burst / 60 mỗi phút · tĩnh 20/15 · DoH 60 / 10 phút → `429` |
+| Quyền riêng tư | Không log body/ảnh; DNS không lưu query của người dùng |
+| Web | CSP · HSTS preload · `X-Frame-Options: DENY` · COOP/CORP |
+
+Chi tiết: [`SECURITY.md`](./SECURITY.md).
 
 ---
 
-© 2026 **Nguyễn Hoàng Bách — B1sTeam** — xem [`LICENSE.md`](LICENSE.md) — báo lỗ hổng: `nhb.b1steam@gmail.com` / Zalo 083.3399.553
+## 5. Tự host
+
+<details>
+<summary><b>Proxy Go trên Fly.io</b></summary>
+
+```bash
+cd proxy
+export ROOT_CA_CRT="$(cat ../ca/root-ca.crt)"   # PEM
+export ROOT_CA_KEY="$(cat ../ca/root-ca.key)"   # PEM
+export MITM_SANS="api.revenuecat.com,api.rc-backup.com,rev.cat,..."
+fly deploy --depot=false --config fly.toml
+```
+</details>
+
+<details>
+<summary><b>Worker DoH</b></summary>
+
+```bash
+cd dns
+npx wrangler deploy        # cần biến FLY_PROXY_IP, NEXTDNS_PROFILE_*
+```
+</details>
+
+<details>
+<summary><b>6 worker khung</b></summary>
+
+```bash
+cd workers/frames
+bash deploy.sh             # lặp b1steam-frames-1..6
+```
+</details>
+
+<details>
+<summary><b>Test</b></summary>
+
+```bash
+node --test tests/          # license · mobileconfig · rotation · scanner
+node scanner/index.js --self-check
+```
+</details>
+
+---
+
+## 6. Giấy phép & ghi nhận
+
+Mã nguồn trong repo này do **B1sTeam** tự viết. Không sao chép mã nguồn hay asset từ
+dự án khác; chỉ tham khảo *hành vi* công khai để tương thích API của Locket / RevenueCat /
+Firebase. `Locket` là nhãn hiệu của **Locket, Inc.** — B1sTeam không liên kết với họ.
+
+Xem [`LICENSE.md`](./LICENSE.md) và [`SECURITY.md`](./SECURITY.md).
+
+---
+
+## 7. Liên hệ
+
+* Website — <https://b1s.id.vn/locketvip>
+* Zalo — `083.3399.553`
+* GitHub — <https://github.com/nhb-1201/public_b1s_locket>

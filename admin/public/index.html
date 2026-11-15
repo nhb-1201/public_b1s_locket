@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>B1sTeam — LocketGold Admin</title>
+<style>
+  :root {
+    --bg: #0c0a06;
+    --bg-2: #141009;
+    --panel: rgba(30, 24, 14, 0.86);
+    --panel-2: rgba(44, 35, 20, 0.72);
+    --line: rgba(244, 201, 93, 0.18);
+    --gold: #f4c95d;
+    --gold-2: #e2a83c;
+    --gold-soft: rgba(244, 201, 93, 0.12);
+    --text: #f8f1e4;
+    --muted: #b8a888;
+    --ok: #57d98a;
+    --warn: #ffcb6b;
+    --err: #ff7a7a;
+    --radius: 18px;
+    --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(244, 201, 93, 0.16), transparent 60%),
+      radial-gradient(900px 520px at 96% 4%, rgba(226, 168, 60, 0.12), transparent 62%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Inter", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(244, 201, 93, 0.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: 0.5;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 26px 18px 64px; }
+
+  /* ---------------- Login ---------------- */
+  #login-view { display: flex; justify-content: center; align-items: center; min-height: 78vh; }
+  .login-card {
+    width: min(420px, 100%);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    padding: 30px 26px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+    text-align: center;
+  }
+  .login-emoji { font-size: 46px; line-height: 1; }
+  .login-card h1 { font-size: 22px; margin: 12px 0 4px; letter-spacing: 0.3px; }
+  .login-card p.sub { margin: 0 0 22px; color: var(--muted); font-size: 13.5px; }
+
+  label.field { display: block; text-align: left; font-size: 12.5px; color: var(--muted); margin: 0 0 6px; }
+
+  input[type="password"], input[type="text"], select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(12, 10, 6, 0.75);
+    color: var(--text);
+    font-size: 14.5px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input:focus, select:focus {
+    border-color: var(--gold-2);
+    box-shadow: 0 0 0 3px var(--gold-soft);
+  }
+
+  .row { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; }
+  .row.check { justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .row.check input { width: 16px; height: 16px; accent-color: var(--gold-2); }
+
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #24190a;
+    background: linear-gradient(135deg, var(--gold), var(--gold-2));
+    box-shadow: 0 8px 18px rgba(226, 168, 60, 0.25);
+    transition: transform 0.12s ease, filter 0.15s ease;
+  }
+  button:hover { filter: brightness(1.07); transform: translateY(-1px); }
+  button:active { transform: translateY(0); }
+  button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+  button.ghost {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--line);
+    box-shadow: none;
+  }
+  button.danger {
+    background: transparent;
+    color: var(--err);
+    border: 1px solid rgba(255, 122, 122, 0.35);
+    box-shadow: none;
+  }
+  button.small { padding: 7px 12px; font-size: 12.5px; border-radius: 10px; }
+
+  .error-text { color: var(--err); font-size: 13px; min-height: 18px; margin-top: 10px; }
+
+  /* ---------------- Dashboard ---------------- */
+  #dash-view { display: none; }
+  #dash-view.active { display: block; }
+
+  header.top {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 16px 20px; margin-bottom: 18px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .logo {
+    width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center;
+    font-size: 21px; background: linear-gradient(140deg, var(--gold), var(--gold-2));
+    box-shadow: 0 8px 18px rgba(226, 168, 60, 0.3);
+  }
+  .brand h1 { margin: 0; font-size: 17px; }
+  .brand span { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 12px; border-radius: 999px; font-size: 12.5px;
+    border: 1px solid var(--line); background: rgba(12, 10, 6, 0.55); color: var(--muted);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 10px rgba(87, 217, 138, 0.7); }
+  .dot.err { background: var(--err); box-shadow: 0 0 10px rgba(255, 122, 122, 0.7); }
+  .dot.warn { background: var(--warn); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .stat {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .stat .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .stat .v { font-size: 25px; font-weight: 700; margin-top: 6px; color: var(--gold); }
+  .stat .d { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  section.panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; margin-bottom: 18px; box-shadow: var(--shadow);
+  }
+  section.panel h2 {
+    margin: 0 0 4px; font-size: 15.5px; display: flex; align-items: center; gap: 9px;
+  }
+  section.panel .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 14px; }
+  .account {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 15px; padding: 14px 15px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .account .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .account .pid { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12.5px; color: var(--gold); word-break: break-all; }
+  .account .name { font-size: 13px; color: var(--muted); }
+  .account .kv { display: grid; grid-template-columns: 86px 1fr; gap: 4px 8px; font-size: 12.5px; }
+  .account .kv span:nth-child(odd) { color: var(--muted); }
+  .account .kv span:nth-child(even) { word-break: break-all; }
+  .account .actions { display: flex; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+  .pill { font-size: 11.5px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .pill.active { color: var(--ok); border-color: rgba(87, 217, 138, 0.35); }
+
+  .toggle { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+  .toggle input { display: none; }
+  .toggle .track {
+    width: 46px; height: 25px; border-radius: 999px; background: rgba(120, 100, 60, 0.4);
+    border: 1px solid var(--line); position: relative; transition: background 0.18s ease;
+  }
+  .toggle .track::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px;
+    border-radius: 50%; background: var(--muted); transition: transform 0.18s ease, background 0.18s ease;
+  }
+  .toggle input:checked + .track { background: rgba(244, 201, 93, 0.28); }
+  .toggle input:checked + .track::after { transform: translateX(21px); background: var(--gold); }
+
+  .link-row { display: grid; grid-template-columns: 150px 1fr auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .link-row .t { font-size: 12.5px; color: var(--muted); }
+  .link-row code { font-size: 12px; color: var(--gold); word-break: break-all; }
+
+  pre.health {
+    background: rgba(8, 7, 4, 0.72); border: 1px solid var(--line); border-radius: 12px;
+    padding: 13px; overflow: auto; font-size: 12px; color: #d9e6c8; max-height: 260px; margin: 0;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+
+  .toast {
+    position: fixed; right: 18px; bottom: 18px; z-index: 50;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+    padding: 12px 16px; font-size: 13px; box-shadow: var(--shadow); max-width: 340px;
+    opacity: 0; transform: translateY(10px); pointer-events: none; transition: all 0.22s ease;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.err { border-color: rgba(255, 122, 122, 0.45); color: #ffd9d9; }
+  .toast.ok { border-color: rgba(87, 217, 138, 0.45); color: #d6ffe6; }
+
+  .empty { color: var(--muted); font-size: 13px; padding: 14px; text-align: center; }
+  .muted { color: var(--muted); }
+  .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  @media (max-width: 640px) {
+    .link-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= LOGIN ================= -->
+  <section id="login-view">
+    <form class="login-card" id="login-form" autocomplete="on">
+      <div class="login-emoji">🔐</div>
+      <h1>B1sTeam — LocketGold</h1>
+      <p class="sub">Bảng quản trị dịch vụ Free · đăng nhập quản trị</p>
+
+      <label class="field" for="password">Mật khẩu quản trị</label>
+      <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+
+      <div class="row check">
+        <label for="remember" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input id="remember" type="checkbox" /> Ghi nhớ đăng nhập 30 ngày
+        </label>
+      </div>
+
+      <div class="row" style="margin-top:18px;">
+        <button type="submit" id="login-btn" style="width:100%;">Vào bảng quản trị</button>
+      </div>
+      <div class="error-text" id="login-error"></div>
+    </form>
+  </section>
+
+  <!-- ================= DASHBOARD ================= -->
+  <section id="dash-view">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">🧸</div>
+        <div>
+          <h1>B1sTeam · LocketGold (Free)</h1>
+          <span id="subtitle">Bảng quản trị dịch vụ</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="badge"><span class="dot" id="health-dot"></span><span id="health-text">Đang kiểm tra…</span></span>
+        <button class="ghost small" id="refresh-btn">Làm mới</button>
+        <button class="danger small" id="logout-btn">Đăng xuất</button>
+      </div>
+    </header>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="k">Tài khoản NextDNS</div>
+        <div class="v" id="stat-accounts">—</div>
+        <div class="d" id="stat-accounts-sub">đang tải…</div>
+      </div>
+      <div class="stat">
+        <div class="k">Tổng truy vấn</div>
+        <div class="v" id="stat-queries">—</div>
+        <div class="d" id="stat-queries-sub">từ bộ nhớ tạm</div>
+      </div>
+      <div class="stat">
+        <div class="k">Tỉ lệ xoay vòng</div>
+        <div class="v" id="stat-ratio">80%</div>
+        <div class="d">NextDNS / trực tiếp</div>
+      </div>
+      <div class="stat">
+        <div class="k">Trạng thái API</div>
+        <div class="v" id="stat-api">—</div>
+        <div class="d" id="stat-api-sub">b1steam-api</div>
+      </div>
+    </div>
+
+    <section class="panel">
+      <h2>🧭 Chính sách xoay vòng 80%</h2>
+      <p class="hint">Bật/tắt việc dùng profile NextDNS riêng cho 80% lượt truy vấn (phần còn lại đi thẳng về máy chủ Fly.io).</p>
+      <label class="toggle">
+        <input type="checkbox" id="ratio-toggle" checked />
+        <span class="track"></span>
+        <span id="ratio-label">Đang bật — 80% NextDNS / 20% trực tiếp</span>
+      </label>
+    </section>
+
+    <section class="panel">
+      <h2>📦 Tài khoản NextDNS</h2>
+      <p class="hint">Mỗi thẻ hiển thị profile id, email, DNS URL và số truy vấn đã dùng.</p>
+      <div class="cards" id="accounts-list">
+        <div class="empty">Đang tải danh sách…</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>🔗 Liên kết tải cho người dùng</h2>
+      <p class="hint">Nhập license key để lấy module, cấu hình và hồ sơ cài đặt.</p>
+      <div class="row" style="max-width:520px;">
+        <input id="license-key" type="text" placeholder="B1S-XXXX-XXXX-XXXX" class="mono" style="flex:1" />
+        <button class="ghost small" id="copy-key">Sao chép</button>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="link-row">
+          <span class="t">Module (.sgmodule)</span>
+          <code id="link-module">/api/locketgold-module?key=…</code>
+          <button class="small" data-open="link-module">Mở</button>
+        </div>
+        <div class="link-row">
+          <span class="t">Cấu hình (.conf)</span>
+          <code id="link-conf">/api/locketgold-conf?key=…</code>
+          <button class="small" data-open="link-conf">Mở</button>
+        </div>
+        <div class="link-row">
+          <span class="t">Hồ sơ (.mobileconfig)</span>
+          <code id="link-profile">/api/generate-profile?key=…</code>
+          <button class="small" data-open="link-profile">Mở</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>💗 Trạng thái dịch vụ</h2>
+      <p class="hint">Cập nhật tự động mỗi 15 giây.</p>
+      <pre class="health" id="health-json">Đang tải…</pre>
+    </section>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------ */
+  /* Cấu hình                                                            */
+  /* ------------------------------------------------------------------ */
+  var CONFIG = {
+    apiBase: '',                       // cùng origin với trang admin
+    healthUrl: '/api/health',          // endpoint health của lớp API
+    tokenKey: 'b1s_admin_token',       // token lưu trong sessionStorage
+    refreshMs: 15000
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* Tiện ích DOM (không dùng innerHTML với dữ liệu không tin cậy)     */
+  /* ------------------------------------------------------------------ */
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function byId(id) { return document.getElementById(id); }
+
+  function toast(message, kind) {
+    var box = byId('toast');
+    box.textContent = message;
+    box.className = 'toast show' + (kind ? ' ' + kind : '');
+    window.clearTimeout(box._timer);
+    box._timer = window.setTimeout(function () { box.className = 'toast'; }, 3200);
+  }
+
+  function getToken() {
+    try { return window.sessionStorage.getItem(CONFIG.tokenKey) || ''; } catch (e) { return ''; }
+  }
+
+  function setToken(token) {
+    try {
+      if (token) window.sessionStorage.setItem(CONFIG.tokenKey, token);
+      else window.sessionStorage.removeItem(CONFIG.tokenKey);
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  function apiUrl(path) { return CONFIG.apiBase + path; }
+
+  function fetchJson(path, options) {
+    var opts = options || {};
+    var headers = opts.headers || {};
+    headers['Accept'] = 'application/json';
+    var token = getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    if (opts.body) headers['Content-Type'] = 'application/json';
+    return fetch(apiUrl(path), {
+      method: opts.method || 'GET',
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      cache: 'no-store'
+    }).then(function (res) {
+      return res.text().then(function (text) {
+        var json = null;
+        try { json = text ? JSON.parse(text) : null; } catch (e) { json = null; }
+        if (!res.ok) {
+          var message = (json && (json.error || json.message)) || ('HTTP ' + res.status);
+          throw new Error(message);
+        }
+        return json;
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Đăng nhập                                                            */
+  /* ------------------------------------------------------------------ */
+  var loginForm = byId('login-form');
+  var loginError = byId('login-error');
+  var loginBtn = byId('login-btn');
+
+  loginForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    loginError.textContent = '';
+    loginBtn.disabled = true;
+    fetchJson('/api/auth', {
+      method: 'POST',
+      body: { password: byId('password').value, remember: byId('remember').checked }
+    }).then(function (data) {
+      if (!data || !data.ok) throw new Error('Đăng nhập thất bại');
+      setToken(data.token);
+      showDashboard();
+      toast('Đăng nhập thành công!', 'ok');
+    }).catch(function (err) {
+      loginError.textContent = err.message || 'Đăng nhập thất bại';
+    }).finally(function () {
+      loginBtn.disabled = false;
+    });
+  });
+
+  byId('logout-btn').addEventListener('click', function () {
+    setToken('');
+    fetchJson('/api/auth', { method: 'DELETE' }).catch(function () { /* bỏ qua */ });
+    showLogin();
+    toast('Đã đăng xuất');
+  });
+
+  function showLogin() {
+    byId('dash-view').classList.remove('active');
+    byId('login-view').style.display = 'flex';
+    byId('password').value = '';
+  }
+
+  function showDashboard() {
+    byId('login-view').style.display = 'none';
+    byId('dash-view').classList.add('active');
+    loadAccounts();
+    loadRatio();
+    refreshHealth();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Danh sách tài khoản                                                 */
+  /* ------------------------------------------------------------------ */
+  var accountsList = byId('accounts-list');
+
+  function loadAccounts() {
+    fetchJson('/api/accounts').then(function (data) {
+      renderAccounts((data && data.accounts) || []);
+    }).catch(function (err) {
+      accountsList.textContent = '';
+      accountsList.appendChild(el('div', 'empty', 'Không tải được danh sách: ' + err.message));
+    });
+  }
+
+  function renderAccounts(accounts) {
+    accountsList.textContent = '';
+    byId('stat-accounts').textContent = accounts.length;
+    byId('stat-accounts-sub').textContent = accounts.length
+      ? accounts.filter(function (a) { return a.is_active; }).length + ' đang hoạt động'
+      : 'chưa có tài khoản';
+
+    var total = 0;
+    accounts.forEach(function (account) { total += Number(account.query_count) || 0; });
+    byId('stat-queries').textContent = total.toLocaleString('vi-VN');
+
+    if (!accounts.length) {
+      accountsList.appendChild(el('div', 'empty', 'Chưa có tài khoản NextDNS nào.'));
+      return;
+    }
+
+    accounts.forEach(function (account) {
+      var card = el('div', 'account');
+
+      var head = el('div', 'head');
+      var left = el('div');
+      left.appendChild(el('div', 'pid', account.profile_id || '—'));
+      left.appendChild(el('div', 'name', account.profile_name || 'Không tên'));
+      head.appendChild(left);
+      head.appendChild(el('span', 'pill' + (account.is_active ? ' active' : ''),
+        account.is_active ? 'Hoạt động' : 'Ngủ'));
+      card.appendChild(head);
+
+      var kv = el('div', 'kv');
+      var rows = [
+        ['Email', account.email || '—'],
+        ['DNS URL', account.dns_url || '—'],
+        ['Fly IP', account.fly_ip || '—'],
+        ['Truy vấn', String(account.query_count || 0)],
+        ['Rewrite', String(account.rewrites || 0)]
+      ];
+      rows.forEach(function (row) {
+        kv.appendChild(el('span', null, row[0]));
+        kv.appendChild(el('span', null, row[1]));
+      });
+      card.appendChild(kv);
+
+      var actions = el('div', 'actions');
+
+      var rotateBtn = el('button', 'ghost small', 'Xoay');
+      rotateBtn.addEventListener('click', function () {
+        rotateBtn.disabled = true;
+        fetchJson('/api/rotate', { method: 'POST', body: { profile_id: account.profile_id } })
+          .then(function (data) {
+            toast('Đã xoay profile: ' + ((data && data.rewrites) || []).length + ' rewrite', 'ok');
+            loadAccounts();
+          })
+          .catch(function (err) { toast(err.message, 'err'); })
+          .finally(function () { rotateBtn.disabled = false; });
+      });
+      actions.appendChild(rotateBtn);
+
+      var usageBtn = el('button', 'ghost small', 'Usage');
+      usageBtn.addEventListener('click', function () {
+        usageBtn.disabled = true;
+        fetchJson('/api/usage?profile_id=' + encodeURIComponent(account.profile_id))
+          .then(function (data) {
+            toast('Đã dùng ' + (data.queries || 0) + '/' + (data.limit || 0) + ' truy vấn', 'ok');
+            loadAccounts();
+          })
+          .catch(function (err) { toast(err.message, 'err'); })
+          .finally(function () { usageBtn.disabled = false; });
+      });
+      actions.appendChild(usageBtn);
+
+      var delBtn = el('button', 'danger small', 'Xoá');
+      delBtn.addEventListener('click', function () {
+        if (!window.confirm('Xoá profile ' + account.profile_id + '?')) return;
+        delBtn.disabled = true;
+        fetchJson('/api/accounts?profile_id=' + encodeURIComponent(account.profile_id), { method: 'DELETE' })
+          .then(function () { toast('Đã xoá tài khoản', 'ok'); loadAccounts(); })
+          .catch(function (err) { toast(err.message, 'err'); })
+          .finally(function () { delBtn.disabled = false; });
+      });
+      actions.appendChild(delBtn);
+
+      card.appendChild(actions);
+      accountsList.appendChild(card);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Tỉ lệ xoay vòng                                                     */
+  /* ------------------------------------------------------------------ */
+  var ratioToggle = byId('ratio-toggle');
+
+  function loadRatio() {
+    fetchJson('/api/rotate').then(function (data) {
+      var ratio = data && typeof data.ratio === 'number' ? data.ratio : 0.8;
+      ratioToggle.checked = ratio > 0;
+      applyRatio(ratio);
+    }).catch(function () { /* giữ nguyên */ });
+  }
+
+  function applyRatio(ratio) {
+    var percent = Math.round(ratio * 100);
+    byId('stat-ratio').textContent = percent + '%';
+    byId('ratio-label').textContent = ratio > 0
+      ? 'Đang bật — ' + percent + '% NextDNS / ' + (100 - percent) + '% trực tiếp'
+      : 'Đang tắt — 100% trực tiếp';
+  }
+
+  ratioToggle.addEventListener('change', function () {
+    var ratio = ratioToggle.checked ? 0.8 : 0;
+    applyRatio(ratio);
+    fetchJson('/api/rotate', { method: 'POST', body: { ratio: ratio } })
+      .then(function () { toast('Đã cập nhật tỉ lệ xoay vòng', 'ok'); })
+      .catch(function (err) { toast(err.message, 'err'); });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Liên kết tải                                                        */
+  /* ------------------------------------------------------------------ */
+  function updateLinks() {
+    var key = byId('license-key').value.trim();
+    var suffix = key ? '?key=' + encodeURIComponent(key) : '?key=…';
+    byId('link-module').textContent = '/api/locketgold-module' + suffix;
+    byId('link-conf').textContent = '/api/locketgold-conf' + suffix;
+    byId('link-profile').textContent = '/api/generate-profile' + suffix;
+  }
+
+  byId('license-key').addEventListener('input', updateLinks);
+  byId('copy-key').addEventListener('click', function () {
+    var value = byId('license-key').value.trim();
+    if (!value) { toast('Chưa có license key', 'err'); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(
+        function () { toast('Đã sao chép key', 'ok'); },
+        function () { toast('Không sao chép được', 'err'); }
+      );
+    } else {
+      toast('Trình duyệt không hỗ trợ sao chép tự động', 'err');
+    }
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-open]'), function (button) {
+    button.addEventListener('click', function () {
+      var node = byId(button.getAttribute('data-open'));
+      if (!node) return;
+      var url = node.textContent.replace('…', '');
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Health                                                               */
+  /* ------------------------------------------------------------------ */
+  function refreshHealth() {
+    fetch(apiUrl(CONFIG.healthUrl), { headers: { Accept: 'application/json' }, cache: 'no-store' })
+      .then(function (res) { return res.text(); })
+      .then(function (text) {
+        var data = null;
+        try { data = JSON.parse(text); } catch (e) { data = { raw: text }; }
+        byId('health-json').textContent = JSON.stringify(data, null, 2);
+        var ok = data && data.ok === true;
+        byId('health-dot').className = 'dot ' + (ok ? 'ok' : 'err');
+        byId('health-text').textContent = ok ? 'Dịch vụ ổn' : 'Có vấn đề';
+        byId('stat-api').textContent = ok ? 'Ổn' : 'Lỗi';
+        byId('stat-api-sub').textContent = (data && data.service) || 'b1steam-api';
+        byId('subtitle').textContent = 'Phiên bản ' + ((data && data.version) || '—') +
+          ' · ' + ((data && data.time) || '');
+      })
+      .catch(function () {
+        byId('health-dot').className = 'dot err';
+        byId('health-text').textContent = 'Mất kết nối';
+        byId('stat-api').textContent = 'Offline';
+        byId('health-json').textContent = 'Không kết nối được tới API.';
+      });
+  }
+
+  byId('refresh-btn').addEventListener('click', function () {
+    loadAccounts();
+    loadRatio();
+    refreshHealth();
+    toast('Đã làm mới');
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Khởi động                                                            */
+  /* ------------------------------------------------------------------ */
+  updateLinks();
+  window.setInterval(refreshHealth, CONFIG.refreshMs);
+
+  if (getToken()) {
+    fetchJson('/api/auth')
+      .then(function () { showDashboard(); })
+      .catch(function () { setToken(''); showLogin(); });
+  } else {
+    showLogin();
+  }
+})();
+</script>
+</body>
+</html>

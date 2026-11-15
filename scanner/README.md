@@ -1,0 +1,64 @@
+# B1sTeam — Scanner (`scanner/`)
+
+Bộ quét tĩnh cho cây thư mục `shadowrocket/`: tìm **IP cứng** và **domain cứng**
+bị quên trong các module / script, giúp phát hiện endpoint sót lại trước khi
+phát hành.
+
+## Dùng
+
+```bash
+node scanner/index.js                     # quét ../shadowrocket
+node scanner/index.js --dir=./shadowrocket/js
+node scanner/index.js --dns               # phân giải từng domain
+node scanner/index.js --json              # xuất JSON cho CI
+node scanner/index.js --self-check        # chạy assertion nội bộ
+```
+
+## Kết quả
+
+```
+=== B1sTeam · Shadowrocket scanner ===
+Thư mục : D:\...\public_b1s_locket\shadowrocket
+Tệp đã quét : 12
+IP cứng : 137.66.53.108
+Domain : 7
+ - api.revenuecat.com
+ - api.rc-backup.com
+ ...
+```
+
+Ở chế độ `--json`, output gồm `root`, `files`, `ips`, `domains`, `occurrences`
+(và `resolved` khi kèm `--dns`).
+
+## Quy tắc
+
+| Loại      | Regex                                                                   |
+| --------- | ----------------------------------------------------------------------- |
+| IP        | IPv4 hợp lệ (bỏ qua `0.0.0.0`, `127.0.0.1`, `255.255.255.255`)          |
+| Domain URL| host trong `http://` / `https://`                                        |
+| Domain rule| `DOMAIN`, `DOMAIN-SUFFIX`, `hostname`, `Host` (Shadowrocket)            |
+
+Phần mở rộng được quét: `js, mjs, cjs, module, sgmodule, plugin, stoverride,
+snippet, conf, txt, json, yaml, yml, plist, xml, html`. Các thư mục
+`node_modules`, `.git`, `dist`, `build` bị bỏ qua.
+
+## API
+
+```js
+const { findEndpointsInText, scanDir, selfCheck } = require('./scanner');
+
+findEndpointsInText('const ip = "1.2.3.4";', 'a.js');
+// -> { ips: ['1.2.3.4'], domains: [], occurrences: [ { type, value, file, line } ] }
+
+scanDir('./shadowrocket');
+// -> { ips: [], domains: [], occurrences: [], files: 0, root: '…' }
+
+selfCheck();  // -> { ok: true, checks: 8 }
+```
+
+## Chạy thử
+
+```bash
+node --test "scanner/test/**/*.test.js"
+node scanner/index.js --self-check
+```

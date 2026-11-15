@@ -4,112 +4,381 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#12321f">
-<meta name="color-scheme" content="light">
-<meta name="description" content="LocketGold (Free) ✦ B1sTeam — Nâng LocketGold vĩnh viễn 0₫. Cài Shadowrocket 1 chạm qua Safari. Không jailbreak, không app lậu.">
-<title>LocketGold (Free) ✦ B1sTeam — Gold vĩnh viễn 0₫, cài 1 chạm</title>
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="LocketGold (Free) ✦ B1sTeam — mã nguồn đầy đủ: MITM proxy Go trên Fly.io, DoH + NextDNS rotation, Root CA, module Shadowrocket, worker khung luân phiên. Cài 1 chạm, 0₫.">
+<meta name="robots" content="index,follow">
+<title>LocketGold (Free) ✦ B1sTeam — mã nguồn đầy đủ, Gold vĩnh viễn 0₫</title>
 <link rel="icon" type="image/svg+xml" href="assets/icon-locketgold.svg">
+<link rel="canonical" href="https://b1s.id.vn/locketvip">
+<meta property="og:type" content="website">
+<meta property="og:title" content="LocketGold (Free) ✦ B1sTeam — Gold vĩnh viễn 0₫">
+<meta property="og:description" content="MITM proxy Go trên Fly.io · DoH + NextDNS 80% · Root CA ECDSA P-256 · 6 worker khung luân phiên · module Shadowrocket. Mã nguồn mở.">
+<meta property="og:image" content="https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/icon-locketgold-512.png">
+<meta name="twitter:card" content="summary_large_image">
 <style>
-  :root { --g:#12321f; --g2:#1a4a2a; --gold:#ffd166; --gold2:#ffb703; --bg:#fff9ef; --ink:#3d2b00; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font: 15px/1.6 "Be Vietnam Pro", system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--ink); }
-  a { color: var(--g); text-decoration: none; }
-  a:hover { color: #0a2417; }
-  .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
-  .btn { display:inline-flex; align-items:center; gap:10px; padding: 13px 22px; border-radius:16px; background: linear-gradient(135deg, #fff3a0, #ffd166 45%, #ffb703); color: var(--g); font-weight:800; border-bottom:4px solid #a3640a; }
-  .btn-block { display:flex; width:100%; justify-content:center; }
-  .hero { padding: 36px 0 14px; text-align:center; }
-  .chip { display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px; background:#fff; border:2px solid var(--g); font-size:11px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
-  .hero h1 { font-size: 46px; line-height:1.05; letter-spacing: -.03em; color: var(--g); margin: 12px 0; }
-  .hero h1 strong { background: linear-gradient(135deg,#fff3a0,#ffd166,#ffb703); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .grid { display:grid; grid-template-columns: 1.1fr .9fr; gap:24px; align-items:center; }
-  .card { background:#fff; border:2px solid var(--g); border-radius:22px; padding:18px; box-shadow: 6px 6px 0 var(--g); }
-  .card h3 { font-size: 17px; margin-bottom: 10px; color: var(--g); }
-  .list { padding-left: 18px; line-height:1.9; }
-  .btn-primary-shadow { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top: 16px; }
-  .cta { display:block; text-align:center; padding:18px 20px; background:linear-gradient(135deg,#ffd166,#ffb703); border-radius:20px; font-weight:800; font-size:1.05em; color: var(--g); }
-  .cta:hover { transform: translateY(-2px); }
-  .features { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 22px 0 0; }
-  .feature { background:#fff; border:2px solid #1d4630; border-radius:18px; padding:14px; }
-  .feature .icon { font-size: 26px; }
-  .guide { background:#fff; border:2px solid #1d4630; border-radius:22px; padding: 20px 20px 24px; margin-top: 28px; }
-  .guide h2 { font-size: 22px; color: var(--g); margin-bottom: 12px; }
-  .steps { display:grid; grid-template-columns: repeat(4,1fr); gap:10px; }
-  .step { text-align:center; padding:12px; background:#fffaf2; border:2px solid #1d4630; border-radius:14px; }
-  .step .num { font-size: 26px; font-weight:900; color: var(--gold2); -webkit-text-stroke:1px #1d4630; }
-  .faq details { background:#fff; border:2px solid #1d4630; border-radius:14px; padding:12px 14px; margin:10px 0; }
-  .faq summary { cursor:pointer; font-weight:800; color: var(--g); }
-  footer { padding: 32px 0 24px; color:#5c3a00; font-size:12px; text-align:center; }
-  @media (max-width: 900px) {
-    .grid { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 34px; }
-    .steps { grid-template-columns: repeat(2,1fr); }
+  :root{
+    --cream:#F9F3E3; --card:#FFFEF8; --ink:#22301F; --muted:#70694F;
+    --green:#36A05E; --green-dk:#12321f; --green-800:#1a4a2a;
+    --gold:#F0B84E; --gold-2:#ffd166; --gold-3:#ffb703; --gold-edge:#a3640a;
+    --line:#E6DCC2; --radius:22px;
+    --shadow:6px 6px 0 var(--green-dk);
   }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font:15px/1.65 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--cream); color:var(--ink); overflow-x:hidden;
+  }
+  a{color:var(--green-dk);text-decoration:none}
+  a:hover{color:#0a2417}
+  code,kbd{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .label{font-size:11px;font-weight:800;color:var(--green-dk);letter-spacing:.02em}
+  .card{background:var(--card);border:2px solid var(--green-dk);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  /* ── HERO ───────────────────────────────────────────── */
+  header.hero{
+    position:relative;overflow:hidden;margin:16px auto 0;max-width:1120px;border-radius:34px;
+    border:2px solid var(--green-dk);
+    background:
+      radial-gradient(1100px 480px at 12% -12%, rgba(255,209,102,.32), transparent 60%),
+      radial-gradient(900px 560px at 108% 8%, rgba(100,220,150,.22), transparent 55%),
+      linear-gradient(160deg,#12321f 0%,#1a4a2a 55%,#0d2417 100%);
+    color:#f7f4ea;padding:56px 22px 48px;text-align:center;
+    box-shadow:8px 8px 0 rgba(18,50,31,.35);
+  }
+  header.hero::before{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.14;
+    background-image:linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px);
+    background-size:54px 54px;
+    -webkit-mask-image:radial-gradient(ellipse 72% 60% at 50% 36%,#000 22%,transparent 78%);
+    mask-image:radial-gradient(ellipse 72% 60% at 50% 36%,#000 22%,transparent 78%);
+  }
+  .blob{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none}
+  .blob.a{left:-90px;top:-90px;width:230px;height:230px;background:rgba(255,209,102,.16)}
+  .blob.b{right:-70px;bottom:-110px;width:270px;height:270px;background:rgba(143,214,164,.16)}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);
+    font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#ffe9a8;
+  }
+  .hero h1{
+    position:relative;margin:16px 0 0;font-size:clamp(38px,7vw,64px);line-height:.96;letter-spacing:-.035em;font-weight:900;
+  }
+  .hero h1 .gold{
+    background:linear-gradient(135deg,#ffe9a8,#ffd166 45%,#8fd6a4);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero h1 small{display:block;margin-top:10px;font-size:.4em;letter-spacing:.06em;color:var(--gold-2)}
+  .hero p.lead{position:relative;max-width:620px;margin:18px auto 0;font-size:15px;color:rgba(255,255,255,.86)}
+  .hero p.lead b{color:#ffe9a8}
+  .cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:26px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:16px;font-weight:800;
+    border-bottom:4px solid var(--gold-edge);background:linear-gradient(135deg,#fff3a0,#ffd166 45%,#ffb703);
+    color:#3d2b00;box-shadow:0 8px 20px -10px rgba(0,0,0,.6);transition:transform .15s ease;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn.ghost{background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.28);border-bottom-width:2px;color:#fff;box-shadow:none}
+  .btn.ghost:hover{background:rgba(255,255,255,.18)}
+  .stats{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:640px;margin:30px auto 0}
+  .stats div{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);border-radius:16px;padding:10px 6px}
+  .stats b{display:block;font-size:21px;line-height:1;color:#ffe9a8}
+  .stats span{display:block;margin-top:5px;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+
+  /* ── STATUS ─────────────────────────────────────────── */
+  .status{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin:18px 0 0;padding:12px 16px;border-radius:18px;
+    border:2px solid var(--green-dk);background:rgba(255,254,248,.75)}
+  .status .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:7px;background:#9aa38f}
+  .status .dot.ok{background:var(--green)}
+  .status .dot.bad{background:#d33}
+  .status b{font-size:12px}
+  .status small{color:var(--muted);font-size:10.5px;font-weight:600}
+
+  /* ── SECTIONS ───────────────────────────────────────── */
+  section{padding:44px 0 6px}
+  .sec-head{margin-bottom:14px}
+  .sec-head h2{margin-top:3px;font-size:clamp(24px,3.4vw,32px);line-height:1.05;letter-spacing:-.02em;font-weight:900}
+  .sec-head h2 em{font-style:normal;color:var(--green)}
+  .sec-head p{margin-top:7px;max-width:660px;font-size:13px;color:var(--muted)}
+
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .tile{padding:16px;display:flex;flex-direction:column;gap:7px}
+  .tile .ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:#e2f5e8}
+  .tile h3{font-size:14px;font-weight:900;letter-spacing:-.01em}
+  .tile p{font-size:12px;color:var(--muted);line-height:1.6}
+  .tile .mono{margin-top:auto;padding-top:6px;color:var(--green-dk);font-size:9.5px}
+
+  /* code / tree */
+  pre.tree{
+    margin:0;padding:16px 18px;border-radius:18px;border:2px solid var(--green-dk);background:#0d2417;color:#cfe3d3;
+    font-size:11.5px;line-height:1.65;overflow:auto;
+  }
+  pre.tree b{color:#ffe9a8}
+  pre.tree i{color:#8fb79a;font-style:normal}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+  tr:last-child td{border-bottom:0}
+  .yes{color:var(--green-dk);font-weight:800}
+  .no{color:#a0a08e}
+
+  /* frames */
+  .frames{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory}
+  .frames figure{margin:0;flex:0 0 128px;scroll-snap-align:start;border:2px solid var(--green-dk);border-radius:20px;overflow:hidden;background:var(--card);box-shadow:4px 4px 0 var(--green-dk)}
+  .frames img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#1d1a1a}
+  .frames figcaption{padding:8px 6px;text-align:center;font-size:11px;font-weight:800}
+
+  details.faq{background:var(--card);border:2px solid var(--green-dk);border-radius:16px;padding:12px 14px;margin-bottom:9px}
+  details.faq summary{cursor:pointer;font-weight:800;font-size:13px;list-style:none}
+  details.faq summary::-webkit-details-marker{display:none}
+  details.faq p{margin-top:9px;font-size:12px;line-height:1.7;color:var(--muted)}
+
+  .final{position:relative;overflow:hidden;margin:44px 0 0;padding:38px 20px;text-align:center;border-radius:28px;
+    border:2px solid var(--gold-edge);background:linear-gradient(100deg,#ffe9a8,#ffd166 55%,#ffb703);box-shadow:8px 8px 0 var(--gold-edge)}
+  .final h2{font-size:clamp(26px,4.4vw,40px);line-height:1.02;color:#3d2b00;font-weight:900;letter-spacing:-.025em}
+  .final p{margin-top:8px;font-size:13px;font-weight:700;color:#5c3a00}
+  .final .btn{margin-top:20px;background:linear-gradient(135deg,#12321f,#1a4a2a);border-bottom-color:rgba(0,0,0,.35);color:#ffd166}
+  footer{padding:34px 0 26px;text-align:center;font-size:11.5px;color:var(--muted)}
+  footer a{text-decoration:underline;text-underline-offset:2px}
+  @media (max-width:640px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    header.hero{padding:40px 16px 34px;border-radius:26px}
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
 </style>
 </head>
 <body>
 
-<header class="hero"><div class="container">
-  <div class="chip">B1sTeam • Free • 0₫</div>
-  <h1>LocketGold (Free)<br><strong>Gold vĩnh viễn — không Shadowrocket, không jailbreak</strong></h1>
-  <p style="opacity:.9;max-width:600px;margin:0 auto">Cài module B1sTeam 1 chạm để unlock LocketGold trên iPhone. Chạy nội bộ trên máy bạn, không server trung gian cho dữ liệu riêng tư.</p>
-  <div class="btn-primary-shadow">
-    <a class="btn btn-block" href="shadowrocket://install?module=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.sgmodule">⚡ Cài Module 1-Click</a>
-    <a class="btn btn-block" href="shadowrocket://config/add/https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/alfretro-allinone.conf">🔧 Cài .conf 1-Click</a>
+<header class="hero">
+  <span class="blob a"></span><span class="blob b"></span>
+  <span class="chip">✦ FREE · 0₫ · VINH VIỄN</span>
+  <h1>Nâng <span class="gold">LocketGold</span><small>(FREE) ✦</small></h1>
+  <p class="lead">
+    Toàn bộ mã nguồn của hệ thống LocketGold (Free) của B1sTeam —
+    <b>MITM proxy Go trên Fly.io</b>, <b>DoH + NextDNS xoay vòng 80%</b>, <b>Root CA ECDSA P-256</b>,
+    <b>6 worker khung luân phiên</b> và <b>module Shadowrocket</b> — mở, đọc, tự host.
+  </p>
+  <div class="cta">
+    <a class="btn" href="shadowrocket://install?module=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold.sgmodule">⚡ Cài Module 1-Click</a>
+    <a class="btn ghost" href="shadowrocket://config/add/https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/alfretro-allinone.conf">🔧 Cài .conf 1-Click</a>
+    <a class="btn ghost" href="https://b1s.id.vn/locketvip">🌿 Hướng dẫn đầy đủ</a>
   </div>
-</div></header>
-
-<section class="container"><div class="grid">
-  <div class="card">
-    <h3>🔓 Tính năng đã mở khóa</h3>
-    <ul class="list">
-      <li><b>Gold vĩnh viễn</b> đến năm 9999</li>
-      <li>Huy hiệu Gold + tích xanh Verified</li>
-      <li>Video 60s · 1080p · zoom tối đa</li>
-      <li>163+ caption Premium · 14 khung Kawaii</li>
-      <li>Streak Recovery · Widget Gold</li>
-      <li>0 quảng cáo · không pop-up upsell</li>
-      <li><b>Miễn phí</b> · Không cần Shadowrocket bản trả phí (dùng TestFlight free)</li>
-    </ul>
+  <div class="stats">
+    <div><b>24</b><span>đặc quyền</span></div>
+    <div><b>14</b><span>khung Kawaii</span></div>
+    <div><b>0₫</b><span>vĩnh viễn</span></div>
+    <div><b>~5′</b><span>để cài</span></div>
   </div>
-  <div class="card">
-    <h3>📦 Mod / Conf / Profile</h3>
-    <p>Module phụ trách mọi logic MITM (RevenueCat + Firebase + Locket) — hoạt động với Shadowrocket.</p>
-    <ul class="list" style="margin-top:8px">
-      <li><a href="https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.sgmodule">locketgold.sgmodule</a></li>
-      <li><a href="https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/alfretro-allinone.conf">alfretro-allinone.conf</a></li>
-      <li><a href="https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/b1s_unlock.v7.8.0.js">b1s_unlock.v7.8.0.js</a></li>
-      <li><a href="https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/module-install.html">ios/module-install.html (auto-install)</a></li>
-    </ul>
-    <p style="margin-top:10px;font-size:.8em;opacity:.85">Xem chi tiết tại <a href="ios/README.md">ios/README.md</a> · Báo lỗi: <a href="https://zalo.me/0833399533">Zalo 083.3399.553</a></p>
+</header>
+
+<div class="wrap">
+  <!-- STATUS -->
+  <div class="status" id="status">
+    <b><span class="dot" id="dotAll"></span>Trạng thái hệ thống</b>
+    <small id="statusText">đang kiểm tra…</small>
+    <small style="margin-left:auto"><a href="https://github.com/nhb-1201/public_b1s_locket">github.com/nhb-1201/public_b1s_locket</a></small>
   </div>
-</div></section>
 
-<section class="container"><div class="features">
-  <div class="feature"><div class="icon">🚀</div><b>Cài 1 chạm</b><p>Safari tự mở Shadowrocket + hỏi “Add this module?”.</p></div>
-  <div class="feature"><div class="icon">🔐</div><b>Bảo mật cao</b><p>MITM trên máy — dữ liệu của bạn không qua server B1sTeam.</p></div>
-  <div class="feature"><div class="icon">👥</div><b>0₫ vĩnh viễn</b><p>Không phí, không thẻ, không subscription.</p></div>
-  <div class="feature"><div class="icon">🛠️</div><b>Ít thao tác</b><p>Chỉ 3 bước: tải → tin cậy chứng chỉ → mở Locket.</p></div>
-</div></section>
+  <!-- CẤU TRÚC -->
+  <section>
+    <div class="sec-head">
+      <p class="label">📦 CẤU TRÚC REPO</p>
+      <h2>Một repo, <em>toàn bộ hệ thống</em></h2>
+      <p>Không cần dự án ngoài — mọi tầng đều có mã nguồn, cấu hình deploy và test.</p>
+    </div>
+    <pre class="tree"><b>public_b1s_locket/</b>
+├── <i>shadowrocket/</i>        # Module + 12 script MITM (mỗi file tự chứa)
+│   ├── js/                    # b1s_revenuecat_*.js · b1s_firebase_*.js · b1s_locket_api_*.js …
+│   ├── modules/               # .sgmodule · .snippet · .plugin · .stoverride · .module
+│   └── assets/frames/         # ảnh khung + catalog.json
+├── <i>proxy/</i>               # MITM proxy Go (Fly.io) — TLS forge, allow-list SNI, rate-limit
+│   ├── tls/                   # Root CA ECDSA P-256 · cache leaf · SAN list
+│   ├── handler/               # revenuecat · firebase · locket_api · photobooth · frames
+│   └── Dockerfile · fly.toml
+├── <i>ca/</i>                  # gen-ca.py · gen-mobileconfig.py (Root CA + hồ sơ iOS)
+├── <i>dns/</i>                  # Cloudflare Worker DoH — /&lt;token&gt;/dns-query + /fly/dns-query
+├── <i>nextdns/</i>              # API client NextDNS + engine quay vòng 80%
+├── <i>workers/frames/</i>       # 6 worker luân phiên phục vụ khung Kawaii
+├── <i>api/</i>                  # handler Vercel: module · conf · .mobileconfig · nextdns
+├── <i>admin/</i>                # bảng quản trị + API HMAC-session
+├── <i>scanner/</i>              # quét IP/domain hardcode trong cây module
+├── <i>sql/migrations/</i>       # DDL (SQLite/D1) + seed
+├── <i>tests/</i>                # node:test — license · mobileconfig · rotation · scanner
+├── <i>ios/</i>                  # .conf + .sgmodule dựng sẵn + hồ sơ .mobileconfig
+└── <i>assets/</i>               # icon · khung · sticker</pre>
+  </section>
 
-<section class="container guide" id="guide">
-  <h2>📚 Hướng dẫn 4 bước</h2>
-  <div class="steps">
-    <div class="step"><div class="num">1</div><b>Cài Shadowrocket</b><p>App Store ID 932747118 (~$2.99) — dùng free qua TestFlight cũng được.</p></div>
-    <div class="step"><div class="num">2</div><b>Tải Module</b><p>Bấm “Cài Module 1-Click” phía trên — Shadowrocket tự mở, hỏi “Add this module?” → OK.</p></div>
-    <div class="step"><div class="num">3</div><b>Tạo chứng chỉ CA</b><p>Trong Shadowrocket: Cấu hình → (i) → HTTPS giải mã → bật + Tạo chứng chỉ.</p></div>
-    <div class="step"><div class="num">4</div><b>Tin cậy + mở Locket</b><p>Cài đặt → Chung → Cài đặt gốc chứng chỉ → bật “B1sTeam (EC P-256)”. Xóa Locket, App Store tải lại. Mở → Gold ✦</p></div>
+  <!-- KIẾN TRÚC -->
+  <section>
+    <div class="sec-head">
+      <p class="label">🏗️ KIẾN TRÚC</p>
+      <h2>8 tầng, <em>mỗi tầng có lớp phòng thủ</em></h2>
+    </div>
+    <div class="grid g4">
+      <div class="card tile"><div class="ico">🛡️</div><h3>MITM proxy Go — Fly.io</h3><p>Raw TCP :443 → :8443, tự forge leaf EC P-256 theo SNI, chỉ MITM trong allow-list. Ghi đè entitlement + bỏ paywall + mở khung.</p><p class="mono">sin · 137.66.53.108</p></div>
+      <div class="card tile"><div class="ico">🌐</div><h3>DoH Edge — Cloudflare</h3><p><code>/&lt;token&gt;/dns-query</code> = NextDNS riêng từng user; <code>/fly/dns-query</code> = allow-list → IP Fly, còn lại về 1.1.1.1.</p><p class="mono">doh.b1s.id.vn</p></div>
+      <div class="card tile"><div class="ico">🔁</div><h3>NextDNS rotation 80%</h3><p>Mỗi user 1 profile riêng + rewrite domain sang IP Fly. 80% NextDNS / 20% direct, tự fallback 1.1.1.1 khi bão hòa.</p><p class="mono">300k truy vấn / 30 ngày</p></div>
+      <div class="card tile"><div class="ico">🖼️</div><h3>6 worker khung</h3><p>b1steam-frames-1…6 — round-robin, cooldown 60s khi lỗi, cache 24h, phục vụ PNG khung Kawaii.</p><p class="mono">edge · round-robin</p></div>
+      <div class="card tile"><div class="ico">🔑</div><h3>Root CA ECDSA P-256</h3><p>Root CA tự ký CN=B1sTeam Root CA. Private key ngoài repo, không log, không gửi ảnh người dùng lên server.</p><p class="mono">ca/gen-ca.py</p></div>
+      <div class="card tile"><div class="ico">📜</div><h3>Module Shadowrocket</h3><p>12 script MITM tự chứa (RevenueCat · Firebase · Locket API · Photobooth · Frame router), cùng 5 định dạng module.</p><p class="mono">shadowrocket/js</p></div>
+      <div class="card tile"><div class="ico">🗄️</div><h3>Backend D1 · license key</h3><p>Cấp key device-bound, sinh module/.conf/.mobileconfig nhúng sẵn key, ký HMAC-SHA256, audit log.</p><p class="mono">api-b1steam.b1s.id.vn</p></div>
+      <div class="card tile"><div class="ico">🚧</div><h3>Chống lạm dụng</h3><p>Allow-list SNI, rate-limit per-IP, không open-resolver, CSP + HSTS + COOP/CORP, admin có HMAC session token.</p><p class="mono">defense-in-depth</p></div>
+    </div>
+  </section>
+
+  <!-- KHUNG -->
+  <section>
+    <div class="sec-head">
+      <p class="label">🎀 KHUNG KAWAII</p>
+      <h2>14 khung — <em>phục vụ từ worker luân phiên</em></h2>
+    </div>
+    <div class="frames" id="frames"></div>
+  </section>
+
+  <!-- SO SÁNH -->
+  <section>
+    <div class="sec-head">
+      <p class="label">🛣️ HAI ĐƯỜNG</p>
+      <h2>Chọn đường <em>phù hợp với bạn</em></h2>
+    </div>
+    <div class="card" style="overflow-x:auto;padding:4px 0">
+      <table>
+        <thead><tr><th>Tiêu chí</th><th>Đường 1 · Shadowrocket</th><th>Đường 2 · Hồ sơ iOS</th></tr></thead>
+        <tbody>
+          <tr><td>Mở Gold vĩnh viễn</td><td class="yes">✓ Có</td><td class="yes">✓ Có (qua Fly MITM)</td></tr>
+          <tr><td>Cần app bên thứ ba</td><td>Shadowrocket</td><td class="yes">Không — chỉ hồ sơ iOS</td></tr>
+          <tr><td>Dữ liệu qua máy chủ B1sTeam</td><td class="no">Không</td><td>Chỉ DNS + MITM (không lưu)</td></tr>
+          <tr><td>Chặn quảng cáo toàn máy</td><td>Trong phạm vi rule</td><td class="yes">Toàn máy</td></tr>
+          <tr><td>Độ ổn định dài hạn</td><td class="yes">Rất cao</td><td>Phụ thuộc hạ tầng</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- BẢO MẬT -->
+  <section>
+    <div class="sec-head">
+      <p class="label">🔐 BẢO MẬT &amp; MÃ HÓA</p>
+      <h2>Đúng những gì <em>đang chạy thật</em></h2>
+    </div>
+    <div class="grid g3">
+      <div class="card tile"><div class="ico">🔐</div><h3>TLS 1.2+ · ECDHE-ECDSA</h3><p>Leaf ký bằng ECDSA P-256, chỉ cipher suite ECDHE-ECDSA. Bắt tay nhanh, CPU thấp trên iPhone.</p></div>
+      <div class="card tile"><div class="ico">🧾</div><h3>Allow-list SNI</h3><p>Proxy chỉ nhận SNI trong danh sách Locket/RevenueCat/Firebase — SAI là từ chối ngay.</p></div>
+      <div class="card tile"><div class="ico">🧮</div><h3>Rate-limit theo IP</h3><p>Fly MITM 100 burst / 60 mỗi phút · trang tĩnh 20/15 · DoH 60 truy vấn / 10 phút → 429.</p></div>
+      <div class="card tile"><div class="ico">📝</div><h3>Không log nội dung</h3><p>Chỉ log metadata (host, status, thời gian) — không body, không ảnh, không query NextDNS của bạn.</p></div>
+      <div class="card tile"><div class="ico">🧷</div><h3>License HMAC-SHA256</h3><p>Key ký HMAC, khóa theo thiết bị, so sánh constant-time. Sai chữ ký → từ chối, không log key.</p></div>
+      <div class="card tile"><div class="ico">🛡️</div><h3>CSP + HSTS + COOP/CORP</h3><p>connect-src chỉ allow-list domain B1sTeam, HSTS preload, frame-ancestors none, X-Frame-Options DENY.</p></div>
+    </div>
+  </section>
+
+  <!-- CÀI ĐẶT -->
+  <section>
+    <div class="sec-head">
+      <p class="label">🚀 CÀI ĐẶT</p>
+      <h2>4 bước, <em>không mất dữ liệu Locket</em></h2>
+    </div>
+    <div class="grid g4">
+      <div class="card tile"><div class="ico">📲</div><h3>1 · Cài Shadowrocket</h3><p>App Store ID 932747118 (~$2.99, mua 1 lần). Không jailbreak.</p></div>
+      <div class="card tile"><div class="ico">🧩</div><h3>2 · Cài Module</h3><p>Bấm nút 1-Click ở trên → Shadowrocket hỏi “Add this module?” → OK.</p></div>
+      <div class="card tile"><div class="ico">🔏</div><h3>3 · CA + tin cậy</h3><p>Tạo chứng chỉ trong Shadowrocket → cài hồ sơ → Settings → General → About → Certificate Trust Settings → BẬT.</p></div>
+      <div class="card tile"><div class="ico">👑</div><h3>4 · Mở Locket</h3><p>Xóa Locket → tải lại → đăng nhập cũ → thấy huy hiệu Gold ✦.</p></div>
+    </div>
+    <p style="margin-top:12px;font-size:12px;color:var(--muted)">
+      Chi tiết từng bước + kèm hồ sơ DoH riêng (Bước 10) tại
+      <a href="https://b1s.id.vn/locketvip"><b>b1s.id.vn/locketvip</b></a>.
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <div class="sec-head">
+      <p class="label">❓ HỎI ĐÁP</p>
+      <h2>Câu hỏi <em>hay gặp</em></h2>
+    </div>
+    <details class="faq"><summary>LocketGold (Free) là gì?</summary><p>Bản mở khóa đầy đủ đặc quyền Gold của app Locket (huy hiệu Gold, caption Premium, theme mùa, khung Kawaii, Widget, 0 quảng cáo) miễn phí vĩnh viễn qua B1sTeam — không cần thẻ, không cần mua gói của Locket, không jailbreak.</p></details>
+    <details class="faq"><summary>Có copy code của repo khác không?</summary><p>Không. Toàn bộ script MITM, proxy Go, worker DoH, admin panel và test trong repo này do B1sTeam tự viết. Chỉ dùng tham khảo hành vi từ một repo công khai khác, không sao chép mã nguồn hay asset.</p></details>
+    <details class="faq"><summary>Bật VPN mà “không thấy gì xảy ra”?</summary><p>Thứ tự: (1) Module đã BẬT; (2) Cấu hình → (i) → HTTPS解密 BẬT; (3) tạo chứng chỉ → cài hồ sơ → BẬT “tin cậy chứng chỉ”; (4) xóa Locket → tải lại. Thiếu bước 3 thì app không giải mã được → không có Gold.</p></details>
+    <details class="faq"><summary>Ảnh của tôi có lên server không?</summary><p>Không. Module chạy trên máy bạn; proxy Fly chỉ dùng cho đường DNS dự phòng và chỉ log metadata, không ghi body hay ảnh.</p></details>
+    <details class="faq"><summary>Hồ sơ .mobileconfig có mở được Gold không?</summary><p>Hồ sơ luôn chặn được quảng cáo/telemetry và định tuyến DNS Locket về MITM proxy. Nhưng nếu iOS chặn MITM app (certificate pinning) thì app không nhận entitlement — lúc đó dùng Đường 1 (Shadowrocket) để chắc chắn mở Gold.</p></details>
+    <details class="faq"><summary>Tự host được không?</summary><p>Được. Repo có đủ Dockerfile + fly.toml cho proxy, wrangler.toml cho worker DoH và worker khung, vercel.json cho api/. Dùng chung Root CA của bạn, không dùng CA B1sTeam nếu bạn không muốn.</p></details>
+    <details class="faq"><summary>Báo lỗi ở đâu?</summary><p>Zalo <a href="https://zalo.me/0833399553">083.3399.553</a> hoặc mở issue trên GitHub. Nhớ gửi kèm bước đã làm và trạng thái bật/tắt “HTTPS giải mã”.</p></details>
+  </section>
+
+  <!-- CTA -->
+  <div class="final">
+    <p class="mono" style="color:#7a4a00">✦ NÂNG LOCKETGOLD (FREE)</p>
+    <h2>Gold vĩnh viễn<br>đang chờ bạn</h2>
+    <p>0₫ · không cần thẻ · không quảng cáo · huỷ lúc nào cũng được</p>
+    <a class="btn" href="https://b1s.id.vn/locketvip">🚀 Kích hoạt free ngay</a>
   </div>
-</section>
 
-<section class="container faq"><div class="card" style="background:#fff">
-  <h2 style="color:#12321f;margin-bottom:8px">❓ Hỏi đáp</h2>
-  <details><summary>Tôi không quen với Shadowrocket, có cách nào khác không?</summary>Không — LocketGold (Free) yêu cầu Shadowrocket (hoặc .mobileconfig), không có jailbreak.</details>
-  <details><summary>Gold có được vĩnh viễn?</summary>Có — MITM trả về Lifetime Gold (9999-01-09). Apple không can thiệp được.</details>
-  <details><summary>Có vi phạm điều khoản dịch vụ Locket?</summary>LocketGold là phần mềm do B1sTeam tự viết, quyền riêng của bạn tự tạo trên máy bạn.</details>
-  <details><summary>Tôi đã cài .conf trước đó — cần làm gì?</summary>Vào Shadowrocket → Cấu hình → Bật HTTPS giải mã → Tạo chứng chỉ → cài iPhone Cài đặt gốc chứng chỉ → mở Locket.</details>
-  <details><summary>Tôi có thể báo lỗi ở đâu?</summary><a href="https://zalo.me/0833399533">Zalo 083.3399.553</a> · <a href="https://github.com/nhb-1201/public_b1s_locket">GitHub repo</a></details>
-</div></section>
+  <footer>
+    © 2026 B1sTeam — Nguyễn Hoàng Bách ·
+    <a href="https://b1s.id.vn">b1s.id.vn</a> ·
+    <a href="https://github.com/nhb-1201/public_b1s_locket">GitHub</a> ·
+    <a href="https://zalo.me/0833399553">Zalo 083.3399.553</a>
+  </footer>
+</div>
 
-<footer><div class="container">© 2026 B1sTeam — Nguyễn Hoàng Bách · b1s.id.vn · <a href="https://github.com/nhb-1201/public_b1s_locket">GitHub</a> · <a href="https://zalo.me/0833399533">Zalo 083.3399.553</a></div></footer>
+<script>
+(function () {
+  'use strict';
+  // ── Frames gallery (14 khung) ───────────────────────────────────────────
+  var CDN = 'https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main';
+  var FRAMES = [
+    ['assets/images/kawaii/frame-01.png', 'Kawaii 01'],
+    ['assets/images/kawaii/frame-02.png', 'Kawaii 02'],
+    ['assets/images/kawaii/frame-03.png', 'Kawaii 03'],
+    ['assets/images/kawaii/frame-04.png', 'Kawaii 04'],
+    ['assets/images/kawaii/frame-05.png', 'Kawaii 05'],
+    ['assets/images/kawaii/frame-06.png', 'Kawaii 06'],
+    ['assets/images/kawaii/frame-07.png', 'Kawaii 07'],
+    ['assets/frames/frame-08-valentine.png', 'Valentine'],
+    ['assets/frames/frame-09-christmas.png', 'Giáng sinh'],
+    ['assets/frames/frame-10-halloween.png', 'Halloween'],
+    ['assets/frames/frame-11-neon.png', 'Neon'],
+    ['assets/frames/frame-12-gold.png', 'Gold'],
+    ['assets/frames/frame-13-pastel.png', 'Pastel'],
+    ['assets/frames/frame-14-crayon.png', 'Crayon']
+  ];
+  var box = document.getElementById('frames');
+  if (box) {
+    var html = '';
+    for (var i = 0; i < FRAMES.length; i++) {
+      html += '<figure><img loading="lazy" decoding="async" alt="Khung ' + FRAMES[i][1] + '" src="' + CDN + '/' + FRAMES[i][0] + '"><figcaption>' + FRAMES[i][1] + '</figcaption></figure>';
+    }
+    box.innerHTML = html;
+  }
+
+  // ── Live status (không gửi dữ liệu cá nhân) ─────────────────────────────
+  var dotAll = document.getElementById('dotAll');
+  var statusText = document.getElementById('statusText');
+  var targets = [
+    { url: 'https://doh.b1s.id.vn/health', label: 'DoH Edge' },
+    { url: 'https://doh.b1s.id.vn/health/fly', label: 'MITM Fly.io' }
+  ];
+  Promise.all(targets.map(function (t) {
+    return fetch(t.url, { cache: 'no-store' })
+      .then(function (r) { return { label: t.label, ok: r.ok }; })
+      .catch(function () { return { label: t.label, ok: false }; });
+  })).then(function (res) {
+    var okCount = res.filter(function (r) { return r.ok; }).length;
+    if (dotAll) dotAll.className = 'dot ' + (okCount === res.length ? 'ok' : 'bad');
+    if (statusText) {
+      statusText.textContent = res.map(function (r) {
+        return r.label + ': ' + (r.ok ? 'OK' : 'lỗi');
+      }).join(' · ');
+    }
+  }).catch(function () {
+    if (statusText) statusText.textContent = 'không kiểm tra được (mạng/CORS)';
+  });
+})();
+</script>
 </body>
 </html>

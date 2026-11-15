@@ -1,94 +1,105 @@
-# CHANGELOG — LocketGold (public_b1s_locket)
+# Changelog — LocketGold (Free) ✦ B1sTeam
+
+Tất cả thay đổi đáng chú ý của `public_b1s_locket`.
+Định dạng: dựa trên [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/) + [Semantic Versioning](https://semver.org/lang/vi/).
+
+---
+
+## [4.0.0] — 2026-11-15 — ✨ VIẾT LẠI TOÀN BỘ
+
+### ✨ Tính năng mới
+
+* **Viết lại toàn bộ repo** theo kiến trúc mới — `public_b1s_locket` trở thành
+  *source-of-truth* của cả hệ thống (trước đây chỉ chứa module iOS).
+* **`proxy/`** — MITM proxy Go (Fly.io) viết mới hoàn toàn:
+  * Raw TCP `:443 → :8443`, forge leaf **ECDSA P-256** theo SNI.
+  * **Allow-list SNI** — chỉ giải mã Locket / RevenueCat / Firebase; ngoài danh sách → từ chối.
+  * Handler: `revenuecat` (entitlement Gold lifetime) · `firebase` (VIP flags + catalog khung) ·
+    `locket_api` (bỏ paywall, unblur, badge Gold) · `photobooth` (mock `generateFilteredImage`) ·
+    `frames` (pool worker luân phiên).
+  * Rate-limit per-IP: MITM 100 burst / 60 mỗi phút · trang tĩnh 20 burst / 15 mỗi phút → `429`.
+  * `/health`, `/version`, `/B1sTeam-LocketGold.mobileconfig` phục vụ tĩnh.
+* **`ca/`** — `gen-ca.py` (Root CA ECDSA P-256, chỉ cần `cryptography`) và
+  `gen-mobileconfig.py` (hồ sơ iOS đúng chuẩn MDM: `PayloadContent` + `PayloadEnabled` +
+  `PayloadScope=System` + base64 wrap ≤ 76 ký tự/dòng).
+* **`dns/`** — Cloudflare Worker DoH viết mới:
+  * `/<token>/dns-query` → NextDNS riêng từng user.
+  * `/fly/dns-query` → allow-list trả IP Fly `137.66.53.108`, còn lại về `1.1.1.1`
+    (chống trở thành open-resolver).
+  * `/health` + `/health/fly` (probe MITM proxy).
+  * Rate-limit 60 truy vấn / 10 phút / IP.
+* **`nextdns/`** — API client NextDNS (tạo account, thêm/xoá rewrite, đo lượng truy vấn) +
+  engine **xoay vòng 80%** (`rotate.js`) — 80% NextDNS / 20% direct, có fallback `1.1.1.1`.
+* **`workers/frames/`** — 6 Cloudflare Worker (`b1steam-frames-1..6`) phục vụ khung Kawaii:
+  round-robin, cooldown 60 s khi lỗi, cache 24 h.
+* **`shadowrocket/`** — bộ module viết lại:
+  * 12 script MITM **tự chứa** (không `require`/`import`): RevenueCat, Firebase, Locket API,
+    Photobooth, frame router, profile, header.
+  * 5 định dạng module: `.sgmodule` · `.snippet` · `.plugin` · `.stoverride` · `.module`.
+  * `build.mjs` — build deterministic + kiểm tra cú pháp + nhúng `__LICENSE_KEY__`.
+* **`api/`** — handler Vercel: phát module / `.conf` / `.mobileconfig` theo key, tạo & đo
+  NextDNS, health. Ký HMAC-SHA256, device-bound.
+* **`admin/`** — bảng quản trị HTML tĩnh (không build, không CDN) + API HMAC-session,
+  `crypto.timingSafeEqual`, token lưu trong `sessionStorage`.
+* **`scanner/`** — quét IP/domain hardcode trong cây module (`--self-check`, `--dns`, `--json`).
+* **`sql/migrations/`** — DDL SQLite/D1: `nextdns_accounts`, `license_keys`, `frame_catalog`.
+* **`tests/`** — `node:test`: license, `.mobileconfig`, rotation 80%, scanner.
+
+### 🔒 Bảo mật
+
+* Allow-list SNI ở tầng proxy (chống dùng proxy như công cụ MITM bất kỳ).
+* Rate-limit 3 tầng: proxy MITM · trang tĩnh Fly · worker DoH.
+* Root CA / private key **không** nằm trong repo; biến môi trường `ROOT_CA_CRT` / `ROOT_CA_KEY`.
+* Admin panel: so sánh chữ ký constant-time, không render giá trị không tin cậy bằng `innerHTML`.
+* `vercel.json` + header `Cache-Control: no-store` cho mọi response chứa license key.
+
+### 🎨 Giao diện
+
+* `index.html` viết lại: hero "cute" (matcha + vàng), trạng thái live, gallery 14 khung,
+  sơ đồ kiến trúc, bảng so sánh 2 đường, FAQ, CTA — **không phụ thuộc CDN ngoài**.
+* `/locketvip` trên `b1s.id.vn` viết lại: hero + live status + kiến trúc + bảo mật +
+  24 đặc quyền + gallery + wizard 10 bước (tick từng bước, nhớ tiến trình) + FAQ.
+
+### 🔧 Sửa lỗi
+
+* `.mobileconfig`: payload Root CA dùng `PayloadContent` (DER) + `PayloadEnabled=true` +
+  `PayloadScope=System`; base64 wrap ≤ 76 ký tự/dòng — iOS không còn báo thiếu trường.
+* Deep-link module dùng `shadowrocket://install?module=<RAW_URL>`
+  (`shadowrocket://import?module=` không hoạt động trên iOS).
+* `ios/alfretro-allinone.conf` — rule `PROXY` đổi sang `DIRECT` (tránh đen hố khi chưa có proxy),
+  `dns-server = doh://doh.b1s.id.vn/fly/dns-query,system`.
+* D1: thêm bảng catalog khung, pool worker, allow-list SNI, license key, audit log
+  (`0023_locketgold_v4_catalog.sql`).
+
+---
 
 ## [3.7.0] — 2026-11-15
 
-**Áp dụng cơ chế cài 1-Click được kiểm chứng bởi module production (leanhminh2104/locketlam@shadowrocket)**
-
-- Deep link: `shadowrocket://install?module=<url>` (không phải `import?module=`) — kiểm chứng bằng file production của repo tham khảo.
-- Regex escape `/` → `\/` trong `[Script]` + `[Header Rewrite]` (Shadowrocket/Surge delimiter style).
-- Thêm `ios/module-install.html` — trang 1-Click (meta refresh + JS) redirect sang Shadowrocket (`?key=B1S-...`).
-- `[MITM] hostname = %APPEND% host1, host2` (đúng JSON-watch của WLOC + locketlam production).
-- `.conf` đồng bộ (comma-tight).
+* Thêm `PayloadContent` cho payload Root CA trong `.mobileconfig` (iOS yêu cầu DER, không phải `PayloadCertificate`).
 
 ## [3.6.0] — 2026-11-15
 
-**Module fix triệt để — syntax + hướng dẫn import thật sự hoạt động**
+* `ios/module-install.html` — nhận `?key=` và nhúng deep-link `shadowrocket://install?module=`.
+* `ios/conf.html` — dùng `shadowrocket://config/add/<RAW_URL>`.
 
-- Syntax Shadowrocket: `%APPEND% host1, host2` (KHÔNG có dấu phẩy sau %APPEND%; tham khảo module hoạt động thực tế của WLOC — comma-tight: không spaces trong directive script).
-- Hướng dẫn import chuyển sang **paste URL thủ công**: Shadowrocket → “+” → Module → Paste URL → Add (deep link `shadowrocket://import?module=` không hoạt động trên iOS — đã tắt).
-- Web `/locketvip`: Bước 2 — nút chính “Tải Module” (Safari → Shadowrocket), nút “Copy Module URL”; FAQ cập nhật.
-- Format headers (#!name/updated/version...): giữ nguyên, hợp lệ.
+## [3.5.0] — 2026-11-14
 
-## [3.5.0] — 2026-11-15
+* Worker DoH: route `/fly/dns-query` + rate-limit per-IP.
 
-**Module rà soát toàn bộ + sửa format, chuẩn Shadowrocket**
+## [3.4.0] — 2026-11-13
 
-- `ios/locketgold.sgmodule` từ sinh tự động → **source-of-truth** (sửa tay; không sinh từ `.conf`).
-- Sửa module: bỏ `[General]` (DNS/`bypass-system`/`tun-excluded-routes` — không thuộc module), bỏ `FINAL,DIRECT` (sẽ ép mọi traffic về DIRECT), bỏ các rule `,DIRECT` noop; `[Host] firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0` → rule `REJECT-DROP` tương đương.
-- `#!version = 7.8.1`, `#!updated = 2026-11-15`; giữ nguyên 6 MITM scripts (cần thiết).
-- `[Url Rewrite]` giữ nguyên; `header-del` giữ cho từng cặp RC/Locket (Header Rewrite hợp lệ).
-- `build.mjs`: bỏ `buildModule()`; `--check` chỉ còn scripts. Chạy lại 1 lần để đồng bộ `B1S_BUILD`.
-- Docs: đồng bộ file list/thuật ngữ `.module`; frontend: "Cài Module tự động qua Shadowrocket" + nút phụ `.module`.
-- Backend: `/api/v2/locketgold/module/all-in-one?key=` trả file `locketgold-<tail>.module` (đã verify 200).
+* `.conf` hợp nhất `alfretro-allinone.conf`; bỏ file `locketgold.conf` cũ.
+* Bỏ script `locketgold_revenuecat.js` — dùng engine chung `b1s_unlock.js`.
 
-## [3.4.0] — 2026-11-15
+## [3.0.0] — 2026-11-10
 
-**Chuyển hướng cài đặt chính sang Module Shadowrocket (auto-import), bỏ .conf khỏi luồng người dùng**
+* B1sTeam Edge Gateway (`/rc`, `/vip/list`, `/health`) — strict allowlist, không open proxy.
+* Backend license key device-bound + rate-limit 120/10 phút.
 
-- Web `/locketvip`: Bước 2 — nút chính **“Cài Module tự động qua Shadowrocket”** (deep link `shadowrocket://import?module=<url>` — app tự mở & hỏi “Add this module?”), nút phụ **“Tải file .sgmodule”** (thủ công). Key nhúng sẵn, khóa theo thiết bị.
-- Wizard: thêm bước bật Module (“B1sTeam — LocketGold (Free)”) + HTTPS解密; FAQ/VersionCard/docs cập nhật theo module-first.
-- Backend `locket.b1s.id.vn`: `/api/v2/locketgold/module/all-in-one?key=` trả `.sgmodule` đã nhúng license (đã verify 200).
-- README/ios README: 10 bước — bước 2-3 = Module; alt text .conf đã gỡ hoàn toàn.
+## [2.0.0] — 2026-11-05
 
-## [3.3.0] — 2026-11-15
+* Module Shadowrocket đầu tiên: 6 script MITM, 163 caption, 14 khung Kawaii.
 
-**Thêm lại "Bước 10 — DNS DoH của tôi" (NextDNS riêng per user)**
+## [1.0.0] — 2026-10-28
 
-- Web `/locketvip` (wizard): sau Bước 9 (Gold ✦) thêm **Bước 10 — DNS DOH CỦA TÔI**: nhúng `DnsDashboard` ngay trong bước — đăng nhập → **Cấp DNS** (NextDNS riêng 300.000 truy vấn / 30 ngày) → tải `B1sTeam-DNS-gN.mobileconfig` → Cài đặt. Shadowrocket vẫn là đường mở Gold; DoH bổ trợ.
-- Xoá v3.2.0 note "DoH đã gỡ" — khôi phục `DnsDashboard` + `dns-client` từ git.
-- 10 bước hoàn chỉnh, tiến trình (localStorage `b1steam-install-wizard-v2`) nhớ tới bước 10.
-- Docs: 10 bước; DoH quay lại thành bước bổ trợ khuyến nghị (không bắt buộc).
-
-## [3.2.0] — 2026-11-15
-
-**Gỡ DNS riêng khỏi hướng dẫn người dùng; web thành wizard cài đặt nhớ tiến trình**
-
-- Web `/locketvip`: bỏ hẳn section DNS/DoH (`DnsDashboard`, `x-b1s-license` DoH) khỏi trang người dùng; hướng dẫn 10 bước → **9 bước**, chuyển thành **wizard từng bước** (nút Quay lại / Tiếp tục + các chấm bước), **nhớ tiến trình trong localStorage** (`b1steam-install-wizard-v1`) — tắt máy/thoát web mở lại về đúng bước đã dừng; Bước 2 **kèm file tải .conf trực tiếp** (đăng nhập → tải ngay, license nhúng sẵn).
-- Redirect `/dns` → `/locketvip` (bỏ `#dns`).
-- Repo docs: 9 bước cài đặt; DoH/DNS riêng thiết lập "chỉ nội bộ/kỹ thuật", người dùng không cài `.mobileconfig`.
-- Xoá components không dùng: `DnsDashboard`, `dns-client`, `DnsActivationSection`.
-
-## [3.1.0] — 2026-11-14
-
-**DoH v1.3.0 production + repo prune (chỉ Shadowrocket + DoH + MITM + JS)**
-
-**DoH (doh.b1s.id.vn, worker `b1steam-dns` v1.3.0):**
-- Blocklist O(#entries)×endsWith → **O(labels) Set walk** (CPU fix — không còn "rate limit" false-positive khi iOS bắn nhiều query).
-- **Public DoH** `/dns-query` (không token) hoạt động trở lại — blocklist + stale-if-error + 1.1.1.1 fallback (Shadowrocket `.conf` dùng `dns-server = doh.b1s.id.vn/dns-query`).
-- **Fallback 1.1.1.1** (RFC 8484) khi NextDNS bão hòa/lỗi — app vẫn resolve bình thường, không REFUSED giả.
-- REFUSED chỉ áp dụng khi profile hết quota/đã bị revoke — giữ nguyên logic xoay vòng.
-- Stale-if-error 24h; cache fresh 5 phút; D1 counter batch 10s.
-- Deployed lên production (D1 `b1steam`): worker ID `ef49acfd-6bac-4ffd-a4e9-f582b6face93`.
-
-**Repo prune (chỉ giữ 4 thành phần shipping):**
-- Xóa `proxy/` (Python MITM + Go legacy + root CA + watchdog) — Shadowrocket MITM thay thế.
-- Xóa `ca/` (Root CA — Shadowrocket dùng CA máy user), `scanner/`, `tools/`.
-- Xóa `ios/locketgold.conf` (legacy, trùng all-in-one).
-
-**task scheduler**: `B1sTeam-Proxy-Watchdog` đã gỡ (proxy LAN không còn); cổng 443/8443 FREE.
-
-## [3.0.0 / module 7.8.0] — 2026-11-14
-
-**Hoàn thiện triệt để — B1sTeam 100%**
-
-- README viết lại; SECURITY.md; NOTICE; edge/ + frame-worker/ READMEs.
-- `/alfretro` → `/locketvip` toàn repo; module v7.8.0.
-- Backend v3.3.5 (moduleVersion 7.8.0); deploy thành công.
-
-## [2.0.0] — 2026-11-14
-
-- 4 edge frame workers deploy — round-robin + failover.
-
-## [1.x] — trước đó
-
-- Shadowrocket module v7.7.2 — 277/277 tests — post-outage restore từ `74579b2`.
+* Phát hành đầu tiên — trang `/locket` + module cơ bản.

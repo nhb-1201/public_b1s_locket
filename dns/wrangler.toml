@@ -1,0 +1,24 @@
+name = "b1steam-dns"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+workers_dev = true
+
+# ---------------------------------------------------------------------------
+# B1sTeam — LocketGold (Free)
+# DoH worker: /fly/dns-query (allow-list + Fly.io MITM proxy) and
+# /<nextdnsProfileId>/dns-query (per user NextDNS profile).
+# ---------------------------------------------------------------------------
+
+[vars]
+# IP of the Fly.io MITM proxy (137.66.53.108 is the production value).
+FLY_PROXY_IP = "137.66.53.108"
+# Share of the traffic that is served by a per user NextDNS profile.
+ROTATION_RATIO = "0.8"
+# Base URL of the NextDNS resolver.
+NEXTDNS_BASE = "https://dns.nextdns.io"
+# Comma separated list of NextDNS profile ids used by the rotation.
+# Example: NEXTDNS_POOL = "abc123,def456"
+NEXTDNS_POOL = ""
+
+[observability]
+enabled = true

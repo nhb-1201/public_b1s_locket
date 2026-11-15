@@ -1,0 +1,49 @@
+# ---------------------------------------------------------------------------
+# B1sTeam — LocketGold (Free)
+# Worker phục vụ khung ảnh. Sáu worker được deploy song song:
+#   b1steam-frames-1 … b1steam-frames-6
+# Mỗi worker có cùng một mã nguồn, khác nhau ở tên (và ở CDN cache).
+# ---------------------------------------------------------------------------
+
+name = "b1steam-frames"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+workers_dev = true
+
+# Sáu bản deploy dùng chung mã nguồn (deploy.sh gọi `wrangler deploy --env fN`).
+[env.f1]
+name = "b1steam-frames-1"
+
+[env.f2]
+name = "b1steam-frames-2"
+
+[env.f3]
+name = "b1steam-frames-3"
+
+[env.f4]
+name = "b1steam-frames-4"
+
+[env.f5]
+name = "b1steam-frames-5"
+
+[env.f6]
+name = "b1steam-frames-6"
+
+# ---------------------------------------------------------------------------
+# Bindings
+# ---------------------------------------------------------------------------
+# Fallback lấy ảnh trực tiếp từ repo công khai khi chưa bind KV/R2.
+# (Giá trị mặc định đã nằm sẵn trong src/index.ts — nếu muốn đổi, thêm
+#  [vars] ASSET_RAW_BASE = "..." vào TỪNG env.fN vì wrangler không kế thừa
+#  vars cấp top-level cho các env.)
+#
+# [[kv_namespaces]]
+# binding = "FRAMES"
+# id = "<KV_NAMESPACE_ID>"
+#
+# [[r2_buckets]]
+# binding = "FRAMES_BUCKET"
+# bucket_name = "b1steam-frames"
+
+[observability]
+enabled = true

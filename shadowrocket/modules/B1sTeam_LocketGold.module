@@ -1,0 +1,87 @@
+#!name=B1sTeam — LocketGold (Free)
+#!desc=LocketGold trọn đời 0₫ (MITM on-device): RevenueCat Gold vĩnh viễn, Firebase RC bật cờ VIP, gỡ blur + mở paywall, khung Kawaii qua worker B1sTeam, photobooth/overlay, badge Gold. B1sTeam — b1s.id.vn
+#!author=B1sTeam · Nguyễn Hoàng Bách
+#!homepage=https://b1s.id.vn/locketvip
+#!version=4.0.0
+#!updated=2026-11-14
+
+# B1sTeam — Module cho Quantumult X.
+# Cùng bộ script js/*.js với B1sTeam_LocketGold.sgmodule — chỉ khác cú pháp.
+# ⚠ QX chạy script khớp ĐẦU TIÊN cho mỗi phase ⇒ thứ tự trong [Script] có ý nghĩa.
+#
+# Cài: Quantumult X → Phục vụ → Subscription → Resource Parse → dán link module này.
+
+[Rule]
+DOMAIN-SUFFIX,doh.b1s.id.vn,DIRECT
+DOMAIN-SUFFIX,b1s.id.vn,DIRECT
+DOMAIN-SUFFIX,locket.b1s.id.vn,DIRECT
+DOMAIN-SUFFIX,firebaselogging.googleapis.com,REJECT
+DOMAIN-SUFFIX,admob.com,REJECT
+DOMAIN-SUFFIX,googlesyndication.com,REJECT
+DOMAIN-SUFFIX,doubleclick.net,REJECT
+DOMAIN-SUFFIX,googleadservices.com,REJECT
+DOMAIN-SUFFIX,appsflyer.com,REJECT
+DOMAIN-SUFFIX,appsflyersdk.com,REJECT
+DOMAIN-SUFFIX,adjust.com,REJECT
+DOMAIN-SUFFIX,criteo.com,REJECT
+DOMAIN-SUFFIX,sentry.io,REJECT
+DOMAIN-SUFFIX,ingest.sentry.io,REJECT
+DOMAIN-SUFFIX,amplitude.com,REJECT
+DOMAIN-SUFFIX,mixpanel.com,REJECT
+DOMAIN-SUFFIX,moloco.com,REJECT
+DOMAIN-SUFFIX,app-ads-services.com,REJECT
+DOMAIN-SUFFIX,app-analytics-services.com,REJECT
+DOMAIN-SUFFIX,app-measurement.com,REJECT
+DOMAIN-SUFFIX,adservice.google.com,REJECT
+DOMAIN-SUFFIX,ads.google.com,REJECT
+DOMAIN-SUFFIX,analytics.google.com,REJECT
+DOMAIN-SUFFIX,amp-api-edge.apps.apple.com,REJECT
+DOMAIN-SUFFIX,revenuecat.com,DIRECT
+DOMAIN-SUFFIX,rc-backup.com,DIRECT
+DOMAIN-SUFFIX,rev.cat,DIRECT
+DOMAIN-SUFFIX,firebaseremoteconfig.googleapis.com,DIRECT
+DOMAIN-SUFFIX,firebaseremoteconfig.google.com,DIRECT
+DOMAIN-SUFFIX,remoteconfig.googleapis.com,DIRECT
+DOMAIN-SUFFIX,locketcamera.com,DIRECT
+DOMAIN-SUFFIX,locket.camera,DIRECT
+DOMAIN-SUFFIX,cloudfunctions.net,DIRECT
+DOMAIN-SUFFIX,firebasestorage.googleapis.com,DIRECT
+DOMAIN-SUFFIX,storage.googleapis.com,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-1.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-2.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-3.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-4.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-5.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-6.workers.dev,DIRECT
+
+[Rewrite]
+b1s_upload_frame = type=http-request,pattern=^https?:\/\/(firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_upload_frame.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__
+# Chặn kênh realtime của Firebase Remote Config (HTTP/3 không qua MITM)
+^https?:\/\/firebaseremoteconfigrealtime\.googleapis\.com.* url reject
+
+[Header Rewrite]
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del x-revenuecat-etag
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del if-none-match
+^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.+ header-del if-modified-since
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del x-firebase-etag
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del x-goog-if-none-match
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del if-none-match
+^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.+ header-del if-modified-since
+^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del if-none-match
+^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del if-modified-since
+
+[Script]
+b1s_photobooth_request = type=http-request,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*generateFilteredImage.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_photobooth_request.js,requires-body=true,timeout=30
+b1s_photobooth_response = type=http-response,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*generateFilteredImage.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_photobooth_response.js,requires-body=true,max-size=-1,timeout=30
+b1s_profile_request = type=http-request,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*(changeProfileInfo|\/profile|\/users\/).*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_profile_request.js,requires-body=true,timeout=30
+b1s_profile_response = type=http-response,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*(changeProfileInfo|\/profile|\/users\/).*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_profile_response.js,requires-body=true,max-size=-1,timeout=30
+b1s_frame_router = type=http-response,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*frame.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_frame_router.js,requires-body=true,max-size=-1,timeout=30
+b1s_locket_api_response = type=http-response,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_locket_api_response.js,requires-body=true,max-size=-1,timeout=30
+b1s_revenuecat_request = type=http-request,pattern=^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_revenuecat_request.js,timeout=30
+b1s_revenuecat_response = type=http-response,pattern=^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_revenuecat_response.js,requires-body=true,max-size=-1,timeout=30
+b1s_firebase_request = type=http-request,pattern=^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_firebase_request.js,timeout=30
+b1s_firebase_response = type=http-response,pattern=^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_firebase_response.js,requires-body=true,max-size=-1,timeout=30
+b1s_conf_header = type=http-request,pattern=^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_conf_header.js,timeout=20
+
+[MITM]
+hostname = api.revenuecat.com, *.rc-backup.com, rev.cat, *.firebaseremoteconfig.googleapis.com, *.firebaseremoteconfig.google.com, *.remoteconfig.googleapis.com, *.locketcamera.com, locket.camera, us-central1-locket-4252a.cloudfunctions.net, *.firebasestorage.googleapis.com, storage.googleapis.com

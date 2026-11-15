@@ -1,0 +1,29 @@
+#!name = B1sTeam — LocketGold (Free)
+#!desc = LocketGold trọn đời 0₫ (MITM on-device): RevenueCat Gold vĩnh viễn, Firebase RC bật cờ VIP, gỡ blur + mở paywall, khung Kawaii qua worker B1sTeam, photobooth/overlay, badge Gold. B1sTeam — b1s.id.vn
+#!author = B1sTeam · Nguyễn Hoàng Bách
+#!homepage = https://b1s.id.vn/locketvip
+#!include = https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold_MITM.plugin
+
+# B1sTeam — Surge plugin cho LocketGold (Free).
+# Cùng bộ script js/*.js với module Shadowrocket — chỉ khác cú pháp.
+# ⚠ Surge chạy script khớp ĐẦU TIÊN cho mỗi phase ⇒ thứ tự dưới đây có ý nghĩa.
+#
+# Cài: Surge → Module → Add Module → dán link plugin này (plugin chính tự include
+# phần Header Rewrite + Host từ file kèm theo).
+
+[Script]
+http-request ^https?:\/\/(firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_upload_frame.js, requires-body=true, timeout=30, tag=B1S_Upload_Frame
+http-request ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*generateFilteredImage.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_photobooth_request.js, requires-body=true, timeout=30, tag=B1S_Photobooth_Request
+http-response ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*generateFilteredImage.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_photobooth_response.js, requires-body=true, timeout=30, tag=B1S_Photobooth_Response
+http-request ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*(changeProfileInfo|\/profile|\/users\/).* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_profile_request.js, requires-body=true, timeout=30, tag=B1S_Profile_Request
+http-response ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*(changeProfileInfo|\/profile|\/users\/).* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_profile_response.js, requires-body=true, timeout=30, tag=B1S_Profile_Response
+http-response ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*frame.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_frame_router.js, requires-body=true, timeout=30, tag=B1S_Frame_Router
+http-response ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_locket_api_response.js, requires-body=true, timeout=30, tag=B1S_Locket_API
+http-request ^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_revenuecat_request.js, timeout=30, tag=B1S_RevenueCat_Request
+http-response ^https?:\/\/(api\.revenuecat\.com|[^/]*\.rc-backup\.com|rev\.cat)\/.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_revenuecat_response.js, requires-body=true, timeout=30, tag=B1S_RevenueCat_Response
+http-request ^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_firebase_request.js, timeout=30, tag=B1S_Firebase_Request
+http-response ^https?:\/\/([^/]*\.)?(firebaseremoteconfig\.googleapis\.com|firebaseremoteconfig\.google\.com|remoteconfig\.googleapis\.com)\/.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_firebase_response.js, requires-body=true, timeout=30, tag=B1S_Firebase_Response
+http-request ^https?:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.* script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_conf_header.js, timeout=20, tag=B1S_Conf_Header
+
+[MITM]
+hostname = api.revenuecat.com, *.rc-backup.com, rev.cat, *.firebaseremoteconfig.googleapis.com, *.firebaseremoteconfig.google.com, *.remoteconfig.googleapis.com, *.locketcamera.com, locket.camera, us-central1-locket-4252a.cloudfunctions.net, *.firebasestorage.googleapis.com, storage.googleapis.com

@@ -1,0 +1,19 @@
+{
+  "name": "b1steam-public-locketgold",
+  "version": "4.0.0",
+  "private": true,
+  "description": "B1sTeam — LocketGold (Free): module Shadowrocket, MITM proxy Go (Fly.io), DoH + NextDNS, worker khung luân phiên, admin, SQL, test.",
+  "author": "B1sTeam · Nguyễn Hoàng Bách <b1s.id.vn>",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "scripts": {
+    "test": "node --test",
+    "scan": "node scanner/index.js",
+    "scan:self-check": "node scanner/index.js --self-check",
+    "build:shadowrocket": "node shadowrocket/build.mjs",
+    "check:shadowrocket": "node shadowrocket/build.mjs --check",
+    "deploy:frames": "bash workers/deploy.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
