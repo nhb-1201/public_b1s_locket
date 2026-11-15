@@ -1,5 +1,14 @@
 # CHANGELOG — LocketGold (public_b1s_locket)
 
+## [3.4.0] — 2026-11-15
+
+**Chuyển hướng cài đặt chính sang Module Shadowrocket (auto-import), bỏ .conf khỏi luồng người dùng**
+
+- Web `/locketvip`: Bước 2 — nút chính **“Cài Module tự động qua Shadowrocket”** (deep link `shadowrocket://import?module=<url>` — app tự mở & hỏi “Add this module?”), nút phụ **“Tải file .sgmodule”** (thủ công). Key nhúng sẵn, khóa theo thiết bị.
+- Wizard: thêm bước bật Module (“B1sTeam — LocketGold (Free)”) + HTTPS解密; FAQ/VersionCard/docs cập nhật theo module-first.
+- Backend `locket.b1s.id.vn`: `/api/v2/locketgold/module/all-in-one?key=` trả `.sgmodule` đã nhúng license (đã verify 200).
+- README/ios README: 10 bước — bước 2-3 = Module; alt text .conf đã gỡ hoàn toàn.
+
 ## [3.3.0] — 2026-11-15
 
 **Thêm lại "Bước 10 — DNS DoH của tôi" (NextDNS riêng per user)**

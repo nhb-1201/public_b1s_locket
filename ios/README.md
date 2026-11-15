@@ -5,12 +5,12 @@
 ## Cài từng bước (10 bước — khớp b1s.id.vn/locketvip)
 
 1. **Cài Shadowrocket** — App Store (ID 932747118, ~$2.99 — mua 1 lần).
-2. **Tải .conf của bạn** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Tải .conf** (key nhúng sẵn; `.conf` / `.sgmodule` đều được).
-3. **HTTPS解密 (MITM)** — Cấu hình → `alfretro-*` → (i) → **HTTPS解密** BẬT (hostnames Locket · RevenueCat · Firebase).
+2. **Cài Module** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (hoặc tải `.sgmodule`, key nhúng sẵn). Shadowrocket → tab **Module** → bật “LocketGold (Free)”.
+3. **HTTPS解密 (MITM)** — Cấu hình → (i) → **HTTPS解密** BẬT (hostnames Locket · RevenueCat · Firebase).
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** (~2s).
 5. **Cài hồ sơ chứng chỉ** — Safari → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → **Shadowrocket Root CA** → Cài đặt → nhập mã máy → Xong.
 6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → Tiếp tục.
-7. **Bật VPN** — tab **Home** → chạm “alfretro-*” để bật → iOS hỏi cho phép thêm cấu hình VPN → **Cho phép** → status bar hiện **VPN**. Không thấy gì? → (i) “alfretro-*” → bật **HTTPS解密** → lặp lại bước 4–6.
+7. **Bật VPN** — tab **Home** → chạm bật cấu hình (hoặc Module) → iOS hỏi cho phép thêm cấu hình VPN → **Cho phép** → status bar hiện **VPN**. Không thấy gì? → tab Module → “LocketGold (Free)” BẬT + (i) → **HTTPS解密** → lặp lại bước 4–6.
 8. **Xóa Locket → tải lại** — xóa hẳn, tải lại từ App Store, đăng nhập lại bằng Apple/Google ID cũ.
 9. **Mở Locket → Gold ✦** — đợi 5–10s → huy hiệu Gold, 60s video, caption, khung Kawaii, Widget Gold, 0 quảng cáo.
 10. **Cài DNS riêng (DoH) — bước cuối, bổ trợ** — Bước 10 trên [b1s.id.vn/locketvip#cai-dat](https://b1s.id.vn/locketvip#cai-dat) → **Cấp DNS**: NextDNS riêng (300k truy vấn / 30 ngày) + DoH RFC 8484 → tải `.mobileconfig` → Cài đặt. Shadowrocket vẫn là đường mở Gold; DoH chỉ bổ trợ.
