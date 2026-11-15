@@ -5,7 +5,7 @@
 ## Cài từng bước (10 bước — khớp b1s.id.vn/locketvip)
 
 1. **Cài Shadowrocket** — App Store (ID 932747118, ~$2.99 — mua 1 lần).
-2. **Cài Module** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (hoặc tải file `.module`, key nhúng sẵn). Shadowrocket → tab **Module** → bật “LocketGold (Free)”.
+2. **Cài Module** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Tải Module** (hoặc **Copy Module URL**) → Shadowrocket → nút **“+”** → **Module** → **Paste** URL → **Add** → “LocketGold (Free)” ✓ → tab **Module** bật module.
 3. **HTTPS解密 (MITM)** — Cấu hình → (i) → **HTTPS解密** BẬT (hostnames Locket · RevenueCat · Firebase).
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** (~2s).
 5. **Cài hồ sơ chứng chỉ** — Safari → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → **Shadowrocket Root CA** → Cài đặt → nhập mã máy → Xong.

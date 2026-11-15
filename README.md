@@ -51,7 +51,7 @@
 ## Cài đặt từng bước (10 bước — vài phút)
 
 1. **Cài Shadowrocket** — App Store → tìm **Shadowrocket** (ID 932747118, ~$2.99 — mua 1 lần). App chính thức của App Store, không jailbreak.
-2. **Cài Module LocketGold** — vô **b1s.id.vn/locketvip** → đăng nhập → bấm **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (hoặc tải file `.module` — key của bạn nhúng sẵn; mở Shadowrocket → tab **Module** → bật “LocketGold (Free)”). *Trên web: Bước 2 trong phần “Hướng dẫn từng bước” — tiến trình được nhớ tự động.*
+2. **Cài Module LocketGold** — vô **b1s.id.vn/locketvip** → đăng nhập → bấm **Kích hoạt free** → **Tải Module** (hoặc **Copy Module URL**): Safari sẽ mở Shadowrocket (hoặc Shadowrocket → nút **“+”** → **Module** → **Paste** URL → **Add**) → bạn sẽ thấy “LocketGold (Free)” trong tab Module ✓. *Trên web: Bước 2 trong phần “Hướng dẫn từng bước” — tiến trình được nhớ tự động.*
 3. **Bật Module + HTTPS解密 (MITM)** — Shadowrocket → tab **Module** → bật “LocketGold (Free)” → tab **Cấu hình** → (i) cấu hình hiện hành → **HTTPS解密**: BẬT, hostnames giữ nguyên (Locket · RevenueCat · Firebase).
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** → đợi ~2s — chứng chỉ gốc được tạo ngay trên máy bạn.
 5. **Cài hồ sơ chứng chỉ** — Safari tự mở “Hồ sơ đã tải” → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → chọn **Shadowrocket Root CA** → **Cài đặt** → nhập mật mã → **Xong**.

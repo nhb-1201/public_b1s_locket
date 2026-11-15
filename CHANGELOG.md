@@ -1,5 +1,14 @@
 # CHANGELOG — LocketGold (public_b1s_locket)
 
+## [3.6.0] — 2026-11-15
+
+**Module fix triệt để — syntax + hướng dẫn import thật sự hoạt động**
+
+- Syntax Shadowrocket: `%APPEND% host1, host2` (KHÔNG có dấu phẩy sau %APPEND%; tham khảo module hoạt động thực tế của WLOC — comma-tight: không spaces trong directive script).
+- Hướng dẫn import chuyển sang **paste URL thủ công**: Shadowrocket → “+” → Module → Paste URL → Add (deep link `shadowrocket://import?module=` không hoạt động trên iOS — đã tắt).
+- Web `/locketvip`: Bước 2 — nút chính “Tải Module” (Safari → Shadowrocket), nút “Copy Module URL”; FAQ cập nhật.
+- Format headers (#!name/updated/version...): giữ nguyên, hợp lệ.
+
 ## [3.5.0] — 2026-11-15
 
 **Module rà soát toàn bộ + sửa format, chuẩn Shadowrocket**
