@@ -10,13 +10,11 @@ import (
 )
 
 type rcConfig struct {
-	RemoteFilters []map[string]any `json:"remoteFilters"`
-	Filters       []map[string]any `json:"filters"`
-	PickerFilters []string         `json:"pickerFilters"`
-	PickerF       []string         `json:"picker_filters"`
-	FilterGroups  []map[string]any `json:"filterGroups"`
-	FilterGroups2 []map[string]any `json:"filter_groups"`
-	RemoteFilters2 []map[string]any `json:"remote_filters"`
+	RemoteFilters  []map[string]any `json:"remoteFilters"`
+	PickerFilters  []string         `json:"pickerFilters"`
+	PickerF        []string         `json:"picker_filters"`
+	FilterGroups   []map[string]any `json:"filterGroups"`
+	SheetFilters   []map[string]any `json:"sheetFilters"`
 }
 
 func loadRCConfig(t *testing.T) rcConfig {
@@ -34,7 +32,7 @@ func loadRCConfig(t *testing.T) rcConfig {
 
 func TestRCRemoteFiltersHaveWorkingURLs(t *testing.T) {
 	cfg := loadRCConfig(t)
-	if len(cfg.RemoteFilters) < 100 {
+	if len(cfg.RemoteFilters) < 200 {
 		t.Fatalf("remoteFilters too small: %d", len(cfg.RemoteFilters))
 	}
 	for _, f := range cfg.RemoteFilters {
@@ -81,7 +79,7 @@ func TestRCPickerAndGroupsReferenceExistingFilters(t *testing.T) {
 			}
 		}
 	}
-	for _, groups := range [][]map[string]any{cfg.FilterGroups, cfg.FilterGroups2} {
+	for _, groups := range [][]map[string]any{cfg.FilterGroups, cfg.SheetFilters} {
 		for _, g := range groups {
 			for _, arr := range []string{"filterIds", "filter_ids"} {
 				list, _ := g[arr].([]any)
@@ -96,18 +94,35 @@ func TestRCPickerAndGroupsReferenceExistingFilters(t *testing.T) {
 	}
 }
 
-// NOTE: 119 frame b1s_locketvip_* tạm thời KHÔNG đăng ký trong RC — cấu hình 1.23MB
-// làm app Locket rơi về defaults (mất nút filter). Khi app xác nhận chạy ổn ở 712KB
-// sẽ tái thêm tối ưu. Test này chỉ kiểm tra tính toàn vẹn cấu trúc.
 func TestRCContainsB1sLocketVipFrames(t *testing.T) {
 	cfg := loadRCConfig(t)
-	found := 0
+	found := map[string]bool{}
 	for _, f := range cfg.RemoteFilters {
-		if id, _ := f["id"].(string); strings.HasPrefix(id, "b1s_locketvip_") {
-			found++
+		id, _ := f["id"].(string)
+		if strings.HasPrefix(id, "b1s_locketvip_") {
+			found[id] = true
 		}
 	}
-	t.Logf("b1s_locketvip frames registered: %d", found)
+	if len(found) < 100 {
+		t.Fatalf("expected at least 100 b1s_locketvip frames, got %d", len(found))
+	}
+
+	// group_b1steam exists with all of them
+	var groupOK bool
+	for _, groups := range [][]map[string]any{cfg.FilterGroups, cfg.SheetFilters} {
+		for _, g := range groups {
+			if g["id"] != "group_b1steam" {
+				continue
+			}
+			list, _ := g["filterIds"].([]any)
+			if len(list) >= 100 {
+				groupOK = true
+			}
+		}
+	}
+	if !groupOK {
+		t.Fatal("group_b1steam missing or too small")
+	}
 
 	// mọi URL frame trong RC phải trỏ về file tồn tại trong repo
 	manifestPath := filepath.Join("..", "..", "assets", "rc", "frames")

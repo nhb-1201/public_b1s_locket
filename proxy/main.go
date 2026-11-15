@@ -439,9 +439,21 @@ func (s *proxyServer) handleMITM(w http.ResponseWriter, r *http.Request) {
 			r.Body = io.NopCloser(bytes.NewReader(body))
 			photoURL, filterID := handler.ExtractPhotoURLAndFilterID(body)
 			if photoURL != "" && handler.IsOverlayOrPhotoboothFilter(filterID) {
-				// Flow giống repo gốc Locket-XVIP/Xwuan19 (proven trên thiết bị): overlay/photobooth
-				// KHÔNG vẽ server-side — trả LUÔN ảnh gốc về client (HTTP 200 outputUrl = photoURL).
-				// App tự compositing khung từ overlayImageUrl trong camera_filter_config.json.
+				// App store flow: resolve filter_id → frame URL từ RC → MITM Go composites
+				// server-side (x/image + draw) → trả ảnh ĐÃ CÓ khung. Fallback: mock nếu lỗi.
+				frameURL := handler.ResolveOverlayFrameURL(filterID)
+				if frameURL != "" {
+					if out, err := handler.BurnFrame(r.Context(), photoURL, frameURL); err == nil {
+						w.Header().Set("Content-Type", "application/json; charset=utf-8")
+						w.Header().Set("Content-Length", strconv.Itoa(len(out)))
+						w.Header().Set("X-B1s-Frame-Source", "go-burn")
+						w.WriteHeader(http.StatusOK)
+						_, _ = w.Write(out)
+						return
+					} else {
+						s.log.Warn("frame burn lỗi — fallback mock", "filter", filterID, "error", err)
+					}
+				}
 				mock := handler.BuildMockFilterResponse(photoURL)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.Header().Set("Content-Length", strconv.Itoa(len(mock)))

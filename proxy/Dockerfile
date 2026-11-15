@@ -1,5 +1,5 @@
 # B1sTeam — LocketGold (Free) MITM proxy
-# Build (context = thu muc proxy/):
+# Build (context = thư mục proxy/):
 #   docker build -t b1steam-locketgold .
 # Run:
 #   docker run --rm -p 8443:8443 -p 8080:8080 \
@@ -7,20 +7,22 @@
 #     -e ROOT_CA_KEY="$(base64 -w0 ca/root-ca.key)" \
 #     b1steam-locketgold
 #
-# B1sTeam — b1s.id.vn · Nguyen Hoang Bach
+# B1sTeam — b1s.id.vn · Nguyễn Hoàng Bách
 
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /src
 
-# Binary tinh: khong phu thuoc, dung chung stdlib Go.
+# Binary tĩnh: không phụ thuộc, dùng chung stdlib Go.
+# vendor/ đã được commit — build không cần network với Go modules.
 ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64 \
     GOTOOLCHAIN=local \
-    GOPROXY=off
+    GOFLAGS=-mod=vendor
 
-COPY go.mod ./
+COPY go.mod go.sum ./
+COPY vendor ./vendor
 COPY . ./
 
 RUN go build -trimpath -ldflags="-s -w" -o /out/b1steam-locketgold .
@@ -34,8 +36,8 @@ WORKDIR /app
 
 COPY --from=builder /out/b1steam-locketgold /app/b1steam-locketgold
 
-# Root CA lay tu bien moi truong (ROOT_CA_CRT / ROOT_CA_KEY).
-# Neu can dung file dia: mount them vao /app/ca/root-ca.crt + /app/ca/root-ca.key
+# Root CA lấy từ biến môi trường (ROOT_CA_CRT / ROOT_CA_KEY).
+# Nếu cần dùng file đĩa: mount thêm vào /app/ca/root-ca.crt + /app/ca/root-ca.key
 VOLUME ["/app/ca"]
 
 USER b1steam
