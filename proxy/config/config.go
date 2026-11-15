@@ -52,6 +52,7 @@ type Config struct {
 	// StaticPort la port HTTP phuc vu landing page + .mobileconfig.
 	StaticPort string
 	// FlyIP la public IP cua may Fly (dung cho DNS/DoH va trang thai).
+	// KHÔNG commit IP thật vào repo công khai: để trống, chỉ ghi vào biến môi trường khi triển khai.
 	FlyIP string
 	// DoHURL la endpoint DoH gan vao payload DNS cua .mobileconfig.
 	DoHURL string

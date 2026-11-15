@@ -30,8 +30,12 @@ import { pickProfile, parsePool, DEFAULT_RATIO } from './rotator.js';
 /** Service name reported by /health. */
 export const SERVICE_NAME = 'b1steam-dns';
 
-/** Default IP of the Fly.io MITM proxy. */
-export const DEFAULT_FLY_IP = '137.66.53.108';
+/**
+ * Fly.io MITM proxy — KHÔNG commit IP thật vào repo công khai.
+ * BẮT BUỘC đặt `FLY_PROXY_IP` trong wrangler.toml [vars] (hoặc secret).
+ * Nếu thiếu: mọi câu trả lời /fly/* trỏ về 0.0.0.0 (vô hiệu hoá MITM, không lộ gì).
+ */
+export const DEFAULT_FLY_IP = '0.0.0.0';
 
 /** Default rotation ratio (80% NextDNS / 20% direct). */
 export const DEFAULT_ROTATION_RATIO = DEFAULT_RATIO;

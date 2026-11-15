@@ -14,7 +14,7 @@ create table if not exists nextdns_accounts (
     email         text not null,
     password      text not null,
     dns_url       text not null,
-    fly_ip        text not null default '137.66.53.108',
+    fly_ip        text not null default '',
     rewrites      text not null default '[]',
     query_count   integer not null default 0,
     is_active     integer not null default 1,

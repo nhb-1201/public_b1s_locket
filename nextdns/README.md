@@ -33,7 +33,7 @@ const {
   "password": "…",
   "profile_id": "…",
   "dns_url": "https://dns.nextdns.io/<profile_id>",
-  "fly_ip": "137.66.53.108",
+  "fly_ip": "192.0.2.7 (giá trị thật lấy từ biến môi trường FLY_PROXY_IP)",
   "rewrites": [{ "domain": "api.revenuecat.com", "ok": true, "status": 200 }]
 }
 ```
@@ -84,6 +84,6 @@ node --test "nextdns/test/**/*.test.js"
 
 | Biến                | Mặc định            | Ý nghĩa                              |
 | ------------------- | ------------------- | ------------------------------------ |
-| `FLY_PROXY_IP`      | `137.66.53.108`     | IP proxy MITM dùng cho rewrite       |
+| `FLY_PROXY_IP`      | *(đặt qua `wrangler secret`)* | IP proxy MITM — **không commit vào repo** |
 | `NEXTDNS_EMAIL`     | *(sinh tự động)*    | Email đăng ký NextDNS (tuỳ chọn)     |
 | `NEXTDNS_PASSWORD`  | *(sinh tự động)*    | Mật khẩu NextDNS (tuỳ chọn)          |

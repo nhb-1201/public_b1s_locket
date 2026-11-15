@@ -24,7 +24,7 @@ Tất cả thay đổi đáng chú ý của `public_b1s_locket`.
   `PayloadScope=System` + base64 wrap ≤ 76 ký tự/dòng).
 * **`dns/`** — Cloudflare Worker DoH viết mới:
   * `/<token>/dns-query` → NextDNS riêng từng user.
-  * `/fly/dns-query` → allow-list trả IP Fly `137.66.53.108`, còn lại về `1.1.1.1`
+  * `/fly/dns-query` → allow-list trả IP Fly MITM (đặt qua `FLY_PROXY_IP`, không commit vào repo), còn lại về `1.1.1.1`
     (chống trở thành open-resolver).
   * `/health` + `/health/fly` (probe MITM proxy).
   * Rate-limit 60 truy vấn / 10 phút / IP.

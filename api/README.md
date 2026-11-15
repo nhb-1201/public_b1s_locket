@@ -71,7 +71,7 @@ Key không hợp lệ → **HTTP 401** với body `{"success":false,"error":"…
 | `ROOT_CA_CRT_B64`             | *(rỗng)*                | Root CA (base64 DER) dùng cho hồ sơ `.mobileconfig`   |
 | `ROOT_CA_PATH`                | *(rỗng)*                | Đường dẫn tới file CA thay cho `ca/root-ca.crt`      |
 | `DOH_URL`                     | `https://doh.b1s.id.vn/fly/dns-query` | URL DoH ghi vào hồ sơ         |
-| `FLY_PROXY_IP`                | `137.66.53.108`         | IP proxy MITM                                         |
+| `FLY_PROXY_IP`                | *(đặt qua `wrangler secret`)* | IP proxy MITM — **không commit vào repo** |
 | `FLY_DOH_URL`                 | `https://doh.b1s.id.vn/fly/dns-query` | URL DoH dùng cho nhánh fallback |
 | `D1_API_TOKEN` + `D1_DATABASE_ID` (+ `D1_ACCOUNT_ID`) | *(rỗng)* | Bật backend Cloudflare D1 REST |
 | `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`      | *(rỗng)*                | Bật backend Supabase REST            |

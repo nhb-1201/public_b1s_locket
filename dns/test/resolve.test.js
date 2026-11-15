@@ -105,7 +105,7 @@ test('parseWireQuestion rejects garbage', () => {
 
 test('buildWireResponse answers with the Fly.io proxy IP', () => {
   const query = buildQuery('api.revenuecat.com', 1);
-  const response = buildWireResponse({ request: query, ip: '137.66.53.108' });
+  const response = buildWireResponse({ request: query, ip: '192.0.2.7' });
 
   assert.equal(response.length, query.length + 16);
   assert.equal((response[0] << 8) | response[1], 0x1234); // transaction id
@@ -113,7 +113,7 @@ test('buildWireResponse answers with the Fly.io proxy IP', () => {
   assert.equal((response[6] << 8) | response[7], 1); // ANCOUNT
   assert.equal(response[query.length], 0xc0); // pointer to the question name
   assert.equal((response[query.length + 2] << 8) | response[query.length + 3], 1); // TYPE A
-  assert.deepEqual(Array.from(response.slice(query.length + 12)), ipv4ToBytes('137.66.53.108'));
+  assert.deepEqual(Array.from(response.slice(query.length + 12)), ipv4ToBytes('192.0.2.7'));
 });
 
 test('buildWireResponse can produce an empty (NODATA) answer', () => {
@@ -124,11 +124,11 @@ test('buildWireResponse can produce an empty (NODATA) answer', () => {
 });
 
 test('the JSON answer exposes the documented fields', () => {
-  const answer = buildFlyJsonAnswer('api.revenuecat.com', 'A', '137.66.53.108');
+  const answer = buildFlyJsonAnswer('api.revenuecat.com', 'A', '192.0.2.7');
   for (const field of ['Status', 'TC', 'RD', 'RA', 'AD', 'CD', 'Question', 'Answer', 'Comment']) {
     assert.ok(Object.prototype.hasOwnProperty.call(answer, field), `thiếu trường ${field}`);
   }
-  assert.equal(answer.Answer[0].data, '137.66.53.108');
+  assert.equal(answer.Answer[0].data, '192.0.2.7');
   assert.equal(answer.Answer[0].name, 'api.revenuecat.com');
 
   const normalized = normalizeJsonAnswer({ Status: 0, Answer: [] }, 'example.com', 'A');
@@ -209,11 +209,11 @@ test('the worker answers the allow-list with the Fly.io proxy IP', async () => {
     new Request('https://dns.b1s.id.vn/fly/dns-query?name=api.revenuecat.com&type=A', {
       headers: { Accept: 'application/dns-json' },
     }),
-    { FLY_PROXY_IP: '137.66.53.108' },
+    { FLY_PROXY_IP: '192.0.2.7' },
   );
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.Answer[0].data, '137.66.53.108');
+  assert.equal(body.Answer[0].data, '192.0.2.7');
 });
 
 test('the worker rejects unknown routes', async () => {
@@ -230,7 +230,7 @@ test('the worker rate limits after 60 queries', async () => {
 
   let limited = null;
   for (let i = 0; i < 70; i += 1) {
-    const response = await worker.fetch(makeRequest(), { FLY_PROXY_IP: '137.66.53.108' });
+    const response = await worker.fetch(makeRequest(), { FLY_PROXY_IP: '192.0.2.7' });
     if (response.status === 429) {
       limited = response;
       break;
@@ -253,7 +253,7 @@ test('helper: detectFormat, flyProxyIp, rotationRatio and clientIp', () => {
     'wire',
   );
   assert.equal(flyProxyIp({ FLY_PROXY_IP: '1.2.3.4' }), '1.2.3.4');
-  assert.equal(flyProxyIp({}), '137.66.53.108');
+  assert.equal(flyProxyIp({}), '0.0.0.0'); // không commit IP thật — mặc định luôn là 0.0.0.0
   assert.equal(rotationRatio({ ROTATION_RATIO: '0.5' }), 0.5);
   assert.equal(rotationRatio({}), 0.8);
   assert.equal(

@@ -108,7 +108,6 @@ func main() {
 		"version", cfg.Version,
 		"port", cfg.Port,
 		"static_port", cfg.StaticPort,
-		"fly_ip", cfg.FlyIP,
 		"allowed_hosts", len(cfg.AllowedHosts),
 		"frame_workers", len(cfg.FrameWorkers),
 	)
@@ -511,10 +510,9 @@ func (s *proxyServer) writeVersion(w http.ResponseWriter) {
 		frames = len(s.catalog.Frames)
 	}
 	payload := map[string]any{
-		"ok":            true,
+		"ok":   true,
 		"service":       s.cfg.Service,
 		"version":       s.cfg.Version,
-		"fly_ip":        s.cfg.FlyIP,
 		"started_at":    s.startedAt.UTC().Format(time.RFC3339),
 		"uptime_s":      int64(time.Since(s.startedAt).Seconds()),
 		"allowed_hosts": s.cfg.AllowedHosts,

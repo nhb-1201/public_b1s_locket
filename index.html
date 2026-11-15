@@ -221,7 +221,7 @@
       <h2>8 tầng, <em>mỗi tầng có lớp phòng thủ</em></h2>
     </div>
     <div class="grid g4">
-      <div class="card tile"><div class="ico">🛡️</div><h3>MITM proxy Go — Fly.io</h3><p>Raw TCP :443 → :8443, tự forge leaf EC P-256 theo SNI, chỉ MITM trong allow-list. Ghi đè entitlement + bỏ paywall + mở khung.</p><p class="mono">sin · 137.66.53.108</p></div>
+      <div class="card tile"><div class="ico">🛡️</div><h3>MITM proxy Go — Fly.io</h3><p>Raw TCP :443 → :8443, tự forge leaf EC P-256 theo SNI, chỉ MITM trong allow-list. Ghi đè entitlement + bỏ paywall + mở khung.</p><p class="mono">sin · mitm.b1s.id.vn · allow-list</p></div>
       <div class="card tile"><div class="ico">🌐</div><h3>DoH Edge — Cloudflare</h3><p><code>/&lt;token&gt;/dns-query</code> = NextDNS riêng từng user; <code>/fly/dns-query</code> = allow-list → IP Fly, còn lại về 1.1.1.1.</p><p class="mono">doh.b1s.id.vn</p></div>
       <div class="card tile"><div class="ico">🔁</div><h3>NextDNS rotation 80%</h3><p>Mỗi user 1 profile riêng + rewrite domain sang IP Fly. 80% NextDNS / 20% direct, tự fallback 1.1.1.1 khi bão hòa.</p><p class="mono">300k truy vấn / 30 ngày</p></div>
       <div class="card tile"><div class="ico">🖼️</div><h3>6 worker khung</h3><p>b1steam-frames-1…6 — round-robin, cooldown 60s khi lỗi, cache 24h, phục vụ PNG khung Kawaii.</p><p class="mono">edge · round-robin</p></div>

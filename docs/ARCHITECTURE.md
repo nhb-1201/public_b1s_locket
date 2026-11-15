@@ -69,7 +69,7 @@ iOS (hồ sơ .mobileconfig)
   │  DoH: https://doh.b1s.id.vn/fly/dns-query
   ▼
 Cloudflare Worker (dns/)
-  ├─ name ∈ allow-list  → A 137.66.53.108 (TTL 60)   ← trỏ thẳng vào MITM proxy
+  ├─ name ∈ allow-list  → A mitm.b1s.id.vn (TTL 60)  ← trỏ thẳng vào MITM proxy
   └─ name ∉ allow-list  → 1.1.1.1 (RFC 8484)        ← không bao giờ làm open-resolver
   ▼
 Fly.io :443 (raw TCP) → Go MITM proxy :8443
@@ -196,7 +196,7 @@ trả `429`. Đây là ranh giới giữa "hỗ trợ người dùng" và "trở
 
 | Biến | Mặc định | Ý nghĩa |
 |------|----------|---------|
-| `FLY_PROXY_IP` | `137.66.53.108` | IP trả về cho domain trong allow-list |
+| `FLY_PROXY_IP` | *đặt trong `[vars]`/secret, KHÔNG commit vào repo* | IP trả về cho domain trong allow-list (IP Fly.io MITM) |
 | `NEXTDNS_BASE` | `https://dns.nextdns.io` | Upstream NextDNS |
 | `PUBLIC_DOH` | `https://1.1.1.1/dns-query` | Fallback |
 

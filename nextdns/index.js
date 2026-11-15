@@ -21,7 +21,8 @@ const crypto = require('crypto');
 const NEXTDNS_API_BASE = 'https://api.nextdns.io';
 
 /** Default IP of the Fly.io MITM proxy. */
-const DEFAULT_FLY_IP = process.env.FLY_PROXY_IP || '137.66.53.108';
+/* Không commit IP thật vào repo công khai — đặt qua biến môi trường FLY_PROXY_IP. */
+const DEFAULT_FLY_IP = process.env.FLY_PROXY_IP || '';
 
 /** Timeout of every single API call (ms). */
 const REQUEST_TIMEOUT_MS = 5000;
@@ -177,6 +178,11 @@ async function createNextDnsAccount(options = {}) {
     flyIp = DEFAULT_FLY_IP,
   } = options || {};
 
+  const flyIpEffective = String(flyIp || process.env.FLY_PROXY_IP || '').trim();
+  if (!flyIpEffective) {
+    throw new Error('Thiếu FLY_PROXY_IP — đặt IP proxy MITM qua biến môi trường (không commit vào repo).');
+  }
+
   const mailbox = await createTemporaryMailbox();
   const email = mailbox ? mailbox.email : `${generateMailHandle()}@b1s.id.vn`;
   const password = mailbox ? mailbox.password : generatePassword(18);
@@ -246,11 +252,11 @@ async function createNextDnsAccount(options = {}) {
           Cookie: sid,
           'User-Agent': 'B1sTeam-LocketGold/4.0 (+https://b1s.id.vn)',
         },
-        body: JSON.stringify({ name: domain, answer: flyIp }),
+        body: JSON.stringify({ name: domain, answer: flyIpEffective }),
       });
-      rewrites.push({ domain, ok: res.ok, status: res.status, answer: flyIp });
+      rewrites.push({ domain, ok: res.ok, status: res.status, answer: flyIpEffective });
     } catch (err) {
-      rewrites.push({ domain, ok: false, error: (err && err.message) || 'network error', answer: flyIp });
+      rewrites.push({ domain, ok: false, error: (err && err.message) || 'network error', answer: flyIpEffective });
     }
   }
 
@@ -259,7 +265,7 @@ async function createNextDnsAccount(options = {}) {
     password,
     profile_id: profileId,
     dns_url: `https://dns.nextdns.io/${profileId}`,
-    fly_ip: flyIp,
+    fly_ip: flyIpEffective,
     rewrites,
   };
 }

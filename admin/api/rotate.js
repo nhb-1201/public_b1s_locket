@@ -85,7 +85,10 @@ module.exports = withErrorHandling(async function handler(req, res) {
     return sendError(res, 502, session.error || 'Không đăng nhập được NextDNS');
   }
 
-  const flyIp = account.fly_ip || process.env.FLY_PROXY_IP || '137.66.53.108';
+  const flyIp = account.fly_ip || process.env.FLY_PROXY_IP || '';
+  if (!flyIp) {
+    return sendError(res, 500, 'Thiếu biến FLY_PROXY_IP — đặt giá trị thật qua biến môi trường (không commit vào repo)');
+  }
   const existing = await listRewrites(profileId, session.sid);
   const current = new Map(
     (existing.rewrites || []).map((rewrite) => [String(rewrite.name || '').toLowerCase(), rewrite]),

@@ -20,10 +20,10 @@ const {
 
 test('scanner tìm thấy IP cứng và bỏ qua địa chỉ loopback', () => {
   const out = findEndpointsInText(
-    ['const proxy = "137.66.53.108";', 'const local = "127.0.0.1";', 'const off = "0.0.0.0";'].join('\n'),
+    ['const proxy = "192.0.2.7";', 'const local = "127.0.0.1";', 'const off = "0.0.0.0";'].join('\n'),
     'sample.js',
   );
-  assert.deepEqual(out.ips, ['137.66.53.108']);
+  assert.deepEqual(out.ips, ['192.0.2.7']);
 });
 
 test('scanner tìm thấy domain trong URL và trong rule', () => {

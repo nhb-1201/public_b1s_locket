@@ -10,8 +10,9 @@ workers_dev = true
 # ---------------------------------------------------------------------------
 
 [vars]
-# IP of the Fly.io MITM proxy (137.66.53.108 is the production value).
-FLY_PROXY_IP = "137.66.53.108"
+# IP của Fly.io MITM — KHÔNG commit IP thật vào repo công khai.
+# Đặt giá trị thật bằng: npx wrangler secret put FLY_PROXY_IP
+FLY_PROXY_IP = ""
 # Share of the traffic that is served by a per user NextDNS profile.
 ROTATION_RATIO = "0.8"
 # Base URL of the NextDNS resolver.

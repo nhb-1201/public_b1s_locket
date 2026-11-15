@@ -53,7 +53,7 @@ header `Retry-After: 600`.
 
 | Biến             | Mặc định                     | Ý nghĩa                                     |
 | ---------------- | ---------------------------- | -------------------------------------------- |
-| `FLY_PROXY_IP`   | `137.66.53.108`              | IP của proxy MITM trên Fly.io                |
+| `FLY_PROXY_IP`   | *(đặt trong `wrangler.toml` `[vars]`)* | IP Fly.io MITM — **đặt giá trị thật vào `wrangler.toml` private, KHÔNG commit vào repo công khai** |
 | `ROTATION_RATIO` | `0.8`                        | Tỉ lệ traffic dùng profile NextDNS riêng    |
 | `NEXTDNS_BASE`   | `https://dns.nextdns.io`     | Base URL của NextDNS                         |
 | `NEXTDNS_POOL`   | *(rỗng)*                     | Danh sách profile id, phân tách bằng dấu phẩy|

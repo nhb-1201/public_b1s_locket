@@ -251,7 +251,7 @@ func landingPage(cfg *config.Config) string {
 		`<li><strong>Cai</strong>: Cai dat &rarr; Chung &rarr; Cai dat goc chung chi &rarr; bat <b>B1sTeam Root CA</b>.</li>` +
 		`<li><strong>Cai lai Locket</strong>: xoa app, App Store tai lai.</li>` +
 		`<li><strong>Mo Locket</strong>: thay badge Gold <span style="color:#ffd166">&#10022;</span>.</li></ol></div>` +
-		`<div class="card"><p class="small">Server: <code>` + xmlEscape(cfg.FlyIP) + `</code> &middot; version <code>` + xmlEscape(cfg.Version) + `</code></p>` +
+		`<div class="card"><p class="small">Server: <code>B1sTeam MITM</code> &middot; version <code>` + xmlEscape(cfg.Version) + `</code></p>` +
 		`<p class="small">Huong dan day du: <a href="/README.txt">/README.txt</a> &middot; <a href="/healthz">/healthz</a> &middot; <a href="/version">/version</a></p></div>` +
 		`<p class="small">Ho tro: Zalo 083.3399.553 &mdash; b1s.id.vn</p></main></body></html>`
 }

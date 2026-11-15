@@ -20,7 +20,7 @@ node scanner/index.js --self-check        # chạy assertion nội bộ
 === B1sTeam · Shadowrocket scanner ===
 Thư mục : D:\...\public_b1s_locket\shadowrocket
 Tệp đã quét : 12
-IP cứng : 137.66.53.108
+IP cứng : đặt qua biến môi trường `FLY_PROXY_IP` (không công bố trong repo)
 Domain : 7
  - api.revenuecat.com
  - api.rc-backup.com

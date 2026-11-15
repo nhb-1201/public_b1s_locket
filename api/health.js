@@ -26,7 +26,7 @@ module.exports = withErrorHandling(async function handler(req, res) {
 
   if (String(getQuery(req, 'verbose') || '') === '1') {
     payload.store = getStoreBackend();
-    payload.fly_ip = process.env.FLY_PROXY_IP || '137.66.53.108';
+    payload.fly_ip_configured = Boolean(process.env.FLY_PROXY_IP);
     payload.doh_url = process.env.FLY_DOH_URL || 'https://doh.b1s.id.vn/fly/dns-query';
     payload.license_strict = String(process.env.LICENSE_STRICT || '').toLowerCase() === 'true';
   }
