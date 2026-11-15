@@ -415,10 +415,24 @@ func (s *proxyServer) handleMITM(w http.ResponseWriter, r *http.Request) {
 			r.Body = io.NopCloser(bytes.NewReader(body))
 			photoURL, filterID := handler.ExtractPhotoURLAndFilterID(body)
 			if photoURL != "" && handler.IsOverlayOrPhotoboothFilter(filterID) {
+				// Ve khung Kawaii THAT len anh nguoi dung (photon WASM tren worker).
+				// Fallback: loi worker -> mock 200 voi anh goc (khong bao gio tra loi app).
+				if out, err := handler.DrawFrame(r.Context(), s.cfg.FrameDrawWorker, s.cfg.FrameDrawKey, body); err == nil {
+					w.Header().Set("Content-Type", "application/json; charset=utf-8")
+					w.Header().Set("Content-Length", strconv.Itoa(len(out)))
+					w.Header().Set("X-B1s-Frame-Source", "b1s-frame-raw")
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write(out)
+					return
+				} else {
+					s.log.Warn("frame draw that bai — fallback ve mock anh goc", "filter", filterID, "error", err)
+				}
+				mock := handler.BuildMockFilterResponse(photoURL)
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.Header().Set("X-B1s-Frame-Source", "b1steam")
+				w.Header().Set("Content-Length", strconv.Itoa(len(mock)))
+				w.Header().Set("X-B1s-Frame-Source", "b1s-fallback")
 				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write(handler.BuildMockFilterResponse(photoURL))
+				_, _ = w.Write(mock)
 				return
 			}
 			r = r.WithContext(context.WithValue(r.Context(), ctxKeyFilter, &filterInfo{

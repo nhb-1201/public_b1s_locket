@@ -1,0 +1,23 @@
+# B1sTeam — b1steam-frame-raw — MITM proxy gọi worker qua shared secret.
+# Deploy (KHÔNG custom domain, KHÔNG route qua zone b1s.id.vn — tránh WAF "Just a moment"):
+#   wrangler deploy --config wrangler.raw.toml
+#   wrangler secret put PROXY_SHARED_KEY --config wrangler.raw.toml
+# (mặc định — client dùng license thiết bị (x-b1s-license + x-b1s-device) xác thực qua
+#  https://locket.b1s.id.vn/api/v2/locketgold/verify — không cần secret)
+name = "b1steam-frame-raw"
+main = "src/index.ts"
+compatibility_date = "2026-11-14"
+workers_dev = true
+
+# Không route qua domain b1s.id.vn: /apply-frame & /frame-raw đều yêu cầu x-b1s-proxy-key
+# hoặc license hợp lệ — không được public tay trắng.
+[vars]
+ASSET_RAW_BASE = "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main"
+VERIFY_BASE = "https://locket.b1s.id.vn/api/v2/locketgold/verify"
+
+[[rules]]
+type = "CompiledWasm"
+globs = ["**/*.wasm"]
+
+[observability]
+enabled = false

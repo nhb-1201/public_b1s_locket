@@ -60,6 +60,10 @@ type Config struct {
 	AllowedHosts []string
 	// FrameWorkers la danh sach Cloudflare Worker phuc vu frame (round-robin).
 	FrameWorkers []string
+	// FrameDrawWorker la worker VE KHUNG (photon WASM) — locket-photon style.
+	FrameDrawWorker string
+	// FrameDrawKey la shared secret giua MITM proxy va worker ve khung.
+	FrameDrawKey    string
 
 	// Rate limit theo IP (token bucket).
 	MITMBurst        int
@@ -99,6 +103,8 @@ func Load() *Config {
 		DoHURL:      envString("DOH_URL", "https://doh.b1s.id.vn/fly/dns-query"),
 		AllowedHosts: parseHostList(envString("MITM_SANS", ""), DefaultSANS),
 		FrameWorkers: parseHostList(envString("FRAME_WORKERS", ""), DefaultFrameWorkers()),
+		FrameDrawWorker: envString("FRAME_DRAW_WORKER", "https://b1steam-frame-raw.nhb-120111.workers.dev"),
+		FrameDrawKey:    envString("FRAME_DRAW_KEY", ""),
 
 		MITMBurst:         envInt("RATE_MITM_BURST", 100),
 		MITMRefillPerMin:  envInt("RATE_MITM_REFILL_PER_MIN", 60),

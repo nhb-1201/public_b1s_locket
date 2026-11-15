@@ -31,6 +31,7 @@ var B1S_SUITE = "4.0.0";
 
   /* Pool edge Cloudflare của B1sTeam — xoay vòng, lỗi thì thử node kế tiếp. */
   var FRAME_EDGES = [
+    'https://b1steam-frame-raw.nhb-120111.workers.dev',
     'https://locket-filter-frame.b1s-locket02-b1steam.workers.dev',
     'https://locket-filter-frame.b1steam-edge-03.workers.dev',
     'https://locket-filter-frame.b1steam-edge-05.workers.dev',
@@ -83,24 +84,54 @@ var B1S_SUITE = "4.0.0";
     return out;
   }
 
+  var B64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+  /* Base64 thuần JS — Shadowrocket/JSCore KHÔNG có btoa/atob (Buffer cũng không tồn tại). */
   function bytesToB64(bytes) {
-    var CHUNK = 0x8000;
-    var parts = [];
-    for (var i = 0; i < bytes.length; i += CHUNK) {
-      var slice = bytes.subarray(i, Math.min(i + CHUNK, bytes.length));
-      var bin = '';
-      for (var j = 0; j < slice.length; j++) bin += String.fromCharCode(slice[j]);
-      parts.push(btoa(bin));
+    var out = '';
+    var i = 0;
+    for (; i + 2 < bytes.length; i += 3) {
+      var n = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+      out += B64_ALPHABET.charAt((n >> 18) & 63) + B64_ALPHABET.charAt((n >> 12) & 63) +
+             B64_ALPHABET.charAt((n >> 6) & 63) + B64_ALPHABET.charAt(n & 63);
     }
-    return parts.join('');
+    var rem = bytes.length - i;
+    if (rem === 2) {
+      var n2 = (bytes[i] << 16) | (bytes[i + 1] << 8);
+      out += B64_ALPHABET.charAt((n2 >> 18) & 63) + B64_ALPHABET.charAt((n2 >> 12) & 63) + B64_ALPHABET.charAt((n2 >> 6) & 63) + '=';
+    } else if (rem === 1) {
+      var n1 = bytes[i] << 16;
+      out += B64_ALPHABET.charAt((n1 >> 18) & 63) + B64_ALPHABET.charAt((n1 >> 12) & 63) + '==';
+    }
+    return out;
   }
 
   function b64ToBytes(b64) {
     try {
-      var bin = atob(String(b64 || '').replace(/\s+/g, ''));
-      var out = new Uint8Array(bin.length);
-      for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i) & 0xff;
-      return out;
+      var clean = String(b64 || '').replace(/[^A-Za-z0-9+/=]/g, '');
+      var pad = clean.indexOf('=');
+      if (pad !== -1) clean = clean.slice(0, pad);
+      var len = Math.floor((clean.length * 3) / 4);
+      var out = new Uint8Array(len);
+      var p = 0, i = 0;
+      while (i + 3 < clean.length) {
+        var n = (B64_ALPHABET.indexOf(clean.charAt(i)) << 18) | (B64_ALPHABET.indexOf(clean.charAt(i + 1)) << 12) |
+                (B64_ALPHABET.indexOf(clean.charAt(i + 2)) << 6) | B64_ALPHABET.indexOf(clean.charAt(i + 3));
+        out[p++] = (n >> 16) & 255;
+        out[p++] = (n >> 8) & 255;
+        out[p++] = n & 255;
+        i += 4;
+      }
+      var rem = clean.length - i;
+      if (rem === 3) {
+        var n3 = (B64_ALPHABET.indexOf(clean.charAt(i)) << 18) | (B64_ALPHABET.indexOf(clean.charAt(i + 1)) << 12) | (B64_ALPHABET.indexOf(clean.charAt(i + 2)) << 6);
+        out[p++] = (n3 >> 16) & 255;
+        out[p++] = (n3 >> 8) & 255;
+      } else if (rem === 2) {
+        var n2 = (B64_ALPHABET.indexOf(clean.charAt(i)) << 18) | (B64_ALPHABET.indexOf(clean.charAt(i + 1)) << 12);
+        out[p++] = (n2 >> 16) & 255;
+      }
+      return out.subarray(0, p);
     } catch (e) {
       return null;
     }
@@ -137,22 +168,35 @@ var B1S_SUITE = "4.0.0";
       }
     } catch (e) { /* bỏ qua */ }
     try {
-      if (typeof $prefs !== 'undefined' && $prefs && typeof $prefs.getItem === 'function') {
-        return Number($prefs.getItem(FRAME_MARKER_KEY) || 0) || 0;
+      if (typeof $prefs !== 'undefined' && $prefs) {
+        if (typeof $prefs.valueForKey === 'function') {
+          var v2 = $prefs.valueForKey(FRAME_MARKER_KEY);
+          if (v2 !== null && v2 !== undefined) return Number(v2) || 0;
+        }
+        if (typeof $prefs.getItem === 'function') {
+          return Number($prefs.getItem(FRAME_MARKER_KEY) || 0) || 0;
+        }
       }
     } catch (e) { /* bỏ qua */ }
     return 0;
   }
 
   function markerSet(value) {
+    /* Shadowrocket: $persistentStore.write(value, key) — KHÔNG phải (key, value). */
+    var s = String(value);
     try {
       if (typeof $persistentStore !== 'undefined' && $persistentStore && typeof $persistentStore.write === 'function') {
-        $persistentStore.write(FRAME_MARKER_KEY, String(value));
+        $persistentStore.write(s, FRAME_MARKER_KEY);
+      }
+    } catch (e) { /* bỏ qua */ }
+    try {
+      if (typeof $prefs !== 'undefined' && $prefs && typeof $prefs.setValueForKey === 'function') {
+        $prefs.setValueForKey(s, FRAME_MARKER_KEY);
       }
     } catch (e) { /* bỏ qua */ }
     try {
       if (typeof $prefs !== 'undefined' && $prefs && typeof $prefs.setItem === 'function') {
-        $prefs.setItem(FRAME_MARKER_KEY, String(value));
+        $prefs.setItem(FRAME_MARKER_KEY, s);
       }
     } catch (e) { /* bỏ qua */ }
   }
@@ -167,7 +211,7 @@ var B1S_SUITE = "4.0.0";
     var id = 'web-' + Math.random().toString(36).slice(2, 10);
     try {
       if (typeof $persistentStore !== 'undefined' && $persistentStore && typeof $persistentStore.write === 'function') {
-        $persistentStore.write('b1s_device_id', id);
+        $persistentStore.write(id, 'b1s_device_id');
       }
     } catch (e) { /* bỏ qua */ }
     return id;
