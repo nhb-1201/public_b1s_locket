@@ -245,7 +245,7 @@ func decodeMaybeBase64(data []byte) []byte {
 		base64.RawURLEncoding,
 	}
 	for _, enc := range encodings {
-		if decoded, err := enc.DecodeString(compact); err == nil {
+		if decoded, err := enc.DecodeString(string(compact)); err == nil {
 			return decoded
 		}
 	}

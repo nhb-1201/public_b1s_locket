@@ -77,12 +77,12 @@ DOMAIN-SUFFIX,locket.camera,DIRECT
 DOMAIN-SUFFIX,cloudfunctions.net,DIRECT
 DOMAIN-SUFFIX,firebasestorage.googleapis.com,DIRECT
 DOMAIN-SUFFIX,storage.googleapis.com,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-1.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-2.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-3.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-4.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-5.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-6.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-1.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-2.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-3.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-4.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-5.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-6.nhb-120111.workers.dev,DIRECT
 
 [Header Rewrite]
 # ── RevenueCat: gỡ ETag/cache ⇒ RC không trả 304 (body rỗng ⇒ mất Gold) ──

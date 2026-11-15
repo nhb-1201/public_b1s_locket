@@ -40,6 +40,7 @@ var overlayKeywords = []string{"photobooth", "4cut"}
 
 // ExtractPhotoURLAndFilterID lấy URL ảnh + id bộ lọc từ body request.
 func ExtractPhotoURLAndFilterID(body []byte) (string, string) {
+	var photoURL, filterID string
 	if len(body) == 0 {
 		return "", ""
 	}

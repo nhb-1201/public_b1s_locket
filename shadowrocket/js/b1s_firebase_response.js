@@ -34,12 +34,12 @@ var B1S_SUITE = "4.0.0";
 
   /* ═══════════ Worker phục vụ khung (xoay vòng 6 node Cloudflare) ═══════════ */
   var FRAME_WORKERS = [
-    "https://b1steam-frames-1.workers.dev",
-    "https://b1steam-frames-2.workers.dev",
-    "https://b1steam-frames-3.workers.dev",
-    "https://b1steam-frames-4.workers.dev",
-    "https://b1steam-frames-5.workers.dev",
-    "https://b1steam-frames-6.workers.dev"
+    "https://b1steam-frames-1.nhb-120111.workers.dev",
+    "https://b1steam-frames-2.nhb-120111.workers.dev",
+    "https://b1steam-frames-3.nhb-120111.workers.dev",
+    "https://b1steam-frames-4.nhb-120111.workers.dev",
+    "https://b1steam-frames-5.nhb-120111.workers.dev",
+    "https://b1steam-frames-6.nhb-120111.workers.dev"
   ];
 
   /* ═══════════ Catalog khung B1sTeam (đồng bộ assets/frames/catalog.json) ═══════════ */

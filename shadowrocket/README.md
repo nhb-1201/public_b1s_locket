@@ -154,7 +154,7 @@ kèm `DOMAIN-SUFFIX,doh.b1s.id.vn,DIRECT` cho DoH của B1sTeam.
 1. Tải module về máy hoặc mở link:
    `https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold.sgmodule`
 2. **Shadowrocket → tab `Module` → nút `+`** → chọn **URL** → dán link module → `Download`.
-   (Có thể dán luôn link sâu: `shadowrocket://add/modules?url=<link module>`)
+   (Có thể dán luôn link sâu: `shadowrocket://install?module=<link module>`)
 3. Bật công tắc module **B1sTeam — LocketGold (Free)** (màu xanh).
 4. **Cấu hình → (i) → `HTTPS Decryption` → BẬT** → `Generate CA` → `Install`.
 5. **Cài CA**: vào *Cài đặt › Cấu hình › CA đã cài đặt* của iOS, bật *"Tin cậy đầy đủ"*
@@ -191,8 +191,8 @@ vào *Cấu hình → Script Override* → import `B1sTeam_LocketGold.stoverride
 
 | Mục đích | Link |
 |---|---|
-| Module Shadowrocket (chính) | `shadowrocket://add/modules?url=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold.sgmodule` |
-| Module Shadowrocket (có key) | `shadowrocket://add/modules?url=<link trên>&key=B1S-XXXX-XXXX-XXXX` |
+| Module Shadowrocket (chính) | `shadowrocket://install?module=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold.sgmodule` |
+| Module Shadowrocket (có key) | `shadowrocket://install?module=<link trên>&key=B1S-XXXX-XXXX-XXXX` |
 | Snippet Stash/Loon | `stash://install-sub?url=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold.snippet` |
 | Surge plugin | `surge:///install-module?url=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold.plugin` |
 | Quantumult X module | `quantumult-x://install?url=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/modules/B1sTeam_LocketGold.module` |

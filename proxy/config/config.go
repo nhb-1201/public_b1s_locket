@@ -131,7 +131,7 @@ func Load() *Config {
 func DefaultFrameWorkers() []string {
 	out := make([]string, 0, 6)
 	for i := 1; i <= 6; i++ {
-		out = append(out, "https://b1steam-frames-"+strconv.Itoa(i)+".workers.dev")
+		out = append(out, "https://b1steam-frames-"+strconv.Itoa(i)+".nhb-120111.workers.dev")
 	}
 	return out
 }

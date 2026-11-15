@@ -277,8 +277,8 @@ func TestFramesManifestValid(t *testing.T) {
 // TestFramePoolRoundRobin kiem tra pool worker xoay vong.
 func TestFramePoolRoundRobin(t *testing.T) {
 	pool := handler.NewFramePool([]string{
-		"https://b1steam-frames-1.workers.dev",
-		"https://b1steam-frames-2.workers.dev",
+		"https://b1steam-frames-1.nhb-120111.workers.dev",
+		"https://b1steam-frames-2.nhb-120111.workers.dev",
 	}, 60*time.Second)
 
 	if pool.Len() != 2 {

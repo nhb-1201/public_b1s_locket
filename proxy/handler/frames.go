@@ -71,7 +71,7 @@ func loadManifest() {
 
 // FrameWorker la mot Cloudflare Worker phuc vu frame.
 type FrameWorker struct {
-	// BaseURL la goc URL cua worker (vd https://b1steam-frames-1.workers.dev).
+	// BaseURL la goc URL cua worker (vd https://b1steam-frames-1.nhb-120111.workers.dev).
 	BaseURL string
 	// Host la host dung cho request upstream.
 	Host string

@@ -58,12 +58,12 @@ DOMAIN-SUFFIX,locket.camera,DIRECT
 DOMAIN-SUFFIX,cloudfunctions.net,DIRECT
 DOMAIN-SUFFIX,firebasestorage.googleapis.com,DIRECT
 DOMAIN-SUFFIX,storage.googleapis.com,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-1.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-2.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-3.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-4.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-5.workers.dev,DIRECT
-DOMAIN-SUFFIX,b1steam-frames-6.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-1.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-2.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-3.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-4.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-5.nhb-120111.workers.dev,DIRECT
+DOMAIN-SUFFIX,b1steam-frames-6.nhb-120111.workers.dev,DIRECT
 
 [Script]
 b1s_upload_frame = type=http-request,pattern=^https?:\/\/(firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/shadowrocket/js/b1s_upload_frame.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__

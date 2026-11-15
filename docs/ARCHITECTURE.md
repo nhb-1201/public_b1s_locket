@@ -89,12 +89,12 @@ Fly.io :443 (raw TCP) → Go MITM proxy :8443
 `generateFilteredImage` (Photobooth / overlay) được chuyển hướng tới pool:
 
 ```
-b1steam-frames-1.workers.dev ─┐
-b1steam-frames-2.workers.dev  │
-b1steam-frames-3.workers.dev  ├─ round-robin + cooldown 60s khi lỗi
-b1steam-frames-4.workers.dev  │
-b1steam-frames-5.workers.dev  │
-b1steam-frames-6.workers.dev ─┘
+b1steam-frames-1.nhb-120111.workers.dev ─┐
+b1steam-frames-2.nhb-120111.workers.dev  │
+b1steam-frames-3.nhb-120111.workers.dev  ├─ round-robin + cooldown 60s khi lỗi
+b1steam-frames-4.nhb-120111.workers.dev  │
+b1steam-frames-5.nhb-120111.workers.dev  │
+b1steam-frames-6.nhb-120111.workers.dev ─┘
 ```
 
 Mỗi worker phục vụ:

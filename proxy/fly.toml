@@ -1,10 +1,11 @@
-# B1sTeam — LocketGold (Free) MITM proxy (Fly.io)
-# Deploy (tu thu muc proxy/):
-#   flyctl launch --no-deploy --copy-config --name b1steam-locketgold   (lan dau)
-#   flyctl secrets set ROOT_CA_CRT=... ROOT_CA_KEY=... FLY_IP=...
-#   flyctl deploy --depot=false
+# B1sTeam - LocketGold (Free) MITM proxy (Fly.io)
+# MITM TLS (raw TCP :443 -> :8443) + Static HTTP (:8080)
 #
-# B1sTeam — b1s.id.vn · Nguyen Hoang Bach
+# Deploy (tu thu muc proxy/):
+#   flyctl secrets set ROOT_CA_CRT="$(base64 -w0 ca/root-ca.crt)" ROOT_CA_KEY="$(base64 -w0 ca/root-ca.key)" --app b1steam-locketgold
+#   flyctl deploy --depot=false --app b1steam-locketgold
+#
+# B1sTeam - b1s.id.vn · Nguyễn Hoàng Bách
 
 app = "b1steam-locketgold"
 primary_region = "sin"
@@ -17,7 +18,7 @@ primary_region = "sin"
   STATIC_PORT = "8080"
   LOG_LEVEL = "info"
   MITM_SANS = "api.revenuecat.com,api.rc-backup.com,rev.cat,firebaseremoteconfig.googleapis.com,firebaseremoteconfig.google.com,www.remoteconfig.googleapis.com,firebaseremoteconfigrealtime.googleapis.com,api.locketcamera.com,cdn.locketcamera.com,public.locketcamera.com,locket.camera,us-central1-locket-4252a.cloudfunctions.net,firebasestorage.googleapis.com,storage.googleapis.com,firebaselogging.googleapis.com"
-  FRAME_WORKERS = "https://b1steam-frames-1.workers.dev,https://b1steam-frames-2.workers.dev,https://b1steam-frames-3.workers.dev,https://b1steam-frames-4.workers.dev,https://b1steam-frames-5.workers.dev,https://b1steam-frames-6.workers.dev"
+  FRAME_WORKERS = "https://b1steam-frames-1.nhb-120111.workers.dev,https://b1steam-frames-2.nhb-120111.workers.dev,https://b1steam-frames-3.nhb-120111.workers.dev,https://b1steam-frames-4.nhb-120111.workers.dev,https://b1steam-frames-5.nhb-120111.workers.dev,https://b1steam-frames-6.nhb-120111.workers.dev"
   RATE_MITM_BURST = "100"
   RATE_MITM_REFILL_PER_MIN = "60"
   RATE_STATIC_BURST = "20"
@@ -27,45 +28,39 @@ primary_region = "sin"
   CERT_CACHE_TTL_HOURS = "24"
   DOH_URL = "https://doh.b1s.id.vn/fly/dns-query"
 
-# --- MITM TLS: 443 -> 8443 ---
+# --- MITM TLS: 443 -> 8443 (RAW TCP, KHONG dung handler tls/http) ---
 [[services]]
-  internal_port = 8443
   protocol = "tcp"
+  internal_port = 8443
   auto_stop_machines = "stop"
   auto_start_machines = true
   min_machines_running = 1
-  processes = ["app"]
 
   [[services.ports]]
-    handlers = ["tls"]
     port = 443
 
   [[services.tcp_checks]]
-    grace_period = "10s"
     interval = "15s"
-    restart_limit = 0
-    timeout = "5s"
+    timeout = "3s"
+    grace_period = "20s"
+    port = 8443
 
-# --- Static HTTP: 80 -> 8080 (landing page + .mobileconfig) ---
+# --- Static HTTP: 8080 -> 8080 (landing page + .mobileconfig) ---
 [[services]]
+  protocol = "tcp"
   internal_port = 8080
-  protocol = "http"
   auto_stop_machines = "stop"
   auto_start_machines = true
   min_machines_running = 1
-  processes = ["app"]
 
   [[services.ports]]
-    port = 80
-    handlers = ["http"]
-    force_https = true
+    port = 8080
 
-  [[services.http_checks]]
-    path = "/healthz"
-    interval = "15s"
-    timeout = "5s"
+  [[services.tcp_checks]]
+    interval = "30s"
+    timeout = "3s"
     grace_period = "10s"
-    method = "get"
+    port = 8080
 
 [[vm]]
   memory = "256mb"
