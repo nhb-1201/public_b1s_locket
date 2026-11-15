@@ -1,5 +1,15 @@
 # CHANGELOG — LocketGold (public_b1s_locket)
 
+## [3.7.0] — 2026-11-15
+
+**Áp dụng cơ chế cài 1-Click được kiểm chứng bởi module production (leanhminh2104/locketlam@shadowrocket)**
+
+- Deep link: `shadowrocket://install?module=<url>` (không phải `import?module=`) — kiểm chứng bằng file production của repo tham khảo.
+- Regex escape `/` → `\/` trong `[Script]` + `[Header Rewrite]` (Shadowrocket/Surge delimiter style).
+- Thêm `ios/module-install.html` — trang 1-Click (meta refresh + JS) redirect sang Shadowrocket (`?key=B1S-...`).
+- `[MITM] hostname = %APPEND% host1, host2` (đúng JSON-watch của WLOC + locketlam production).
+- `.conf` đồng bộ (comma-tight).
+
 ## [3.6.0] — 2026-11-15
 
 **Module fix triệt để — syntax + hướng dẫn import thật sự hoạt động**

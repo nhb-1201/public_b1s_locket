@@ -13,6 +13,7 @@
 #!desc = Gold VIP vĩnh viễn 0₫ thẳng qua Shadowrocket MITM — không cần jailbreak, không server trung gian. Key của bạn được nhúng sẵn trong module, khóa theo máy. Hiển thị: huy hiệu Gold, video 60s, 163+ caption, khung Kawaii, Widget Gold, 0 quảng cáo.
 #!author = B1sTeam · Nguyễn Hoàng Bách
 #!homepage = https://b1s.id.vn/locketvip
+#!url = https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/locketgold.sgmodule
 #!tgchannel = https://zalo.me/0833399553
 #!updateInterval = 43200
 
@@ -46,25 +47,26 @@ DOMAIN-SUFFIX,amp-api-edge.apps.apple.com,REJECT-DROP
 
 [Header Rewrite]
 # Bỏ cache ở Firebase Remote Config để app luôn đọc RC mới (script MITM ghi lại).
-^https?://firebaseremoteconfig\.(googleapis\.com|google\.com)/.+ header-del if-none-match
-^https?://firebaseremoteconfig\.(googleapis\.com|google\.com)/.+ header-del If-None-Match
-^https?://firebaseremoteconfig\.(googleapis\.com|google\.com)/.+ header-del if-modified-since
-^https?://firebaseremoteconfig\.(googleapis\.com|google\.com)/.+ header-del If-Modified-Since
-^https?://firebaseremoteconfig\.(googleapis\.com|google\.com)/.+ header-del x-goog-if-none-match
+^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del if-none-match
+^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del If-None-Match
+^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del if-modified-since
+^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del If-Modified-Since
+^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del x-goog-if-none-match
 # Bỏ cache Locket Camera API.
-^https?://(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)/.+ header-del if-none-match
-^https?://(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)/.+ header-del If-None-Match
-^https?://(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)/.+ header-del if-modified-since
-^https?://(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)/.+ header-del If-Modified-Since
+^https?:\/\/(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del if-none-match
+^https?:\/\/(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del If-None-Match
+^https?:\/\/(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del if-modified-since
+^https?:\/\/(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del If-Modified-Since
 
 [Script]
 # LocketGold — MITM scripts (argument "__LICENSE_KEY__|<slug>" giữ nguyên phần sau dấu |).
-b1s_revenuecat_all = type=http-response,pattern=^https?://api\.(revenuecat|rc-backup)\.com/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/b1s_unlock.v7.8.0.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__|revenuecat-all
-locketgold_remote = type=http-request,pattern=^https://firebaseremoteconfig\.(googleapis\.com|google\.com)/.+,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_remote.v7.8.0.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__
-locketgold_remote_response = type=http-response,pattern=^https://firebaseremoteconfig\.(googleapis\.com|google\.com)/.+,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_remote.v7.8.0.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
-locketgold_locket_request = type=http-request,pattern=^https://((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_locket.v7.8.0.js,requires-body=true,timeout=25,argument=__LICENSE_KEY__
-locketgold_locket_response = type=http-response,pattern=^https://((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_locket.v7.8.0.js,requires-body=true,max-size=-1,timeout=25,argument=__LICENSE_KEY__
-locketgold_upload_frame = type=http-request,pattern=^https://(firebasestorage\.googleapis\.com|storage\.googleapis\.com)/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_upload.v7.8.0.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+b1s_revenuecat_all = type=http-response,pattern=^https?:\/\/api\.(revenuecat|rc-backup)\.com\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/b1s_unlock.v7.8.0.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__|revenuecat-all
+locketgold_remote = type=http-request,pattern=^https:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_remote.v7.8.0.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__
+locketgold_remote_response = type=http-response,pattern=^https:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_remote.v7.8.0.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+locketgold_locket_request = type=http-request,pattern=^https:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_locket.v7.8.0.js,requires-body=true,timeout=25,argument=__LICENSE_KEY__
+locketgold_locket_response = type=http-response,pattern=^https:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_locket.v7.8.0.js,requires-body=true,max-size=-1,timeout=25,argument=__LICENSE_KEY__
+locketgold_upload_frame = type=http-request,pattern=^https:\/\/(firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_upload.v7.8.0.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
 
 [MITM]
 hostname = %APPEND% firebasestorage.googleapis.com, storage.googleapis.com, api.revenuecat.com, api.rc-backup.com, rev.cat, firebaseremoteconfig.googleapis.com, firebaseremoteconfig.google.com, api.locketcamera.com, *.locketcamera.com, locketcamera.com, api.locket.camera, locket.camera, us-central1-locket-4252a.cloudfunctions.net, cdn.locketcamera.com, public.locketcamera.com
+
