@@ -17,6 +17,14 @@ type rcConfig struct {
 	SheetFilters   []map[string]any `json:"sheetFilters"`
 }
 
+func groupIDList(groups []map[string]any) []string {
+	ids := make([]string, 0, len(groups))
+	for _, g := range groups {
+		ids = append(ids, fmt.Sprintf("%v", g["id"]))
+	}
+	return ids
+}
+
 func loadRCConfig(t *testing.T) rcConfig {
 	t.Helper()
 	b, err := os.ReadFile(filepath.Join(".", "camera_filter_config.json"))
@@ -107,21 +115,45 @@ func TestRCContainsB1sLocketVipFrames(t *testing.T) {
 		t.Fatalf("expected at least 100 b1s_locketvip frames, got %d", len(found))
 	}
 
-	// group_b1steam exists with all of them
-	var groupOK bool
+	// 8 nhóm B1sKhung_* tồn tại, mỗi nhóm ≥1 frame, tổng ≥100 frame có tiền tố b1s_locketvip_
+	b1sCounts := 0
 	for _, groups := range [][]map[string]any{cfg.FilterGroups, cfg.SheetFilters} {
 		for _, g := range groups {
-			if g["id"] != "group_b1steam" {
-				continue
-			}
-			list, _ := g["filterIds"].([]any)
-			if len(list) >= 100 {
-				groupOK = true
+			id, _ := g["id"].(string)
+			switch id {
+			case "group_b1skhung_shinchan", "group_b1skhung_kitty", "group_b1skhung_anime", "group_b1skhung_kawaii",
+				"group_b1skhung_social", "group_b1skhung_neon", "group_b1skhung_khac", "group_b1skhung_photobooth":
+				list, _ := g["filterIds"].([]any)
+				if len(list) == 0 {
+					t.Errorf("%s is empty", id)
+				}
+				for _, v := range list {
+					if s, ok := v.(string); ok && strings.HasPrefix(s, "b1s_locketvip_") {
+						b1sCounts++
+					}
+				}
 			}
 		}
 	}
-	if !groupOK {
-		t.Fatal("group_b1steam missing or too small")
+	if b1sCounts < 100 {
+		t.Fatalf("expected at least 100 b1s_locketvip frames across B1sKhung groups, got %d", b1sCounts)
+	}
+
+	// mọi nhóm frame phải đứng TRƯỚC các nhóm AI-sticker ở cuối (group_looks…)
+	wantOrder := []string{"group_b1skhung_shinchan", "group_b1skhung_kitty", "group_b1skhung_anime", "group_b1skhung_kawaii",
+		"group_b1skhung_social", "group_b1skhung_neon", "group_b1skhung_khac", "group_b1skhung_photobooth"}
+	for _, groups := range [][]map[string]any{cfg.FilterGroups, cfg.SheetFilters} {
+		idx := 0
+		for _, g := range groups {
+			id, _ := g["id"].(string)
+			if idx < len(wantOrder) && id == wantOrder[idx] {
+				idx++
+				continue
+			}
+		}
+		if idx < len(wantOrder) {
+			t.Fatalf("B1sKhung groups not in expected front order: got %v", groupIDList(groups))
+		}
 	}
 
 	// mọi URL frame trong RC phải trỏ về file tồn tại trong repo

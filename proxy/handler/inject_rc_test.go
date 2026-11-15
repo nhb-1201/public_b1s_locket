@@ -20,7 +20,9 @@ func TestInjectFirebaseEmitsB1sLocketVipFrames(t *testing.T) {
 		"b1s_locketvip_shinchan_neon",
 		"b1s_locketvip_detective_conan",
 		"b1s_locketvip_my_melody_plaid_hearts",
-		"group_b1steam",
+		"group_b1skhung_shinchan",
+		"B1sKhung_Shin-Chan💛",
+		"B1sKhung_Photobooth💛",
 		"camera_filter_config",
 		"b1s_frame_catalog",
 	} {
