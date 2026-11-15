@@ -7,15 +7,15 @@
     <key>PayloadVersion</key>
     <integer>1</integer>
     <key>PayloadIdentifier</key>
-    <string>vn.b1s.locketgold.dns</string>
+    <string>vn.b1steam.locketgold.dns</string>
     <key>PayloadUUID</key>
     <string>E8B7C2A4-3F1D-4A6E-9C5B-7D2A91F04B63</string>
     <key>PayloadDisplayName</key>
-    <string>LocketGold DoH · B1sTeam ✦</string>
+    <string>B1sTeam DNS — LocketGold</string>
     <key>PayloadDescription</key>
-    <string>DNS riêng cho LocketGold (Locket &amp; Firebase qua B1sTeam DoH — chặn quảng cáo/telemetry). RevenueCat cố ý giữ nguyên để Shadowrocket mitm luôn nhận được phản hồi Gold. Web/app khác giữ DNS gốc — miễn phí vĩnh viễn · b1s.id.vn/locketvip</string>
+    <string>B1sTeam DNS — Locket &amp; Firebase đi qua DoH riệng của bạn (https://doh.b1s.id.vn/&lt;token của bạn&gt;). Chặn quảng cáo/telemetry, fallback 1.1.1.1 khi rảnh. Web/app khác giữ DNS gốc. DoH là bổ trợ — Shadowrocket MITM là đường chính cho LocketGold.</string>
     <key>PayloadOrganization</key>
-    <string>B1sTeam — b1s.id.vn · @b1steam</string>
+    <string>B1sTeam — b1s.id.vn</string>
     <key>PayloadRemovalDisallowed</key>
     <false/>
     <key>PayloadContent</key>
@@ -26,26 +26,30 @@
         <key>PayloadVersion</key>
         <integer>1</integer>
         <key>PayloadIdentifier</key>
-        <string>com.apple.dnsSettings.managed.D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
+        <string>vn.b1steam.locketgold.mmb.dns</string>
         <key>PayloadUUID</key>
         <string>D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
         <key>PayloadDisplayName</key>
-        <string>LocketGold DoH · B1sTeam ✦</string>
+        <string>B1sTeam DNS — LocketGold</string>
         <key>PayloadDescription</key>
-        <string>Locket &amp; Firebase qua B1sTeam DoH (https://doh.b1s.id.vn/dns-query). Web/app khác giữ DNS gốc.</string>
+        <string>B1sTeam DNS — Locket &amp; Firebase qua DoH. Token của bạn được tạo khi đăng ký trên b1s.id.vn/dns. DoH là bổ trợ cho quảng cáo — Shadowrocket là đường chính để unlock Gold.</string>
         <key>PayloadOrganization</key>
-        <string>B1sTeam — b1s.id.vn · @b1steam</string>
+        <string>B1sTeam — b1s.id.vn</string>
         <key>DNSSettings</key>
         <dict>
           <key>DNSProtocol</key>
           <string>HTTPS</string>
           <key>ServerURL</key>
-          <string>https://doh.b1s.id.vn/dns-query</string>
+          <string>https://doh.b1s.id.vn/&lt;token của bạn&gt;</string>
           <key>SupplementalMatchDomains</key>
           <array>
             <string>locketcamera.com</string>
+            <string>cdn.locketcamera.com</string>
+            <string>public.locketcamera.com</string>
             <string>locket.camera</string>
             <string>firebaseremoteconfig.googleapis.com</string>
+            <string>firebaseremoteconfig.google.com</string>
+            <string>us-central1-locket-4252a.cloudfunctions.net</string>
           </array>
         </dict>
         <key>ProhibitDisablement</key>
