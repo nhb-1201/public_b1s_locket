@@ -1,94 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-  <dict>
-    <key>PayloadType</key>
-    <string>Configuration</string>
-    <key>PayloadVersion</key>
-    <integer>1</integer>
-    <key>PayloadIdentifier</key>
-    <string>vn.b1steam.locketgold.dns</string>
-    <key>PayloadUUID</key>
-    <string>E8B7C2A4-3F1D-4A6E-9C5B-7D2A91F04B63</string>
-    <key>PayloadDisplayName</key>
-    <string>B1sTeam DNS — LocketGold</string>
-    <key>PayloadDescription</key>
-    <string>B1sTeam DNS cho LocketGold (DoH) + B1sTeam Root CA để iOS tin cậy MITM của B1sTeam. Hồ sơ được sinh server-side per user từ b1s.id.vn/locketvip → Kích hoạt → Bước 10 (Cài DNS riêng). File trong repo này là mẫu — KHÔNG cài trực tiếp.</string>
-    <key>PayloadOrganization</key>
-    <string>B1sTeam — b1s.id.vn</string>
-    <key>PayloadRemovalDisallowed</key>
-    <false/>
-    <key>PayloadScope</key>
-    <string>System</string>
-    <key>PayloadContent</key>
-    <array>
+<dict>
+  <key>PayloadDisplayName</key>
+  <string>B1sTeam LocketGold (Free)</string>
+  <key>PayloadDescription</key>
+  <string>B1sTeam DoH + Root CA để unlock LocketGold vĩnh viễn</string>
+  <key>PayloadIdentifier</key>
+  <string>vn.b1steam.locketgold.mitm</string>
+  <key>PayloadOrganization</key>
+  <string>B1sTeam — b1s.id.vn</string>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>D1EC1307-BB64-4F76-9A0A-FEB92F761B6E</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadContent</key>
+  <array>
+    <!-- DNS-over-HTTPS Payload -->
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.dnsSettings.managed</string>
+      <key>PayloadIdentifier</key>
+      <string>vn.b1steam.locketgold.dns.settings</string>
+      <key>PayloadUUID</key>
+      <string>D9E6F714-12D6-48A4-B60D-4E64EE06E012</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadDisplayName</key>
+      <string>B1sTeam LocketGold DNS</string>
+      <key>PayloadDescription</key>
+      <string>DoH doh.b1s.id.vn/fly/dns-query cho Locket/Firebase/RevenueCat. Chỉ 1 hồ sơ cài 1 lần.</string>
+      <key>DNSSettings</key>
       <dict>
-        <key>PayloadType</key>
-        <string>com.apple.security.root</string>
-        <key>PayloadVersion</key>
-        <integer>1</integer>
-        <key>PayloadIdentifier</key>
-        <string>vn.b1steam.locketgold.rootca</string>
-        <key>PayloadUUID</key>
-        <string>D6E1C9A2-5B4F-4E3D-9A7C-18F24B6D05E3</string>
-        <key>PayloadDisplayName</key>
-        <string>B1sTeam Root CA (EC P-256)</string>
-        <key>PayloadDescription</key>
-        <string>B1sTeam Root CA — proxy MITM Locket/RevenueCat/Firebase qua Shadowrocket MITM của bạn. Sau khi cài: Cài đặt → Cài đặt chung → Giới thiệu → Cài đặt gốc chứng chỉ → bật B1sTeam Root CA.</string>
-        <key>PayloadOrganization</key>
-        <string>B1sTeam — b1s.id.vn</string>
-        <key>PayloadCertificateFileName</key>
-        <string>b1steam-root-ca.cer</string>
-        <key>PayloadContent</key>
-        <data>
-MIICUjCCAfigAwIBAgIUJ/8Cmo5swGGjrcJPvq1ByEiVJzswCgYIKoZIzj0EAwIwdTEYMBYGA1UEAwwPQjFzVGVhbSBSb290IENBMRAwDgYDVQQKDAdCMXNUZWFtMR8wHQYDVQQLDBZCMXNUZWFtIFRydXN0IFNlcnZpY2VzMRkwFwYDVQQHDBBIbyBDaGkgTWluaCBDaXR5MQswCQYDVQQGEwJWTjAeFw0yNjExMTQxMTQxMDlaFw0zNjExMTExMTQxMDlaMHUxGDAWBgNVBAMMD0Ixc1RlYW0gUm9vdCBDQTEQMA4GA1UECgwHQjFzVGVhbTEfMB0GA1UECwwWQjFzVGVhbSBUcnVzdCBTZXJ2aWNlczEZMBcGA1UEBwwQSG8gQ2hpIE1pbmggQ2l0eTELMAkGA1UEBhMCVk4wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQBXjOHbOIDZBQzpYUIR24BikHG3sTa/SShdNe0TyJ+y7vZqvPdAlccvNbH3LPqqGAy4+CG8h2HbAnlF+gK2GCMo2YwZDASBgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQU8YhbjJNo6Bwu9QSBJy4Fr9movi8wHwYDVR0jBBgwFoAU8YhbjJNo6Bwu9QSBJy4Fr9movi8wCgYIKoZIzj0EAwIDSAAwRQIgRBtsyPw+1iqSztBp3U78IsGbkCmjuz9xZgfXa1IfsDACIQDK1CrYyLqrW2nIRxIws1kjhCs3pSAtiwKGuJIx8pqM9Q==
-        </data>
-        <key>PayloadEnabled</key>
-        <true/>
-        <key>ProhibitDisablement</key>
-        <false/>
+        <key>DNSProtocol</key>
+        <string>HTTPS</string>
+        <key>ServerURL</key>
+        <string>https://doh.b1s.id.vn/fly/dns-query</string>
+        <key>SupplementalMatchDomains</key>
+        <array>
+          <string>api.revenuecat.com</string>
+          <string>api.rc-backup.com</string>
+          <string>rev.cat</string>
+          <string>firebaseremoteconfig.googleapis.com</string>
+          <string>firebaseremoteconfig.google.com</string>
+          <string>www.remoteconfig.googleapis.com</string>
+          <string>api.locketcamera.com</string>
+          <string>cdn.locketcamera.com</string>
+          <string>public.locketcamera.com</string>
+          <string>us-central1-locket-4252a.cloudfunctions.net</string>
+          <string>firebasestorage.googleapis.com</string>
+          <string>storage.googleapis.com</string>
+          <string>locket.camera</string>
+        </array>
       </dict>
-      <dict>
-        <key>PayloadType</key>
-        <string>com.apple.dnsSettings.managed</string>
-        <key>PayloadVersion</key>
-        <integer>1</integer>
-        <key>PayloadIdentifier</key>
-        <string>vn.b1steam.locketgold.mmb.dns</string>
-        <key>PayloadUUID</key>
-        <string>E8B7C2A4-3F1D-4A6E-9C5B-7D2A91F04B64</string>
-        <key>PayloadDisplayName</key>
-        <string>B1sTeam DNS — LocketGold</string>
-        <key>PayloadDescription</key>
-        <string>B1sTeam DoH riêng cho bạn — LocketGold chạy sạch, không cần Shadowrocket cho quảng cáo. Đăng ký tại b1s.id.vn/locketvip → Bước 10.</string>
-        <key>PayloadOrganization</key>
-        <string>B1sTeam — b1s.id.vn</string>
-        <key>DNSSettings</key>
-        <dict>
-          <key>DNSProtocol</key>
-          <string>HTTPS</string>
-          <key>ServerURL</key>
-          <string>https://doh.b1s.id.vn/fly/dns-query</string>
-          <key>SupplementalMatchDomains</key>
-          <array>
-            <string>locketcamera.com</string>
-            <string>cdn.locketcamera.com</string>
-            <string>public.locketcamera.com</string>
-            <string>locket.camera</string>
-            <string>firebaseremoteconfig.googleapis.com</string>
-            <string>firebaseremoteconfig.google.com</string>
-            <string>www.remoteconfig.googleapis.com</string>
-            <string>us-central1-locket-4252a.cloudfunctions.net</string>
-            <string>api.revenuecat.com</string>
-            <string>api.rc-backup.com</string>
-            <string>rev.cat</string>
-            <string>firebasestorage.googleapis.com</string>
-            <string>storage.googleapis.com</string>
-          </array>
-        </dict>
-        <key>ProhibitDisablement</key>
-        <false/>
-      </dict>
-    </array>
-  </dict>
+    </dict>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.security.root</string>
+      <key>PayloadIdentifier</key>
+      <string>vn.b1steam.locketgold.root.ca</string>
+      <key>PayloadUUID</key>
+      <string>8F4C2B1A-6D3E-4A90-9C17-2B5E7A0D4F61</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadDisplayName</key>
+      <string>B1sTeam Root CA (EC P-256)</string>
+      <key>PayloadDescription</key>
+      <string>Sau khi cài hồ sơ, vào Cài đặt → Giới thiệu (General) → Cài đặt gốc chứng chỉ → bật B1sTeam Root CA.</string>
+      <key>PayloadContent</key>
+      <data>
+        MIICUjCCAfigAwIBAgIUJ/8Cmo5swGGjrcJPvq1ByEiVJzswCgYIKoZIzj0EAwIwdTEYMBYGA1UEAwwPQjFzVGVhbSBSb290IENBMRAwDgYDVQQKDAdCMXNUZWFtMR8wHQYDVQQLDBZCMXNUZWFtIFRydXN0IFNlcnZpY2VzMRkwFwYDVQQHDBBIbyBDaGkgTWluaCBDaXR5MQswCQYDVQQGEwJWTjAeFw0yNjExMTQxMTQxMDlaFw0zNjExMTExMTQxMDlaMHUxGDAWBgNVBAMMD0Ixc1RlYW0gUm9vdCBDQTEQMA4GA1UECgwHQjFzVGVhbTEfMB0GA1UECwwWQjFzVGVhbSBUcnVzdCBTZXJ2aWNlczEZMBcGA1UEBwwQSG8gQ2hpIE1pbmggQ2l0eTELMAkGA1UEBhMCVk4wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQBXjOHbOIDZBQzpYUIR24BikHG3sTa/SShdNe0TyJ+y7vZqvPdAlccvNbH3LPqqGAy4+CG8h2HbAnlF+gK2GCMo2YwZDASBgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQU8YhbjJNo6Bwu9QSBJy4Fr9movi8wHwYDVR0jBBgwFoAU8YhbjJNo6Bwu9QSBJy4Fr9movi8wCgYIKoZIzj0EAwIDSAAwRQIgRBtsyPw+1iqSztBp3U78IsGbkCmjuz9xZgfXa1IfsDACIQDK1CrYyLqrW2nIRxIws1kjhCs3pSAtiwKGuJIx8pqM9Q==
+      </data>
+    </dict>
+  </array>
+</dict>
 </plist>
