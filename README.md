@@ -11,19 +11,34 @@ xoay vòng, worker Cloudflare phục vụ khung, tới API, admin panel và SQL 
 
 ## 1. Cài nhanh (iPhone)
 
+### Phương Thức 1 — DNS (Khuyên dùng — không cần Shadowrocket)
+
+| Bước | Việc cần làm |
+|------|--------------|
+| 1 | Vào [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → chọn **Phương Thức 1** → bấm **“Tải Phương Thức 1”** |
+| 2 | Safari hiện **“Hồ sơ đã tải”** → Cài đặt → Cài đặt chung → **VPN & Quản lý thiết bị** → chọn hồ sơ → **Cài đặt** → nhập mật mã |
+| 3 | Cài đặt → Chung → Giới thiệu (About) → **Cài đặt gốc chứng chỉ** → bật **B1sTeam Root CA** |
+| 4 | **Xóa Locket** → App Store tải lại → đăng nhập ID cũ |
+| 5 | Mở Locket → **Gold ✦** |
+
+> Bước 3 là **bắt buộc** — thiếu nó iOS không giải mã được → không có Gold.
+
+Hồ sơ `.mobileconfig` đầy đủ (Root CA EC P-256 + DoH) cũng có thể tải tại `https://doh.b1s.id.vn/mobileconfig`.
+
+### Phương Thức 2 — Shadowrocket (Phụ — dành cho người dùng Shadowrocket)
+
 | Bước | Việc cần làm |
 |------|--------------|
 | 1 | Cài **Shadowrocket** (App Store ID `932747118`, ~$2.99 mua 1 lần) |
-| 2 | Cài **Module** — bấm nút 1-Click ở [`index.html`](./index.html) hoặc vào [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** |
-| 3 | **Tạo chứng chỉ**: Shadowrocket → Cấu hình → (i) → HTTPS giải mã → *Tạo* |
-| 4 | **Cài hồ sơ**: Safari mở hồ sơ → Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị → *Cài đặt* |
-| 5 | **Tin cậy**: Cài đặt → Chung → Giới thiệu → *Cài đặt gốc chứng chỉ* → **BẬT** chứng chỉ |
-| 6 | **Bật VPN** → xóa Locket → tải lại → đăng nhập cũ → **Gold ✦** |
+| 2 | Vào [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → chọn **Phương Thức 2** → **Kích hoạt free** |
+| 3 | **Cài Module** qua `shadowrocket://install?module=` hoặc **Copy Module URL** → Shadowrocket → **“+”** → Module → Paste → Add |
+| 4 | Tạo chứng chỉ → cài hồ sơ → **Tin cậy Root CA** trong Cài đặt gốc chứng chỉ |
+| 5 | Bật VPN → xóa Locket → tải lại → mở Locket → **Gold ✦** |
 
-> Bước 5 là **bắt buộc** — thiếu nó thì iOS không giải mã được → không có Gold.
-> Hướng dẫn chi tiết 10 bước (kèm DNS riêng ở bước cuối): [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip).
+> Bước 4 là **bắt buộc**.
+> Cả hai phương thức đều 0₫ và cho Gold giống nhau.
 
-### Deep-link cài 1 chạm
+### Deep-link cài 1 chạm (Phương Thức 2)
 
 ```
 shadowrocket://install?module=<RAW_URL>          ← module (URL KHÔNG encodeURIComponent)

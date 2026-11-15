@@ -49,11 +49,43 @@ func InjectRevenueCat(body []byte) ([]byte, error) {
 	for _, key := range GoldEntitlementKeys {
 		entitlements[key] = goldEntitlement(key)
 	}
+	// Non_subscriptions — lịch sử mua vĩnh viễn (Locket kiểm tra thêm key này)
+	non_subscriptions := childObject(subscriber, "non_subscriptions")
+	for _, productID := range GoldProductIDs {
+		non_subscriptions[productID] = []map[string]any{
+			{
+				"purchase_date":           GoldPurchaseDate,
+				"original_purchase_date":  GoldPurchaseDate,
+				"expires_date":            GoldExpiresDate,
+				"ownership_type":          "PURCHASED",
+				"store":                   "app_store",
+				"is_sandbox":              false,
+			},
+		}
+	}
+
+	// Gỡ management_url — không cho app nhảy sang trang quản lý subscription của Apple.
+	subscriber["management_url"] = nil
+	subscriber["first_seen"] = GoldPurchaseDate
+	subscriber["original_purchase_date"] = GoldPurchaseDate
+	subscriber["original_app_user_id"] = "b1steam-gold"
+	subscriber["original_application_version"] = "1600"
+	subscriber["original_platform"] = "ios"
 
 	subscriber["subscriptions"] = subscriptions
 	subscriber["entitlements"] = entitlements
+	subscriber["non_subscriptions"] = non_subscriptions
 	root["subscriber"] = subscriber
 	root["Attention"] = GoldAttentionMessage
+	root["attention_banner"] = map[string]any{
+		"type":        "info",
+		"title":       "B1sTeam — LocketGold",
+		"body":        "Chúc mừng! Bạn đã nâng cấp Locket Gold vĩnh viễn — B1sTeam (b1s.id.vn · @b1steam).",
+		"icon":        "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/locket_gold.jpg",
+		"dismissible": false,
+		"show_once":   false,
+		"version":     "4.0.0",
+	}
 
 	return json.Marshal(root)
 }

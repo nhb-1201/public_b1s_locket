@@ -5,6 +5,45 @@ Tất cả thay đổi đáng chú ý của `public_b1s_locket`.
 
 ---
 
+## [4.1.0] — 2026-11-15 — ✨ PHƯƠNG THỨC 1 (DNS) · FULL GOLD FEATURES
+
+### ✨ Tính năng mới
+
+* **Phương Thức 1 — DNS (chính)**: cài 1 hồ sơ `.mobileconfig` (Root CA EC P-256 + DoH
+  `doh.b1s.id.vn/fly/dns-query`) → bật Root CA → xóa Locket tải lại → **Gold ✦**.
+  Không cần Shadowrocket, không cần app lậu. Deep link: `https://doh.b1s.id.vn/mobileconfig`.
+* **Phương Thức 2 — Shadowrocket (phụ)**: giữ nguyên quy trình Module + MITM on-device.
+* **Fly MITM — full Gold injection**: Firebase Remote Config đầy đủ (90+ cờ VIP:
+  captions · frames · streak recovery · camera 60s 1080p · widgets · upsell/paywall tắt),
+  `feature_gates`/`upsell_features`/`streak_config`/`camera_video_recording`/`overlays_v2_config`
+  JSON lồng nhau, `b1s_frame_catalog`/`camera_frame_config`/`photo_frame_event`/
+  `widget_frames_config` merge từ catalog 38 khung Kawaii, `feature_discovery_popup_config`
+  (branding B1sTeam), `Attention` banner, `state=UPDATE`, `templateVersion` (ép app đọc RC mới).
+* **RevenueCat**: thêm `non_subscriptions`, gỡ `management_url`, `first_seen`,
+  `original_app_user_id`, `original_application_version`, `original_platform`,
+  `attention_banner` (welcome popup "B1sTeam Gold").
+* **/mobileconfig route mới** trong worker DoH (`backend/workers/dns-resolver`):
+  `GET https://doh.b1s.id.vn/mobileconfig` → trả hồ sơ `.mobileconfig`
+  (`application/x-apple-aspen-config`), nhúng Root CA EC P-256 + DoH Fly.
+* **Fly static server**: MITM-only — bỏ landing page + README, `/` → 302 → b1s.id.vn/locketvip.
+  Chỉ còn `/health`, `/healthz`, `/version` (tối thiểu), `/B1sTeam-LocketGold.mobileconfig`, `/robots.txt`.
+* **Trang /locketvip redesign**: 2 phương thức (tab-switcher), Phương Thức 1 (DNS)
+  là chính, Phương Thức 2 (Shadowrocket) là phụ. FAQ + hero + CTA cập nhật.
+
+### 🐛 Sửa
+
+* Firebase injection không còn thiếu cờ — trước đây chỉ `is_gold`/`gold`/`unlock_all_frames`
+  (đủ Gold badge nhưng không caption/frames/streak/upsell/widget).
+* `ios/locketgold.mobileconfig` nhúng Root CA **đúng** (khớp Fly secret, SHA-256 B0CEBAFA…) —
+  trước đây nhúng CA khác (293A303C…) làm MITM không giải mã được.
+
+### 🔒 Bảo mật
+
+* Fly static `/version` không lộ `fly_ip`/IP; log khởi động cũng không in IP.
+* Repo công khai: 0 occurrence của Fly.io IPv4/IPv6 — mọi IP qua `FLY_PROXY_IP` (secret).
+
+---
+
 ## [4.0.0] — 2026-11-15 — ✨ VIẾT LẠI TOÀN BỘ
 
 ### ✨ Tính năng mới

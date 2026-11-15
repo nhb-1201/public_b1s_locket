@@ -1,15 +1,15 @@
 # LocketGold (Free) — iOS (Shadowrocket) · B1sTeam
 
-> **Nguồn chân lý mới: `shadowrocket/`** — bộ script + module đã được viết lại toàn bộ trong v4.0.0 (12 script tách lớp, 5 định dạng module).
-> Thư mục `ios/` giữ các file dựng sẵn để tương thích ngược (Module/cấu hình/.mobileconfig mẫu).
+> **Nguồn chân lý: `shadowrocket/`** — bộ script + module đã được viết lại toàn bộ trong v4.0.0 (12 script tách lớp, 5 định dạng module).
+> Thư mục `ios/` giữ các file tương thích ngược (Module/cấu hình/.mobileconfig mẫu).
 > Bản cài 1 chạm qua b1s.id.vn/locketvip luôn phát hành từ `shadowrocket/`.
+>
+> ⭐ **Phương Thức 1 (DNS — khuyến dùng)**: chỉ cần cài `.mobileconfig` (Root CA + DoH) → bật Root CA trong Cài đặt gốc chứng chỉ → xóa Locket tải lại → Gold ✦. Không cần Shadowrocket.
+> Phương Thức 2 (Shadowrocket — phụ) là tài liệu trong file này.
 > Zalo 083.3399.553 · b1s.id.vn
 
-# LocketGold (Free) ✦ — iOS (Shadowrocket) — B1sTeam v7.8.0
-
-> B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
-
-## Cài từng bước (10 bước — khớp b1s.id.vn/locketvip)
+# LocketGold (Free) — iOS (Shadowrocket)
+## Phương Thức 2 — Shadowrocket (phụ, 10 bước)
 
 1. **Cài Shadowrocket** — App Store (ID 932747118, ~$2.99 — mua 1 lần).
 2. **Cài Module** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (`shadowrocket://install?module=…`) — hoặc **Copy Module URL** → Shadowrocket → **“+”** → **Module** → **Paste** → **Add** → “LocketGold (Free)” ✓.

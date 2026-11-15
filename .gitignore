@@ -44,3 +44,7 @@ proxy/proxy.env
 proxy/.public-ip
 proxy/b1steam-pac-profile.mobileconfig
 __pycache__/
+
+# Root CA public certificate (không chứa private key) — được commit để gen-mobileconfig chạy được.
+certs/*.key
+certs/b1steam-root-ca.key

@@ -332,7 +332,7 @@ func (s *proxyServer) modify(resp *http.Response) error {
 		if err != nil {
 			return err
 		}
-		out, err := handler.InjectFirebase(body, s.catalog)
+		out, err := handler.InjectFirebase(body, s.catalog, s.cfg.FrameWorkers)
 		if err != nil {
 			replaceBody(resp, body)
 			return nil
