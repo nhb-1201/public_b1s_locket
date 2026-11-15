@@ -61,7 +61,11 @@ public_b1s_locket/
 │   ├─ src/ratelimit.js      60 truy vấn / 10 phút / IP
 │   └─ wrangler.toml
 ├─ nextdns/                 API client NextDNS + engine xoay vòng 80%
-├─ workers/frames/          6 worker luân phiên phục vụ khung Kawaii (b1steam-frames-1..6)
+├─ workers/frames/          6 worker luân phiên phục vụ khung Kawaii (b1steam-frames-1..6-<subdomain>.workers.dev)
+├─ frame-worker/            ★ Worker photon WASM — VE KHUNG lên ảnh user (α) (b1steam-frame-raw)
+│   ├─ src/index.ts         POST /apply-frame (input_url → 1024² ảnh đã có khung) · /frame-raw (upload) · /health
+│   ├─ src/frames-data.ts   ảnh khung nhúng base64 (fallback) + URL CDN
+│   └─ wrangler.raw.toml    deploy: npx wrangler deploy --config wrangler.raw.toml (+ secret PROXY_SHARED_KEY)
 ├─ api/                     Handler Vercel: module · conf · .mobileconfig · nextdns-create/usage · health
 ├─ admin/                   Bảng quản trị (HTML tĩnh) + API HMAC-session
 ├─ scanner/                 Quét IP/domain hardcode trong cây module
@@ -99,7 +103,14 @@ public_b1s_locket/
 │  Go MITM proxy — forge leaf EC P-256         │
 │  allow-list SNI · rate-limit · không log body│
 └─────────────────────────────────────────────┘
-   │
+   │  generateFilteredImage (filter khung)
+   ▼
+┌─────────────────────────────────────────────┐
+│ b1steam-frame-raw  (Cloudflare photon WASM)  │
+│  crop √ + vẽ khung Kawaii vào ảnh của bạn    │
+│  → trả data:image/png;base64 (không lưu ảnh) │
+└─────────────────────────────────────────────┘
+   │  catalog khung (Firebase entries)
    ▼
 ┌─────────────────────────────────────────────┐
 │ b1steam-frames-1..6  (Cloudflare Workers)    │
@@ -151,11 +162,27 @@ npx wrangler deploy        # cần biến FLY_PROXY_IP, NEXTDNS_PROFILE_*
 </details>
 
 <details>
-<summary><b>6 worker khung</b></summary>
+<summary><b>6 worker khung (static)</b></summary>
 
 ```bash
 cd workers/frames
-bash deploy.sh             # lặp b1steam-frames-1..6
+bash deploy.sh             # lặp b1steam-frames-1..6 (--env fN)
+# đã deploy tại: b1steam-frames-{1..6}.nhb-120111.workers.dev
+```
+</details>
+
+<details>
+<summary><b>Worker vẽ khung (photon WASM) — b1steam-frame-raw</b></summary>
+
+```bash
+cd frame-worker
+npx wrangler deploy --config wrangler.raw.toml
+npx wrangler secret put PROXY_SHARED_KEY --config wrangler.raw.toml   # khóa chia sẻ với MITM Fly
+# trên Fly đặt cùng khóa, tên FRAME_DRAW_KEY:
+flyctl secrets set FRAME_DRAW_KEY=<cùng khóa> --app b1steam-locketgold
+# đã deploy tại: https://b1steam-frame-raw.nhb-120111.workers.dev
+#   POST /apply-frame  {input_url, filter_id} → 200 { result.outputUrl = data:image/png;base64 }
+#   POST /frame-raw    {image_base64, filter_id} → 200 { image_base64 }
 ```
 </details>
 

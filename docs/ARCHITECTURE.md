@@ -80,13 +80,31 @@ Fly.io :443 (raw TCP) → Go MITM proxy :8443
   │    • revenuecat → entitlement Gold
   │    • firebase   → VIP flags + catalog khung
   │    • locket API → bỏ paywall, unblur, badge Gold
-  │    • generateFilteredImage → pool worker khung
+  │    • generateFilteredImage → **worker photon** (vẽ khung thật) — fallback pool tĩnh
   └─ rate-limit per-IP → 429
 ```
 
-### 2.1. Rotate khung qua worker
+### 2.1. Vẽ khung photon (generateFilteredImage) + pool tĩnh
 
-`generateFilteredImage` (Photobooth / overlay) được chuyển hướng tới pool:
+`generateFilteredImage` (Photobooth / overlay / khung Kawaii) được chuyển tới worker photon —
+trịnh `fetch(input_url)` → crop √1024 → vẽ khung → trả `data:image/png;base64,...` trong JSON
+Locket (`result.outputUrl`):
+
+```
+Fly MITM  ── POST /apply-frame { input_url, filter_id } + header x-b1s-proxy-key
+             ─► b1steam-frame-raw.nhb-120111.workers.dev
+                 └─ photon WASM (@cf-wasm/photon) → 1024×1024 PNG đã có khung
+             ◄── 200 { ok:true, frame:"frame-12-gold", result:{ outputUrl:"data:image/png;base64,…" } }
+
+FAIL-OPEN: worker chết / ảnh hỏng / quá lớn (>15 MB)
+             ─► Fly trả 200 với ảnh GỐC (không bao giờ làm vỡ app)
+```
+
+Endpoint `/frame-raw` nhận base64 từ **upload ảnh của người dùng** (chặn in-device qua script
+`shadowrocket/js/b1s_upload_frame.js`) — xác thực bằng `x-b1s-license` + `x-b1s-device` qua
+`https://locket.b1s.id.vn/api/v2/locketgold/verify` (hoặc `x-b1s-proxy-key` từ MITM).
+
+Pool tĩnh phục vụ **catalog khung** (Firebase entries → widget / gallery):
 
 ```
 b1steam-frames-1.nhb-120111.workers.dev ─┐
