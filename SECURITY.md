@@ -31,7 +31,7 @@
 ## Cài đặt an toàn (đúng cách)
 
 - **Chỉ cài Shadowrocket từ App Store chính thức** (ID 932747118, tên nhà phát hành: Shadow Launch Technology Limited). Không cài bản lậu từ web.
-- **Chỉ cài .mobileconfig từ b1s.id.vn/dns** — không cài profile từ nguồn khác lạ.
+- **Chỉ cài .mobileconfig từ b1s.id.vn/locketvip#dns** — không cài profile từ nguồn khác lạ.
 - **Không chia sẻ license key** của bạn cho người khác — mỗi key chỉ được một máy verify mỗi lúc.
 
 ---

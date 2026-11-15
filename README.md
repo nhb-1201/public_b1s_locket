@@ -50,17 +50,20 @@
 
 ---
 
-## Cài đặt (5 phút)
+## Cài đặt từng bước (10 bước — 5 phút)
 
-| Bước | Việc |
-|---|---|
-| 1 | Tải **Shadowrocket** trên App Store (ID 932747118, chính thức, ~$2.99 mua 1 lần) |
-| 2 | Vô **b1s.id.vn/locketvip** → đăng nhập → bấm **Tải .conf** (license cá nhân nhúng sẵn) |
-| 3 | Shadowrocket → Cấu hình → `alfretro-*.conf` → **HTTPS解密 → 生成证书 → 安装证书** |
-| 4 | Cài đặt iPhone → Cài đặt tin cậy chứng nhận → **Shadowrocket CA** → Bật |
-| 5 | Bật Shadowrocket (góc trên-phải) → mở Locket → đợi 5–10s → **Gold ✦ hiện** |
+1. **Cài Shadowrocket** — App Store → tìm **Shadowrocket** (ID 932747118, ~$2.99 — mua 1 lần). App chính thức của App Store, không jailbreak.
+2. **Tải .conf của bạn** — vô **b1s.id.vn/locketvip** → đăng nhập → bấm **Kích hoạt free** → bấm **Tải .conf** (license đã nhúng sẵn; file `alfretro-*.conf` / `.sgmodule` — cả 2 đều đọc được).
+3. **Bật HTTPS giải mã (MITM)** — Shadowrocket → tab **Cấu hình** → chạm vào file vừa tải → nút **(i)** → **HTTPS解密 (HTTPS Decryption)**: BẬT, hostnames giữ nguyên (Locket · RevenueCat · Firebase).
+4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** → đợi ~2s — chứng chỉ gốc được tạo ngay trên máy bạn.
+5. **Cài hồ sơ chứng chỉ** — Safari tự mở “Hồ sơ đã tải” → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → chọn **Shadowrocket Root CA** → **Cài đặt** → nhập mật mã → **Xong**.
+6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → **Tiếp tục**. Thiếu bước này → Gold **không** hiện.
+7. **Bật VPN** — Shadowrocket → tab **Home** → gạt lên **BẬT** → iOS hỏi “Cho phép cấu hình VPN?” → **Cho phép** → biểu tượng **VPN** hiện trên status bar.
+8. **Xóa Locket → tải lại** — xóa hẳn Locket khỏi máy → App Store → tải lại **Locket** → đăng nhập lại bằng Apple ID / Google cũ — app sẽ đọc lại entitlement Gold vừa được MITM.
+9. **Mở Locket → Gold ✦** — đợi 5–10 giây → huy hiệu Gold ✦, video 60s · 163+ caption · khung Kawaii · Widget Gold · 0 quảng cáo.
+10. **Cần DNS? Cài trước khi tắt VPN** — nếu Locket / B1sTeam hiện yêu cầu cài DNS (hoặc bạn muốn chặn quảng cáo toàn máy): **b1s.id.vn/locketvip#dns** → **Cấp DNS riêng** → tải **B1sTeam-DNS*.mobileconfig** → Cài đặt → quay lại Locket. **Chỉ tắt VPN SAU KHI DNS cài xong.**
 
-> **Khuyến nghị**: cài `.mobileconfig` bổ trợ (tại b1s.id.vn/dns hoặc gen `/locketvip`) — chặn ads/telemetry toàn máy kể cả khi Shadowrocket tắt.
+> Xong ✦ Gold vĩnh viễn 0₫. Giữ VPN bật khi dùng Locket; tắt VPN chỉ an toàn khi DoH đã cài. File `.conf` chứa license riêng của bạn — không chia sẻ. Đổi máy / mất cert → lặp lại bước 3 → 6.
 
 ---
 

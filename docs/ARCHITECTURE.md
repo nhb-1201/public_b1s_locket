@@ -118,7 +118,7 @@ docs/           # tài liệu này
 
 | Thành phần | Công nghệ | Nhiệm vụ |
 |---|---|---|
-| **Web portal** | Next.js (Vercel) — repo `b1steam_web` nhánh `main` | Landing `/locketvip`, `/dns`, `/quantri/dns`, `/locketgold/vip` |
+| **Web portal** | Next.js (Vercel) — repo `b1steam_web` nhánh `main` | Single-page `/locketvip` (landing + cài đặt + DNS dashboard `#dns`), `/quantri/dns`, `/locketgold/vip`; `/dns` → 308 `/locketvip#dns` |
 | **AR / Sticker assets** | 27 frame + 55 sticker do B1sTeam tự sinh bằng `tools/gen-missing-assets.mjs` (SVG → PNG) | Phục vụ RemoteConfig + frame worker; AR overlay phía client |
 | **Backend API** | Next.js Route Handlers (Cloudflare Workers / OpenNext) — repo `b1steam_web` nhánh `backend` | Quản lý tài khoản/profile NextDNS, hạn mức, xoay vòng, cấp hồ sơ iOS, Vinh danh Gold |
 | **DoH Worker** | Cloudflare Worker (TypeScript) — repo này, `dns/` | Cửa vào DoH, đếm lượt truy vấn, chặn telemetry/ads, REFUSED khi chạm ngưỡng |
@@ -224,7 +224,7 @@ cron (mỗi giờ) ──> GET /api/v2/internal/dns-sync (HMAC)
                                  (hoặc tạo mới ngay nếu cron chưa kịp)
                                · is_current = 1, user_update_required = 1
                                                              │
-user vào /dns ─────────────────────────────────────────────┴─> thấy banner "Bắt buộc cập nhật DNS"
+user vào /locketvip#dns ──────────────────────┴─> thấy banner "Bắt buộc cập nhật DNS"
                           bấm "Tải hồ sơ & cài đè" → tải lại .mobileconfig
                           · user_update_required tự về 0 (tải xong)
                           cài đè lên hồ sơ cũ (không cần gỡ)

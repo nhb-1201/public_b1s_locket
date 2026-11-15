@@ -2,16 +2,20 @@
 
 > B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
 
-## Cách cài hiện tại (khuyến nghị)
+## Cài từng bước (10 bước — 5 phút, khớp b1s.id.vn/locketvip)
 
-1. Vào **[b1s.id.vn/locketvip](https://b1s.id.vn/locketvip)** → đăng nhập tài khoản B1sTeam.
-2. Vào **[b1s.id.vn/da-kich-hoat](https://b1s.id.vn/da-kich-hoat)** → bấm **Kích hoạt miễn phí** (0₫, vĩnh viễn).
-3. Bấm **Tải file .conf về máy** — Shadowrocket tự nhận `alfretro-<tail>.conf` (key của bạn nhúng sẵn,
-   gồm toàn bộ script LocketGold + 23 App Premium + DoH).
-   *(Nếu .conf lỗi trên máy → bấm "Cài module (dự phòng)" ngay bên dưới — Shadowrocket module, gộp y hệt.)*
-4. **Bật Shadowrocket** → xoay lỗi Locket → **Gold VIP ✦**.
+1. **Cài Shadowrocket** — App Store (ID 932747118, ~$2.99 — mua 1 lần).
+2. **Tải .conf của bạn** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Tải .conf** (key nhúng sẵn; `.conf` / `.sgmodule` đều được).
+3. **HTTPS解密 (MITM)** — Cấu hình → `alfretro-*` → (i) → **HTTPS解密** BẬT (hostnames Locket · RevenueCat · Firebase).
+4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** (~2s).
+5. **Cài hồ sơ chứng chỉ** — Safari → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → **Shadowrocket Root CA** → Cài đặt → nhập mã máy → Xong.
+6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → Tiếp tục.
+7. **Bật VPN** — tab **Home** → gạt **BẬT** → iOS hỏi cho phép thêm cấu hình VPN → **Cho phép**.
+8. **Xóa Locket → tải lại** — xóa hẳn, tải lại từ App Store, đăng nhập lại bằng Apple/Google ID cũ.
+9. **Mở Locket → Gold ✦** — đợi 5–10s → huy hiệu Gold, 60s video, caption, khung Kawaii, Widget Gold, 0 quảng cáo.
+10. **Cần DNS?** — nếu Locket / B1sTeam hiện yêu cầu: [b1s.id.vn/locketvip#dns](https://b1s.id.vn/locketvip#dns) → **Cấp DNS riêng** → tải **B1sTeam-DNS.mobileconfig** → Cài đặt → quay lại Locket → **sau đó mới được tắt VPN.**
 
-> File .conf/module đã gồm: script **LocketGold VIP** + **23 App Premium** + **DNS chống trả phí nhầm** (DoH B1sTeam) + chặn quảng cáo/telemetry — **một file duy nhất**, không cần cài thêm gì.
+> Xong ✦ Gold vĩnh viễn 0₫. Giữ VPN bật khi dùng Locket; tắt VPN chỉ an toàn khi DoH đã cài. File .conf chứa license riêng — không chia sẻ. Đổi máy → lặp lại bước 3 → 6.
 
 ## Build (dành cho B1sTeam)
 
@@ -54,14 +58,7 @@ ios/
 > MITM đã xử lý; `.conf` sửa `[MITM]` thành cú pháp chuẩn (bỏ `%APPEND%`/`enable = true` của
 > `.module`), bỏ `%APPEND%` khỏi `.conf` legacy.
 
-## Hướng dẫn cài từng bước (iOS + Shadowrocket)
+## Ghi chú license
 
-1. **Cài Shadowrocket** từ App Store (~72.000₫ mua 1 lần — app của bên thứ ba, B1sTeam không phát hành lại).
-2. **HTTPS解密**: *Cấu hình* → nút **(i)** cạnh config → bật **HTTPS Decrypt**.
-3. **Tạo CA**: *CA Certificate* → **Generate New CA** → **Install CA to system** → Safari mở, bấm **Allow**.
-4. **Cài profile**: *Settings → Downloaded Profile* → chọn profile Shadowrocket → **Install** → nhập passcode.
-5. **Tin cậy root**: *Settings → General → About → Certificate Trust Settings* → bật Shadowrocket → **Continue**.
-6. **Bật VPN & mở app**: tab **Home** → gạt kết nối **ON** → vuốt tắt Locket khỏi đa nhiệm → mở lại → **Gold VIP ✦**.
-
-> **Config/module do b1s.id.vn/da-kich-hoat sinh** chứa sẵn license key của bạn — **không chia sẻ**.
+> File **`.conf` / `.sgmodule`** được sinh từ **b1s.id.vn/locketvip** chứa sẵn license key của bạn — **không chia sẻ**.
 > Script cũng tự verify key khi chạy (không license → trả nguyên body, không bơm cờ nào).
