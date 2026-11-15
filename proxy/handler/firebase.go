@@ -5,10 +5,22 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	_ "embed"
 )
 
 // FirebaseAttentionMessage — banner thông báo gắn vào Remote Config (branding).
 const FirebaseAttentionMessage = "B1sTeam Activated (Gold Lifetime)!"
+
+// camera_filter_config.json — bản snapshot đầy đủ (cascade từ app Locket gold account) camera_filter_config.
+// Tải nguyên Xwuan19/locket-gold-hub/tree/main/proxy/handler/camera_filter_config.json — giữ nguyên
+// nội dung: đây là cấu hình filter mà app Locket tự đọc để vẽ nút sheet, list picker_filters (81
+// filter), sheet_filters, remote_filters, ... — nếu thiếu thì app chỉ hiện "Gold badge" mà thôi.
+// Bundling trực tiếp vào binary để giữ deploy-simple; update file này nếu Locket thêm filter mới.
+//
+//go:embed camera_filter_config.json
+var cameraFilterConfigJSON string
+var celebrityFilterConfigJSON = fmt.Sprintf(`{"celebrityUid":"locket_admin_custom","cameraFilterConfig":%s}`, cameraFilterConfigJSON)
 
 // FirebaseGoldFlags — bản thân chỉ tồn tại cho compat; mọi flag thật ở firebase_entries.go
 // (build tự động từ _remote_entries.fragment.js — 327 entries).
@@ -16,8 +28,9 @@ const FirebaseAttentionMessage = "B1sTeam Activated (Gold Lifetime)!"
 // FirebasePremiumGates — danh sách mọi feature premium → "enabled".
 var FirebasePremiumGates = []string{
 	"app_icon_picker", "camera_roll", "camera_theme", "locket_views", "long_captions",
-	"longer_video", "unlimited_friends", "priority_support", "profile_badge",
-	"remove_ads", "video", "custom_widget_frames", "streak_recovery",
+	"longer_video", "longer_videos", "longer_camera_roll_videos", "unlimited_friends",
+	"priority_support", "profile_badge", "remove_ads", "video", "video_trimmer",
+	"custom_widget_frames", "streak_recovery",
 	"camera_filter", "camera_filters", "filters", "camera_filter_sheet",
 	"camera_filters_sheet", "camera_filter_picker", "camera_theme_sheet",
 	"camera_themes_sheet", "camera_theme_picker", "camera_themes_config",
@@ -25,6 +38,11 @@ var FirebasePremiumGates = []string{
 	"moment_views", "groups", "rollcall", "time_travel_rewind",
 	"conversation_drafts", "chat_hyperlinks", "unsend_message",
 	"celebrity_inbox", "user_data_export",
+	"ai_filter", "ai_filters", "likeness", "ai_likeness", "create_likeness",
+	"likeness_creation", "face_filter", "face_filters", "ai_styles", "ai_style",
+	"avatars", "avatar", "can_record_30s_video", "can_upload_30s_video",
+	"can_record_60s_video", "can_upload_60s_video", "camera_roll_video",
+	"camera_roll_video_upload", "camera_roll_longer_videos",
 }
 
 // FirebaseLegacyOnRegex — cờ dạng cũ "gold*" khớp pattern → ép true / 999999.
@@ -289,6 +307,20 @@ func InjectFirebase(body []byte, catalog *FrameCatalog, workers []string) ([]byt
 	// 2) Force cache_ttl = 0 để app tự fetch ngay sau khi cài MITM.
 	entries["cache_ttl_seconds"] = "0"
 	entries["client_cache_ttl_sec"] = "0"
+
+	// 2b) camera_filter_config ĐẦY ĐỦ (633KB — bundled). Thiếu nó thì app chỉ hiện Gold badge.
+	entries["camera_filter_config"] = cameraFilterConfigJSON
+	entries["celebrity_filter_config"] = celebrityFilterConfigJSON
+	entries["camera_filter_sheet_enabled"] = "true"
+	entries["camera_filter_picker_enabled"] = "true"
+	entries["camera_filter_sheet_selection_enabled"] = "true"
+	entries["sheet_filters_selectable"] = "true"
+	entries["ai_filters_enabled"] = "true"
+	entries["camera_ai_filters_enabled"] = "true"
+	entries["face_filters_enabled"] = "true"
+	entries["ai_styles_enabled"] = "true"
+	entries["likeness_creation_enabled"] = "true"
+	entries["unlocked_filters"] = "true"
 
 	// 3) JSON lồng nhau — caption / overlay / camera / upsell / streak/paywall / RC.
 	entries["overlays_v2_config"] = buildOverlaysV2Config()

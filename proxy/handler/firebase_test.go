@@ -90,10 +90,27 @@ func TestInjectFirebaseInjectsFullUnlock(t *testing.T) {
 	if !strings.Contains(cameraJSON, `"goldMaxDuration":60`) {
 		t.Errorf("camera JSON missing goldMaxDuration=60: %q", cameraJSON)
 	}
-	// camera_filter_config JSON must have allows_custom_filters=true
+	// camera_filter_config JSON must have allowsCustomFilters=true and 81 picker filters
 	cfc := asString(entries["camera_filter_config"])
-	if !strings.Contains(cfc, `"allows_custom_filters":true`) {
-		t.Errorf("camera_filter_config missing allows_custom_filters: %q", cfc)
+	if !strings.Contains(cfc, `"allowsCustomFilters": true`) {
+		t.Errorf("camera_filter_config missing allowsCustomFilters: %s", cfc[:200])
+	}
+	if !strings.Contains(cfc, `"pickerFilters"`) {
+		t.Errorf("camera_filter_config missing pickerFilters: %s", cfc[:200])
+	}
+	if !strings.Contains(cfc, `"looks_maxxing"`) {
+		t.Errorf("camera_filter_config missing AI filter looks_maxxing: %s", cfc[:300])
+	}
+	celebrity := asString(entries["celebrity_filter_config"])
+	if !strings.Contains(celebrity, `"celebrityUid":"locket_admin_custom"`) {
+		t.Errorf("celebrity_filter_config at celebrityUid missing: %s", celebrity[:200])
+	}
+	// feature_gates must enable the extra VIP gates
+	fg := asString(entries["feature_gates"])
+	for _, g := range []string{"can_record_60s_video", "can_upload_60s_video", "ai_filters", "video_trimmer", "likeness", "ai_likeness", "face_filters", "ai_styles", "avatars"} {
+		if !strings.Contains(fg, g+`":"enabled"`) {
+			t.Errorf("feature_gates missing gate %q in %q", g, fg)
+		}
 	}
 }
 
