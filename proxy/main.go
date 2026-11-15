@@ -276,6 +276,19 @@ func (s *proxyServer) newReverseProxy() *httputil.ReverseProxy {
 func (s *proxyServer) direct(req *http.Request) {
 	stripCacheHeaders(req.Header)
 
+	// Ep vung US + thoi gian LA vao header — Locket chi mo filter/mic/caption/
+	// video/frame o khu vuc US. (Shadowrocket module cung ep vung US — worker
+	// B1sTeam khop nhu the.)
+	//
+	// QUAN TRONG: không đụng media (signed URL → 403 nếu bị sửa query).
+	if !isMediaPath(req.URL.Path) {
+		req.Header.Set("X-App-Region", "US")
+		req.Header.Set("X-Country-Code", "US")
+		req.Header.Set("X-Device-Country", "US")
+		req.Header.Set("X-Timezone", "America/Los_Angeles")
+		req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	}
+
 	// generateFilteredImage -> chuyen sang pool worker frame.
 	if info, ok := filterInfoFrom(req.Context()); ok {
 		worker := s.frames.Next()
@@ -578,6 +591,23 @@ func stripCacheHeaders(h http.Header) {
 			h.Del(key)
 		}
 	}
+}
+
+// isMediaPath kiem tra path co ket thuc bang duoi media (thinchoy/Image/Video/Audio).
+// Media signed URL → khong duoc cham vao (giu nguyen query).
+func isMediaPath(path string) bool {
+	p := strings.ToLower(path)
+	mediaExts := []string{
+		".jpg", ".jpeg", ".jfif", ".png", ".webp", ".heic", ".heif", ".gif", ".bmp", ".tif", ".tiff",
+		".mp4", ".mov", ".m4v", ".m3u8", ".ts", ".webm",
+		".mp3", ".m4a", ".aac", ".wav", ".opus", ".flac",
+	}
+	for _, ext := range mediaExts {
+		if strings.HasSuffix(p, ext) {
+			return true
+		}
+	}
+	return false
 }
 
 // readAndClose doc body response va dong no lai.
