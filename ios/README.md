@@ -1,3 +1,10 @@
+# LocketGold (Free) — iOS (Shadowrocket) · B1sTeam
+
+> **Nguồn chân lý mới: `shadowrocket/`** — bộ script + module đã được viết lại toàn bộ trong v4.0.0 (12 script tách lớp, 5 định dạng module).
+> Thư mục `ios/` giữ các file dựng sẵn để tương thích ngược (Module/cấu hình/.mobileconfig mẫu).
+> Bản cài 1 chạm qua b1s.id.vn/locketvip luôn phát hành từ `shadowrocket/`.
+> Zalo 083.3399.553 · b1s.id.vn
+
 # LocketGold (Free) ✦ — iOS (Shadowrocket) — B1sTeam v7.8.0
 
 > B1sTeam — b1s.id.vn · @b1steam · Nguyễn Hoàng Bách
