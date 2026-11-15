@@ -92,7 +92,7 @@ func TestInjectFirebaseInjectsFullUnlock(t *testing.T) {
 	}
 	// camera_filter_config JSON must have allowsCustomFilters=true and 81 picker filters
 	cfc := asString(entries["camera_filter_config"])
-	if !strings.Contains(cfc, `"allowsCustomFilters": true`) {
+	if !strings.Contains(cfc, `"allowsCustomFilters":true`) && !strings.Contains(cfc, `"allowsCustomFilters": true`) {
 		t.Errorf("camera_filter_config missing allowsCustomFilters: %s", cfc[:200])
 	}
 	if !strings.Contains(cfc, `"pickerFilters"`) {
