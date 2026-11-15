@@ -276,9 +276,9 @@ func (s *proxyServer) newReverseProxy() *httputil.ReverseProxy {
 func (s *proxyServer) direct(req *http.Request) {
 	stripCacheHeaders(req.Header)
 
-	// Ep vung US + thoi gian LA vao header — Locket chi mo filter/mic/caption/
-	// video/frame o khu vuc US. (Shadowrocket module cung ep vung US — worker
-	// B1sTeam khop nhu the.)
+	// Ep vung US + thoi gian LA vao header va query — Locket chi mo filter/mic/
+	// caption/video/frame o khu vuc US. (Shadowrocket module cung ep vung US —
+	// worker B1sTeam khop nhu the.)
 	//
 	// QUAN TRONG: không đụng media (signed URL → 403 nếu bị sửa query).
 	if !isMediaPath(req.URL.Path) {
@@ -287,6 +287,18 @@ func (s *proxyServer) direct(req *http.Request) {
 		req.Header.Set("X-Device-Country", "US")
 		req.Header.Set("X-Timezone", "America/Los_Angeles")
 		req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+
+		// Ep query country_code/time_zone/language_code — Locket doc tu query.
+		// Chi ep tren host RC/FC/Locket API (khong ep media CDN).
+		hostLC := strings.ToLower(req.URL.Hostname())
+		allow := strings.Contains(hostLC, "remoteconfig") || strings.Contains(hostLC, "locketcamera") || strings.Contains(hostLC, "cloudfunctions") || strings.Contains(hostLC, "revenuecat")
+		if allow {
+			q := req.URL.Query()
+			q.Set("country_code", "US")
+			q.Set("time_zone", "America/Los_Angeles")
+			q.Set("language_code", "en")
+			req.URL.RawQuery = q.Encode()
+		}
 	}
 
 	// generateFilteredImage -> chuyen sang pool worker frame.
