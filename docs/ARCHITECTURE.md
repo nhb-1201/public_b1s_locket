@@ -41,7 +41,7 @@ Tài liệu này mô tả cách hệ thống hoạt động từ lúc người d
 
 | Thành phần | Công nghệ | Nhiệm vụ |
 |---|---|---|
-| **Shadowrocket package** | `.conf` / `.sgmodule` + 6 MITM scripts (`ios/scripts/*.v7.8.0.js`) | MITM RC/Locket/FC ngay trên máy; mở khóa Gold + unlock khung Kawaii |
+| **Shadowrocket package** | `.module` (sinh từ `.conf` khi dev) + 6 MITM scripts (`ios/scripts/*.v7.8.0.js`) | MITM RC/Locket/FC ngay trên máy; mở khóa Gold + unlock khung Kawaii |
 | **Web portal** | `b1s.id.vn/locketvip` (b1steam_web `main`) | Landing "LocketGold (Free)" + wizard càiđặt + VipHonorCard |
 | **Backend** | `locket.b1s.id.vn` (CF Workers v3.3.5) | Verify license + serve module/.conf cá nhân hóa + VIP list + tick |
 | **Rewards/frames** | `locket-filter-frame` v2.0.0 | Vẽ khung Kawaii lên ảnh (4 accounts, round-robin + failover) |
@@ -72,7 +72,7 @@ ios/            # Shadowrocket (v7.8.0) — nguồn chân lý
   src/          # MITM scripts (*.src.js) — CHỈNH Ở ĐÂY, không sửa scripts/*.js
   scripts/      # OUTPUT generated (commit luôn; cache-bust file name .v7.8.0.js)
   alfretro-allinone.conf          # Nguồn chính SHADOWROCKET
-  locketgold.sgmodule             # GENERATED (build.mjs) — %APPEND% [MITM]
+  locketgold.sgmodule             # Module source-of-truth (%APPEND% [MITM])
   conf.html / module.html         # Landing cute → /locketvip
   README.md / CHANGELOG.md
 dns/            # DoH worker (RFC 8484)

@@ -5,7 +5,7 @@
 ## Cài từng bước (10 bước — khớp b1s.id.vn/locketvip)
 
 1. **Cài Shadowrocket** — App Store (ID 932747118, ~$2.99 — mua 1 lần).
-2. **Cài Module** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (hoặc tải `.sgmodule`, key nhúng sẵn). Shadowrocket → tab **Module** → bật “LocketGold (Free)”.
+2. **Cài Module** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (hoặc tải file `.module`, key nhúng sẵn). Shadowrocket → tab **Module** → bật “LocketGold (Free)”.
 3. **HTTPS解密 (MITM)** — Cấu hình → (i) → **HTTPS解密** BẬT (hostnames Locket · RevenueCat · Firebase).
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** (~2s).
 5. **Cài hồ sơ chứng chỉ** — Safari → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → **Shadowrocket Root CA** → Cài đặt → nhập mã máy → Xong.
@@ -20,19 +20,19 @@
 ## Build (dành cho B1sTeam)
 
 ```
-node ios/build.mjs          # src → scripts/*.js + locketgold.sgmodule
+node ios/build.mjs          # src → scripts/*.js
 node ios/build.mjs --check  # CI: exit 1 nếu output chưa build lại
 ```
 
 - Sửa **`ios/src/**`** (bao gồm `src/lib/license-gate.js` — license gate dùng chung), KHÔNG sửa `scripts/*.js` (generated).
-- `locketgold.sgmodule` sinh từ `alfretro-allinone.conf` — chỉ sửa `.conf`, module tự đồng bộ.
+- `ios/locketgold.sgmodule` là MODULE chính (source-of-truth) — mọi thay đổi sửa trực tiếp tại file này (không sinh từ `.conf` nữa).
 
 ## File trong thư mục này
 
 ```
 ios/
 ├─ alfretro-allinone.conf     # Cấu hình Shadowrocket All-In-One (nguồn chân lý)
-├─ locketgold.sgmodule        # Module Shadowrocket (GENERATED — %APPEND% ở [MITM])
+├─ locketgold.sgmodule        # Module Shadowrocket (source-of-truth — %APPEND% ở [MITM])
 ├─ locketgold.conf            # Bản tĩnh LocketGold-only (legacy)
 ├─ locketgold.mobileconfig    # Profile DNS Split DNS qua doh.b1s.id.vn (iOS 14+)
 ├─ build.mjs                  # Build tool (inline lib → scripts + sinh module)
@@ -60,5 +60,5 @@ ios/
 
 ## Ghi chú license
 
-> File **`.conf` / `.sgmodule`** được sinh từ **b1s.id.vn/locketvip** chứa sẵn license key của bạn — **không chia sẻ**.
+> File **`.module`** (hoặc `.conf`) được sinh từ **b1s.id.vn/locketvip** chứa sẵn license key của bạn — **không chia sẻ**.
 > Script cũng tự verify key khi chạy (không license → trả nguyên body, không bơm cờ nào).

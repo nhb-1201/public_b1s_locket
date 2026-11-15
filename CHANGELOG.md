@@ -1,5 +1,17 @@
 # CHANGELOG — LocketGold (public_b1s_locket)
 
+## [3.5.0] — 2026-11-15
+
+**Module rà soát toàn bộ + sửa format, chuẩn Shadowrocket**
+
+- `ios/locketgold.sgmodule` từ sinh tự động → **source-of-truth** (sửa tay; không sinh từ `.conf`).
+- Sửa module: bỏ `[General]` (DNS/`bypass-system`/`tun-excluded-routes` — không thuộc module), bỏ `FINAL,DIRECT` (sẽ ép mọi traffic về DIRECT), bỏ các rule `,DIRECT` noop; `[Host] firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0` → rule `REJECT-DROP` tương đương.
+- `#!version = 7.8.1`, `#!updated = 2026-11-15`; giữ nguyên 6 MITM scripts (cần thiết).
+- `[Url Rewrite]` giữ nguyên; `header-del` giữ cho từng cặp RC/Locket (Header Rewrite hợp lệ).
+- `build.mjs`: bỏ `buildModule()`; `--check` chỉ còn scripts. Chạy lại 1 lần để đồng bộ `B1S_BUILD`.
+- Docs: đồng bộ file list/thuật ngữ `.module`; frontend: "Cài Module tự động qua Shadowrocket" + nút phụ `.module`.
+- Backend: `/api/v2/locketgold/module/all-in-one?key=` trả file `locketgold-<tail>.module` (đã verify 200).
+
 ## [3.4.0] — 2026-11-15
 
 **Chuyển hướng cài đặt chính sang Module Shadowrocket (auto-import), bỏ .conf khỏi luồng người dùng**

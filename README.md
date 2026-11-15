@@ -51,7 +51,7 @@
 ## Cài đặt từng bước (10 bước — vài phút)
 
 1. **Cài Shadowrocket** — App Store → tìm **Shadowrocket** (ID 932747118, ~$2.99 — mua 1 lần). App chính thức của App Store, không jailbreak.
-2. **Cài Module LocketGold** — vô **b1s.id.vn/locketvip** → đăng nhập → bấm **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (hoặc tải `.sgmodule` — key của bạn nhúng sẵn; mở Shadowrocket → tab **Module** → bật “LocketGold (Free)”). *Trên web: Bước 2 trong phần “Hướng dẫn từng bước” — tiến trình được nhớ tự động.*
+2. **Cài Module LocketGold** — vô **b1s.id.vn/locketvip** → đăng nhập → bấm **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (hoặc tải file `.module` — key của bạn nhúng sẵn; mở Shadowrocket → tab **Module** → bật “LocketGold (Free)”). *Trên web: Bước 2 trong phần “Hướng dẫn từng bước” — tiến trình được nhớ tự động.*
 3. **Bật Module + HTTPS解密 (MITM)** — Shadowrocket → tab **Module** → bật “LocketGold (Free)” → tab **Cấu hình** → (i) cấu hình hiện hành → **HTTPS解密**: BẬT, hostnames giữ nguyên (Locket · RevenueCat · Firebase).
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** → đợi ~2s — chứng chỉ gốc được tạo ngay trên máy bạn.
 5. **Cài hồ sơ chứng chỉ** — Safari tự mở “Hồ sơ đã tải” → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → chọn **Shadowrocket Root CA** → **Cài đặt** → nhập mật mã → **Xong**.
@@ -88,7 +88,7 @@ ios/            # Shadowrocket (v7.8.0) — nguồn chân lý Shadowrocket
   src/          # MITM scripts source (src/*.src.js) — KHÔNG sửa scripts/*.js
   scripts/      # OUTPUT generated (commit được; cache-bust qua file name .v7.8.0.js)
   alfretro-allinone.conf   # Nguồn chính
-  locketgold.sgmodule      # GENERATED (build.mjs) — %APPEND% [MITM]
+  locketgold.sgmodule      # Module Shadowrocket (source-of-truth — %APPEND% [MITM])
   conf.html / module.html  # Landing cute → /locketvip
   locketgold.mobileconfig  # Demo .mobileconfig (bổ trợ DoH); file cá nhân gen bởi backend qua /api/v2/dns/mobileconfig
   README.md     # Hướng dẫn người dùng cuối
