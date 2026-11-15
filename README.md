@@ -56,7 +56,7 @@
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** → đợi ~2s — chứng chỉ gốc được tạo ngay trên máy bạn.
 5. **Cài hồ sơ chứng chỉ** — Safari tự mở “Hồ sơ đã tải” → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → chọn **Shadowrocket Root CA** → **Cài đặt** → nhập mật mã → **Xong**.
 6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → **Tiếp tục**. Thiếu bước này → Gold **không** hiện.
-7. **Bật VPN** — Shadowrocket → tab **Home** → gạt lên **BẬT** → iOS hỏi “Cho phép cấu hình VPN?” → **Cho phép** → biểu tượng **VPN** hiện trên status bar.
+7. **Bật VPN** — Shadowrocket → tab **Home** → chạm “alfretro-*” để bật → iOS hỏi “Cho phép cấu hình VPN?” → **Cho phép** → status bar hiện **VPN** (“Đã kết nối”). **Không thấy gì xảy ra?** → tab Cấu hình → (i) “alfretro-*” → bật **HTTPS解密** → lặp lại Bước 4–6 (cert phải được tin cậy).
 8. **Xóa Locket → tải lại** — xóa hẳn Locket khỏi máy → App Store → tải lại **Locket** → đăng nhập lại bằng Apple ID / Google cũ — app sẽ đọc lại entitlement Gold vừa được MITM.
 9. **Mở Locket → Gold ✦** — đợi 5–10 giây → huy hiệu Gold ✦, video 60s · 163+ caption · khung Kawaii · Widget Gold · 0 quảng cáo.
 10. **Cài DNS riêng (DoH) — bước cuối, bổ trợ** — vào **b1s.id.vn/locketvip#cai-dat** → lật tới **Bước 10 → Cấp DNS**: 1 tài khoản **NextDNS riêng** (300.000 truy vấn / 30 ngày) + **DoH RFC 8484** — chặn quảng cáo/telemetry toàn máy kể cả khi Shadowrocket tắt. Cài 1 hồ sơ `.mobileconfig` là xong. Shadowrocket vẫn là đường mở Gold — DoH chỉ giúp máy sạch hơn.

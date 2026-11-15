@@ -10,7 +10,7 @@
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** (~2s).
 5. **Cài hồ sơ chứng chỉ** — Safari → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → **Shadowrocket Root CA** → Cài đặt → nhập mã máy → Xong.
 6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → Tiếp tục.
-7. **Bật VPN** — tab **Home** → gạt **BẬT** → iOS hỏi cho phép thêm cấu hình VPN → **Cho phép**.
+7. **Bật VPN** — tab **Home** → chạm “alfretro-*” để bật → iOS hỏi cho phép thêm cấu hình VPN → **Cho phép** → status bar hiện **VPN**. Không thấy gì? → (i) “alfretro-*” → bật **HTTPS解密** → lặp lại bước 4–6.
 8. **Xóa Locket → tải lại** — xóa hẳn, tải lại từ App Store, đăng nhập lại bằng Apple/Google ID cũ.
 9. **Mở Locket → Gold ✦** — đợi 5–10s → huy hiệu Gold, 60s video, caption, khung Kawaii, Widget Gold, 0 quảng cáo.
 10. **Cài DNS riêng (DoH) — bước cuối, bổ trợ** — Bước 10 trên [b1s.id.vn/locketvip#cai-dat](https://b1s.id.vn/locketvip#cai-dat) → **Cấp DNS**: NextDNS riêng (300k truy vấn / 30 ngày) + DoH RFC 8484 → tải `.mobileconfig` → Cài đặt. Shadowrocket vẫn là đường mở Gold; DoH chỉ bổ trợ.

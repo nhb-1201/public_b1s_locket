@@ -15,7 +15,7 @@
 bypass-system = true
 skip-proxy = *.local, *.crashlytics.com, captive.apple.com
 tun-excluded-routes = 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12
-dns-server = https://doh.b1s.id.vn/dns-query, system
+dns-server = doh://doh.b1s.id.vn/dns-query, system
 ipv6 = false
 
 [Rule]
@@ -33,7 +33,7 @@ DOMAIN-SUFFIX,googleadservices.com,REJECT-DROP
 DOMAIN-SUFFIX,appsflyer.com,REJECT-DROP
 DOMAIN-SUFFIX,adjust.com,REJECT-DROP
 DOMAIN-SUFFIX,criteo.com,REJECT-DROP
-# Locket + RevenueCat + Firebase → PROXY để MITM bẻ khoá
+# Locket + RevenueCat + Firebase → DIRECT (MITM giải mã on-device, không cần proxy trung gian)
 # Telemetry / Ads / Attribution - log 2026-11-14: cac domain nay van lot
 DOMAIN-SUFFIX,sentry.io,REJECT-DROP
 DOMAIN-SUFFIX,ingest.sentry.io,REJECT-DROP
@@ -49,15 +49,15 @@ DOMAIN-SUFFIX,ads.google.com,REJECT-DROP
 DOMAIN-SUFFIX,analytics.google.com,REJECT-DROP
 DOMAIN-SUFFIX,amp-api-edge.apps.apple.com,REJECT-DROP
 
-DOMAIN-SUFFIX,revenuecat.com,PROXY
-DOMAIN-SUFFIX,rc-backup.com,PROXY
-DOMAIN-SUFFIX,rev.cat,PROXY
-DOMAIN-SUFFIX,locketcamera.com,PROXY
-DOMAIN-SUFFIX,locket.camera,PROXY
-DOMAIN-SUFFIX,firebaseremoteconfig.googleapis.com,PROXY
-DOMAIN-SUFFIX,firebaseremoteconfig.google.com,PROXY
-DOMAIN-SUFFIX,firebasestorage.googleapis.com,PROXY
-DOMAIN-SUFFIX,storage.googleapis.com,PROXY
+DOMAIN-SUFFIX,revenuecat.com,DIRECT
+DOMAIN-SUFFIX,rc-backup.com,DIRECT
+DOMAIN-SUFFIX,rev.cat,DIRECT
+DOMAIN-SUFFIX,locketcamera.com,DIRECT
+DOMAIN-SUFFIX,locket.camera,DIRECT
+DOMAIN-SUFFIX,firebaseremoteconfig.googleapis.com,DIRECT
+DOMAIN-SUFFIX,firebaseremoteconfig.google.com,DIRECT
+DOMAIN-SUFFIX,firebasestorage.googleapis.com,DIRECT
+DOMAIN-SUFFIX,storage.googleapis.com,DIRECT
 IP-CIDR,127.0.0.0/8,DIRECT
 IP-CIDR,10.0.0.0/8,DIRECT
 IP-CIDR,172.16.0.0/12,DIRECT
