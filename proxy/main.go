@@ -301,25 +301,9 @@ func (s *proxyServer) direct(req *http.Request) {
 		}
 	}
 
-	// generateFilteredImage -> chuyen sang pool worker frame.
-	if info, ok := filterInfoFrom(req.Context()); ok {
-		worker := s.frames.Next()
-		if worker != nil {
-			req.URL.Scheme = "https"
-			req.URL.Host = worker.Host
-			req.Host = worker.Host
-			req.Header.Set("X-B1s-Frame-Source", "b1steam")
-			req.Header.Set("X-Module-Origin", "Locket_YouTube")
-			if info.ID != "" {
-				req.Header.Set("X-B1s-Frame-Id", info.ID)
-			}
-			if info.PhotoURL != "" {
-				req.Header.Set("X-B1s-Frame-Input", info.PhotoURL)
-			}
-			s.log.Debug("chuyen request sang frame worker", "worker", worker.BaseURL, "filter", info.ID)
-		}
-		return
-	}
+	// generateFilteredImage (non-overlay) — KHÔNG chuyển sang frame worker:
+	// pass-through tới upstream thật (Google/Locket AI) rồi
+	// modify() sẽ CleanFilterResponse (xoá lỗi, ép unlocked/200).
 
 	if req.URL.Scheme == "" {
 		req.URL.Scheme = "https"
@@ -383,11 +367,16 @@ func (s *proxyServer) modify(resp *http.Response) error {
 		if err != nil {
 			return err
 		}
-		if !handler.IsFeedOrFriendsEndpoint(path) {
-			switch resp.StatusCode {
-			case http.StatusBadRequest, http.StatusPaymentRequired, http.StatusForbidden:
-				resp.StatusCode = http.StatusOK
-			}
+		if handler.IsFeedOrFriendsEndpoint(path) {
+			// Feed/bạn bè/moments: KHÔNG đụng vào — truyền nguyên văn
+			// để app không bị vỡ decode (mất danh sách bạn bè).
+			replaceBody(resp, body)
+			return nil
+		}
+		// Ngoài feed/bạn bè: gỡ lỗi 400/402/403 → 200 + mở khóa Gold.
+		switch resp.StatusCode {
+		case http.StatusBadRequest, http.StatusPaymentRequired, http.StatusForbidden:
+			resp.StatusCode = http.StatusOK
 		}
 		out := handler.RewriteLocketAPI(body)
 		replaceBody(resp, out)
