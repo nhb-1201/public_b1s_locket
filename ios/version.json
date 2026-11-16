@@ -1,7 +1,7 @@
 {
   "product": "LocketGold (Free) — B1sTeam",
-  "version": "7.8.0",
-  "updated": "2026-11-14",
+  "version": "7.8.2",
+  "updated": "2026-11-16",
   "channel": "stable",
   "system": "Shadowrocket module (iOS)",
   "note": "Nguồn sự thật duy nhất cho module/.conf/scripts. ios/alfretro-allinone.conf là file cấu hình chính; build.mjs regen scripts + .sgmodule (tính %APPEND% cho module)."
