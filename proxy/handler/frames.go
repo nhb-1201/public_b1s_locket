@@ -25,6 +25,7 @@ type Frame struct {
 	Name       string   `json:"name"`
 	Group      string   `json:"group"`
 	File       string   `json:"file"`
+	URL        string   `json:"url"`
 	WorkerPath string   `json:"worker_path"`
 	Width      int      `json:"width"`
 	Height     int      `json:"height"`

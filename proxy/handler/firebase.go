@@ -74,6 +74,33 @@ func fnv1a32(s string) uint32 {
 }
 
 // frameWorkerPick — chọn worker theo hash(id) để ổn định URL ảnh (không round-robin).
+// widgetPickIds — 8 khung đẹp được chọn thủ công (verified 200 OK qua raw GitHub).
+// Xoay vòng tuần tự mỗi ngày 1 khung, hết 8 quay lại đầu (UTC day-of-year).
+var widgetPickIds = []string{
+	"b1s_locketvip_sakura_tho_meo_torii",
+	"b1s_locketvip_hello_kitty_hearts_pink",
+	"b1s_locketvip_shinchan_neon",
+	"b1s_locketvip_my_melody_plaid_hearts",
+	"b1s_locketvip_frieren_ice",
+	"b1s_locketvip_doraemon_besties",
+	"b1s_locketvip_kawaii_banana_border_frame",
+	"b1s_locketvip_dragonball_rainbow",
+}
+
+// DailyWidgetFrame — chọn 1 trong 8 khung đẹp theo ngày (UTC day-of-year % 8).
+// Cùng một ngày luôn ra cùng một khung cho mọi request — lặp lại mỗi tuần.
+func DailyWidgetFrame(frames []Frame) Frame {
+	day := time.Now().UTC().YearDay()
+	target := widgetPickIds[day%len(widgetPickIds)]
+	for _, f := range frames {
+		if f.ID == target {
+			return f
+		}
+	}
+	// fallback: khung đầu danh sách (phải tồn tại — catalog luôn có >= 1)
+	return frames[0]
+}
+
 func frameWorkerPick(workers []string, id string) string {
 	if len(workers) == 0 {
 		return "https://b1steam-frames-1.nhb-120111.workers.dev" // fallback nếu không có pool
@@ -200,12 +227,12 @@ func buildPopupWelcome(now int64) string {
 }
 
 // FrameEntryFor — entry khung gửi cho Locket RC (name/group/url/premium).
-func frameEntryFor(f Frame, workerBase string) map[string]any {
+func frameEntryFor(f Frame, _ string) map[string]any {
 	return map[string]any{
 		"id":      f.ID,
 		"name":    f.Name,
 		"group":   f.Group,
-		"url":     strings.TrimRight(workerBase, "/") + "/f/" + f.WorkerPathOrName(),
+		"url":     f.URL,
 		"premium": f.Premium,
 	}
 }
@@ -334,27 +361,29 @@ func InjectFirebase(body []byte, catalog *FrameCatalog, workers []string) ([]byt
 	// 4) Popup branding B1sTeam.
 	entries["feature_discovery_popup_config"] = buildPopupWelcome(time.Now().Unix())
 
-	// 5) Catalog khung Kawaii.
+	// 5) Catalog khung (150 khung — raw GitHub) + xoay vòng widget mỗi ngày 1 khung.
 	if catalog != nil && len(catalog.Frames) > 0 {
-		wf := make([]Frame, 0, len(catalog.Frames))
+		// Catalog → URL raw GitHub (verified 200, không qua worker).
+		b1sCatalog := make([]map[string]any, 0, len(catalog.Frames))
 		for _, f := range catalog.Frames {
-			wf = append(wf, f)
+			b1sCatalog = append(b1sCatalog, frameEntryFor(f, ""))
 		}
-		b1sCatalog := make([]map[string]any, 0, len(wf))
-		for _, f := range wf {
-			b1sCatalog = append(b1sCatalog, frameEntryFor(f, frameWorkerPick(workers, f.ID)))
-		}
+
+		// Xoay vòng 8 khung đẹp theo ngày (UTC day-of-year mod 8) — lặp lại tự động mỗi ngày.
+		daily := DailyWidgetFrame(catalog.Frames)
+		dailyURL := daily.URL
+
 		entries["b1s_frame_catalog"] = toJSONString(b1sCatalog)
 		entries["b1s_frame_urls"] = toJSONString(b1sCatalog)
 		entries["camera_frame_config"] = toJSONString(map[string]any{
 			"enabled":   true,
-			"default":   "frame-12-gold",
+			"default":   daily.ID,
 			"placement": "above",
 			"frames":    b1sCatalog,
 		})
 		frameEvent := map[string]any{
 			"uid":                 "b1steam_frame_event",
-			"url":                 frameWorkerPick(workers, "frame-14-crayon") + "/f/frame-14-crayon",
+			"url":                 dailyURL,
 			"placement":           "above",
 			"use_local_time_zone": true,
 			"start_at":            "2020-01-01T00:00:00",
@@ -362,8 +391,8 @@ func InjectFirebase(body []byte, catalog *FrameCatalog, workers []string) ([]byt
 		}
 		entries["photo_frame_event"] = toJSONString(frameEvent)
 		entries["widget_frame_event"] = toJSONString(frameEvent)
-		ids := make([]string, 0, len(wf))
-		for _, f := range wf {
+		ids := make([]string, 0, len(catalog.Frames))
+		for _, f := range catalog.Frames {
 			ids = append(ids, f.ID)
 		}
 		entries["custom_widget_frames_config"] = toJSONString(ids)
