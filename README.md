@@ -31,7 +31,7 @@ Hồ sơ `.mobileconfig` đầy đủ (Root CA EC P-256 + DoH) cũng có thể t
 |------|--------------|
 | 1 | Cài **Shadowrocket** (App Store ID `932747118`, ~$2.99 mua 1 lần) |
 | 2 | Vào [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → chọn **Phương Thức 2** → **Kích hoạt free** |
-| 3 | **Cài Module** qua `shadowrocket://install?module=` hoặc **Copy Module URL** → Shadowrocket → **“+”** → Module → Paste → Add |
+| 3 | **Cài .conf** qua `shadowrocket://config/add/` hoặc **Copy .conf URL** → Shadowrocket → **“+”** → Cấu hình → Paste → Add (file `ios/alfretro-allinone.conf`, key nhúng sẵn) |
 | 4 | Tạo chứng chỉ → cài hồ sơ → **Tin cậy Root CA** trong Cài đặt gốc chứng chỉ |
 | 5 | Bật VPN → xóa Locket → tải lại → mở Locket → **Gold ✦** |
 

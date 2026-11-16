@@ -5,6 +5,26 @@ Tất cả thay đổi đáng chú ý của `public_b1s_locket`.
 
 ---
 
+## [7.8.2] — 2026-11-16 — ⭐ PT2 cài bằng `.conf` — ngang hàng đầy đủ PT1 (DNS)
+
+### Tính năng mới
+* **PT2 (Shadowrocket) cài bằng `.conf`** thay vì Module: `shadowrocket://config/add/https://locket.b1s.id.vn/api/v2/locketgold/config/alfretro?key=…` — backend đọc `ios/alfretro-allinone.conf` v7.8.2, nhúng license key rồi phát hành (1 file: rule + script + MITM hostname).
+* **PT2 full parity với PT1**: `camera_filter_config` từ stub 364-byte (`picker_filters:[]`) → **247KB FULL** (107 pickerFilters · 117 remoteFilters · 7 nhóm B1sKhung; Photobooth ẩn; 7 nhóm AI-sticker đã xóa). Thêm `b1s_frame_catalog` + `b1s_frame_urls` (124 mục), `camera_frame_config` (default Sakura Torii), `photo_frame_event`, `widget_frame_event`, `custom_widget_frames_config` (8 khung B1sTeam xoay theo ngày UTC).
+* **Widget Gold**: 8 khung B1sTeam xoay vòng mỗi ngày (UTC day-of-year % 8) — cả PT1 (Fly MITM) lẫn PT2 (.conf).
+* **Firebase Auth/Firestore vào MITM** (PT1 `fly.toml` + `DefaultSANS`, PT2 `.conf` + `.sgmodule`): `identitytoolkit` / `securetoken` / `firestore` / `firebase.googleapis.com` — chỉnh được hồ sơ (tên, email, avatar, ngày sinh, mật khẩu).
+
+### Sửa
+* **PT2 không hiện popup branding / Gold badge / mic / captions / filter / khung / 60s**: nguyên nhân gốc — `_remote_entries.fragment.js` chỉ có stub `camera_filter_config` (365B), `camera_frame_config` trỏ khung `frame_crayon` không tồn tại. Nay đồng bộ từ cùng nguồn chân lý (`proxy/handler/camera_filter_config.json` + `proxy/handler/frames_manifest.json`) → `node build.mjs` → `scripts/locketgold_remote.v7.8.2.js` (455KB, syntax check PASS).
+* `streak_config` → FULL (streak_visualization gradient + recovery).
+* `.conf` thêm `header-del alt-svc` cho firebaseremoteconfig (chặn app tự nâng cấp HTTP/3 vượt MITM).
+* Frontend `/locketvip`: PT2 toàn bộ UI Module → **.conf** (deep-link `shadowrocket://config/add/…`), “132 khung” → **106 khung** (đã dedupe 26 khung trùng); Step 2–3 cài .conf + HTTPS解密; FAQ + VersionCard + TwoPaths + FeatureGrid + FrameGallery đồng bộ.
+* `api/locketgold-conf.js` / `api/locketgold-module.js`: BUILTIN v4.0.0 → v7.8.2 (đủ MITM hostname + script `.v7.8.2.js`).
+* `index.html`: nút 1-Click raw-GitHub (nhúng placeholder `__LICENSE_KEY__`) → “Tải key & cài .conf 1-Click” (b1s.id.vn/locketvip).
+* `ios/module-install.html` / `module.html` → luồng `.conf` (`shadowrocket://config/add/…`).
+* Version `7.8.2` (`ios/version.json`), `.sgmodule` repointed mọi script → `.v7.8.2.js`.
+
+---
+
 ## [4.1.0] — 2026-11-15 — ✨ PHƯƠNG THỨC 1 (DNS) · FULL GOLD FEATURES
 
 ### ✨ Tính năng mới

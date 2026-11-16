@@ -24,34 +24,44 @@ const MODULE_CANDIDATES = [
   path.join(REPO_ROOT, 'ios', 'locketgold.sgmodule'),
 ];
 
-/** Minimal built-in template used when no file is available. */
+/** Minimal built-in template used when no file is available (mirrors ios/locketgold.sgmodule v7.8.2). */
 const BUILTIN_MODULE = `# B1sTeam — LocketGold (Free) — Shadowrocket Module
 # author: B1sTeam | b1s.id.vn
 #!name = B1sTeam — LocketGold (Free)
-#!version = 4.0.0
+#!version = 7.8.2
+#!updated = 2026-11-16
 #!desc = Gold VIP vĩnh viễn 0₫ qua Shadowrocket MITM. Key của bạn được nhúng sẵn.
 #!author = B1sTeam · Nguyễn Hoàng Bách
 #!homepage = https://b1s.id.vn/locketvip
 
 [Rule]
-DOMAIN-SUFFIX,firebaseremoteconfig.googleapis.com,DIRECT
-DOMAIN-SUFFIX,firebaseremoteconfig.google.com,DIRECT
+DOMAIN-SUFFIX,firebaselogging.googleapis.com,REJECT
+DOMAIN-SUFFIX,firebaselogging-pa.googleapis.com,REJECT
 DOMAIN-SUFFIX,revenuecat.com,DIRECT
 DOMAIN-SUFFIX,rc-backup.com,DIRECT
 DOMAIN-SUFFIX,rev.cat,DIRECT
 DOMAIN-SUFFIX,locketcamera.com,DIRECT
 DOMAIN-SUFFIX,locket.camera,DIRECT
+DOMAIN-SUFFIX,firebaseremoteconfig.googleapis.com,DIRECT
+DOMAIN-SUFFIX,firebaseremoteconfig.google.com,DIRECT
 DOMAIN-SUFFIX,firebasestorage.googleapis.com,DIRECT
 DOMAIN-SUFFIX,storage.googleapis.com,DIRECT
+DOMAIN-SUFFIX,identitytoolkit.googleapis.com,DIRECT
+DOMAIN-SUFFIX,securetoken.googleapis.com,DIRECT
+DOMAIN-SUFFIX,firestore.googleapis.com,DIRECT
+DOMAIN-SUFFIX,firebase.googleapis.com,DIRECT
 FINAL,DIRECT
 
 [Script]
-b1s_revenuecat_all = type=http-response,pattern=^https?:\/\/api\.(revenuecat|rc-backup)\.com\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/b1s_unlock.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__|revenuecat-all
-locketgold_remote = type=http-request,pattern=^https:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_remote.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__
-locketgold_locket_response = type=http-response,pattern=^https:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_locket.js,requires-body=true,timeout=25,argument=__LICENSE_KEY__
+b1s_revenuecat_all = type=http-response,pattern=^https?:\/\/api\.(revenuecat|rc-backup)\.com\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/b1s_unlock.v7.8.2.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__|revenuecat-all
+locketgold_remote = type=http-request,pattern=^https:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_remote.v7.8.2.js,requires-body=true,timeout=30,argument=__LICENSE_KEY__
+locketgold_remote_response = type=http-response,pattern=^https:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_remote.v7.8.2.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
+locketgold_locket_request = type=http-request,pattern=^https:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_locket.v7.8.2.js,requires-body=true,timeout=25,argument=__LICENSE_KEY__
+locketgold_locket_response = type=http-response,pattern=^https:\/\/((?:[a-z0-9-]+\.)*(?:locketcamera\.com|locket\.camera)|us-central1-locket-4252a\.cloudfunctions\.net)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_locket.v7.8.2.js,requires-body=true,max-size=-1,timeout=25,argument=__LICENSE_KEY__
+locketgold_upload_frame = type=http-request,pattern=^https:\/\/(firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/.*,script-path=https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/locketgold_upload.v7.8.2.js,requires-body=true,max-size=-1,timeout=30,argument=__LICENSE_KEY__
 
 [MITM]
-hostname = %APPEND% firebasestorage.googleapis.com, storage.googleapis.com, api.revenuecat.com, api.rc-backup.com, rev.cat, firebaseremoteconfig.googleapis.com, firebaseremoteconfig.google.com, api.locketcamera.com, *.locketcamera.com, locket.camera, us-central1-locket-4252a.cloudfunctions.net, cdn.locketcamera.com, public.locketcamera.com
+hostname = %APPEND% firebasestorage.googleapis.com, storage.googleapis.com, api.revenuecat.com, api.rc-backup.com, rev.cat, firebaseremoteconfig.googleapis.com, firebaseremoteconfig.google.com, api.locketcamera.com, *.locketcamera.com, locketcamera.com, api.locket.camera, locket.camera, us-central1-locket-4252a.cloudfunctions.net, cdn.locketcamera.com, public.locketcamera.com, identitytoolkit.googleapis.com, securetoken.googleapis.com, firestore.googleapis.com, firebase.googleapis.com
 `;
 
 /**

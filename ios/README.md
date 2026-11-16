@@ -12,12 +12,12 @@
 ## Phương Thức 2 — Shadowrocket (phụ, 10 bước)
 
 1. **Cài Shadowrocket** — App Store (ID 932747118, ~$2.99 — mua 1 lần).
-2. **Cài Module** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Cài Module tự động qua Shadowrocket** (`shadowrocket://install?module=…`) — hoặc **Copy Module URL** → Shadowrocket → **“+”** → **Module** → **Paste** → **Add** → “LocketGold (Free)” ✓.
-3. **HTTPS解密 (MITM)** — Cấu hình → (i) → **HTTPS解密** BẬT (hostnames Locket · RevenueCat · Firebase).
+2. **Cài .conf** — [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip) → đăng nhập → **Kích hoạt free** → **Cài .conf tự động qua Shadowrocket** (`shadowrocket://config/add/…`) — hoặc **Copy .conf URL** → Shadowrocket → **“+”** → **Cấu hình** → **Paste** → **Add** → “alfretro-*.conf” ✓.
+3. **Chọn cấu hình + HTTPS解密 (MITM)** — Shadowrocket → tab **Cấu hình** → chọn **alfretro-*.conf** (check xanh) → (i) → **HTTPS解密** BẬT (hostnames Locket · RevenueCat · Firebase, đã có sẵn trong .conf — không cần module riêng).
 4. **Tạo chứng chỉ Shadowrocket CA** — trong Shadowrocket: HTTPS解密 → **Certificate → Generate** (~2s).
 5. **Cài hồ sơ chứng chỉ** — Safari → **Cài đặt → Cài đặt chung → VPN và quản lý thiết bị** → **Shadowrocket Root CA** → Cài đặt → nhập mã máy → Xong.
 6. **Tin cậy chứng nhận (BẮT BUỘC)** — **Cài đặt → Cài đặt chung (General) → Giới thiệu (About) → Tin cậy chứng nhận (Certificate Trust Settings)** → bật **Shadowrocket Root CA** → Tiếp tục.
-7. **Bật VPN** — tab **Home** → chạm bật cấu hình (hoặc Module) → iOS hỏi cho phép thêm cấu hình VPN → **Cho phép** → status bar hiện **VPN**. Không thấy gì? → tab Module → “LocketGold (Free)” BẬT + (i) → **HTTPS解密** → lặp lại bước 4–6.
+7. **Bật VPN** — tab **Home** → chọn **alfretro-*.conf** → chạm bật cấu hình → iOS hỏi cho phép thêm cấu hình VPN → **Cho phép** → status bar hiện **VPN**. Không thấy gì? → tab Cấu hình → “alfretro-*.conf” BẬT + (i) → **HTTPS解密** → lặp lại bước 4–6.
 8. **Xóa Locket → tải lại** — xóa hẳn, tải lại từ App Store, đăng nhập lại bằng Apple/Google ID cũ.
 9. **Mở Locket → Gold ✦** — đợi 5–10s → huy hiệu Gold, 60s video, caption, khung Kawaii, Widget Gold, 0 quảng cáo.
 10. **Cài DNS riêng (DoH) — bước cuối, bổ trợ** — Bước 10 trên [b1s.id.vn/locketvip#cai-dat](https://b1s.id.vn/locketvip#cai-dat) → **Cấp DNS**: NextDNS riêng (300k truy vấn / 30 ngày) + DoH RFC 8484 → tải `.mobileconfig` → Cài đặt. Shadowrocket vẫn là đường mở Gold; DoH chỉ bổ trợ.
@@ -32,7 +32,8 @@ node ios/build.mjs --check  # CI: exit 1 nếu output chưa build lại
 ```
 
 - Sửa **`ios/src/**`** (bao gồm `src/lib/license-gate.js` — license gate dùng chung), KHÔNG sửa `scripts/*.js` (generated).
-- `ios/locketgold.sgmodule` là MODULE chính (source-of-truth) — mọi thay đổi sửa trực tiếp tại file này (không sinh từ `.conf` nữa).
+- `ios/alfretro-allinone.conf` là **file cài chính** (v7.8.2) — backend `/api/v2/locketgold/config/alfretro?key=` đọc file này và nhúng key trước khi phát hành.
+- `ios/locketgold.sgmodule` là bản **tương thích** (source-of-truth riêng cho module, `%APPEND%` ở [MITM]) — giữ cho người đã cài dạng Module; bản cài mới nên dùng `.conf`.
 
 ## File trong thư mục này
 

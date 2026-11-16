@@ -52,6 +52,9 @@ DOMAIN-SUFFIX,amp-api-edge.apps.apple.com,REJECT-DROP
 ^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del if-modified-since
 ^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del If-Modified-Since
 ^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del x-goog-if-none-match
+# Chặn app tự nâng cấp HTTP/3 (QUIC) — giữ RC/API nằm trong đường MITM (TCP).
+^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del alt-svc
+^https?:\/\/firebaseremoteconfig\.(googleapis\.com|google\.com)\/.+ header-del Alt-Svc
 # Bỏ cache Locket Camera API.
 ^https?:\/\/(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del if-none-match
 ^https?:\/\/(api\.locketcamera\.com|.*\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)\/.+ header-del If-None-Match

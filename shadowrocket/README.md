@@ -1,5 +1,7 @@
 # B1sTeam — LocketGold (Free) · Bộ Shadowrocket Module
 
+> ⚠️ **LEGACY (v4.0.0)** — bản mới nhất là `ios/alfretro-allinone.conf` (v7.8.2). Cài qua [b1s.id.vn/locketvip](https://b1s.id.vn/locketvip). Thư mục này chỉ giữ để tương thích ngược, script không còn được cập nhật.
+
 > **LocketGold (Free)** — bộ script MITM của **B1sTeam** để mở khoá tính năng Gold của app
 > Locket (iOS) **ngay trên máy**, không cần jailbreak, không cần server trung gian.
 > Mọi thay đổi diễn ra cục bộ trong bộ nhớ của Shadowrocket.

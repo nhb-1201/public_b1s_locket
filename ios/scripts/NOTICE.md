@@ -23,7 +23,7 @@ khác** — tất cả đã được viết lại (rewrite) để chạy trên e
 
 **Module (2026-11-14) — CDN, self-contained:**
 
-- `ios/locketgold.sgmodule` — MODULE chính (source-of-truth); `ios/alfretro-allinone.conf` — bản `.conf` tương đương.
+- `ios/alfretro-allinone.conf` — bản `.conf` **cài chính** (v7.8.2, khuyến dùng); `ios/locketgold.sgmodule` — bản Module tương thích (giữ cho người đã cài dạng Module).
 - Mỗi script được Shadowrocket tải trực tiếp từ CDN GitHub:
   `https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/ios/scripts/<file>.js`
 
