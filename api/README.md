@@ -8,23 +8,19 @@ trả về JSON khi lỗi.
 
 | Method | URL                                                        | Trả về                                              |
 | ------ | ---------------------------------------------------------- | --------------------------------------------------- |
-| GET    | `/api/locketgold-module?key=B1S-XXXX-XXXX-XXXX`           | File `.sgmodule` (license đã nhúng sẵn)             |
-| GET    | `/api/locketgold-conf?key=B1S-XXXX-XXXX-XXXX`             | File `.conf` của Shadowrocket (license đã nhúng sẵn) |
 | GET    | `/api/generate-profile?key=B1S-XXXX-XXXX-XXXX`             | File `.mobileconfig` (Root CA + DoH)                 |
 | POST   | `/api/nextdns-create`                                      | Tạo tài khoản NextDNS, trả về DNS URL                |
 | GET    | `/api/nextdns-usage?profile_id=…`                          | Số truy vấn đã dùng của profile                       |
-| GET    | `/api/health`                                              | `{"ok":true,"service":"b1steam-api","version":"4.0.0","time":"…"}` |
+| GET    | `/api/health`                                              | `{"ok":true,"service":"b1steam-api","version":"8.0.0","time":"…"}` |
 
-Alias ngắn (khai báo trong `vercel.json`): `/api/module`, `/api/conf`,
-`/api/profile`.
+Alias ngắn (khai báo trong `vercel.json`): `/api/profile`.
 
 ### Header của endpoint tải file
 
 ```
-Content-Type: text/plain; charset=utf-8          (module & conf)
 Content-Type: application/x-apple-aspen-config    (mobileconfig)
 Cache-Control: no-store
-Content-Disposition: attachment; filename="B1sTeam-LocketGold.sgmodule"
+Content-Disposition: attachment; filename="B1sTeam-LocketGold.mobileconfig"
 ```
 
 Key không hợp lệ → **HTTP 401** với body `{"success":false,"error":"…","reason":"…"}`.
@@ -78,9 +74,7 @@ Key không hợp lệ → **HTTP 401** với body `{"success":false,"error":"…
 
 ### Nguồn tài liệu gốc
 
-* Module: `shadowrocket/modules/B1sTeam_LocketGold.sgmodule` → dự phòng
-  `ios/locketgold.sgmodule` → dự phòng template có sẵn trong mã nguồn.
-* Cấu hình: `ios/alfretro-allinone.conf` → dự phòng template có sẵn.
+* Hồ sơ: `api/generate-profile.js` + `api/lib/mobileconfig.js` (sinh plist XML).
 * Root CA: `ca/root-ca.crt` (PEM) → `ca/root-ca.der` → `api/lib/placeholder-root-ca.pem`.
 
 ## Chạy thử

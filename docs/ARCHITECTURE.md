@@ -1,48 +1,51 @@
 # Kiến trúc LocketGold (Free) ✦ B1sTeam
 
-> Tài liệu kỹ thuật của `public_b1s_locket` — bản `4.0.0` (viết lại toàn bộ).
+> Tài liệu kỹ thuật của `public_b1s_locket` — bản `8.0.0` (Phương Thức 2 đã bị loại bỏ).
 
 ---
 
 ## 0. Tổng quan
 
-Hệ thống gồm **6 tầng độc lập**, mỗi tầng thay thế được cho nhau để luôn có ít nhất
-một đường hoạt động:
+Hệ thống gồm **6 tầng độc lập** (nay chỉ còn 1 đường cài đặt — DNS), mỗi tầng vẫn thay
+thế được cho nhau để luôn có ít nhất một đường hoạt động:
 
 | # | Tầng | Công nghệ | Nhiệm vụ |
 |---|------|-----------|-----------|
-| 1 | Module Shadowrocket | JS (JSCore) | Ghi đè entitlement **trên máy người dùng** |
-| 2 | CA của máy | CA do Shadowrocket sinh | Cho phép giải mã HTTPS |
-| 3 | DoH Edge | Cloudflare Worker | Định tuyến DNS Locket → proxy Fly / NextDNS riêng |
-| 4 | MITM proxy | Go 1.25 trên Fly.io | Bơm entitlement + mở khung **qua mạng** |
-| 5 | Worker khung | 6 × Cloudflare Worker | Phục vụ PNG khung Kawaii (round-robin) |
-| 6 | Backend | Cloudflare Workers + D1 | License key, module cá nhân hoá, audit |
+| 1 | DoH Edge | Cloudflare Worker | Định tuyến DNS Locket → proxy Fly / NextDNS riêng |
+| 2 | MITM proxy | Go 1.25 trên Fly.io | Bơm entitlement + mở khung **qua mạng** |
+| 3 | Root CA hệ thống | ECDSA P-256 | Cho phép iOS giải mã TLS tới MITM proxy |
+| 4 | Worker khung | 6 × Cloudflare Worker | Phục vụ PNG khung Kawaii (round-robin) |
+| 5 | Backend | Cloudflare Workers + D1 | DoH riêng theo tài khoản, audit |
+| 6 | Frame draw | Cloudflare photon WASM | Vẽ khung trực tiếp lên ảnh người dùng |
 
-Nguyên tắc: **tầng 1 là đường chính** (nhanh, riêng tư, không phụ thuộc hạ tầng B1sTeam).
-Các tầng còn lại là dự phòng + tiện ích.
+Nguyên tắc: **Phương Thức 1 (DNS) là đường duy nhất**. Không còn app bên thứ ba,
+không còn on-device MITM, không còn license key cho người dùng cuối.
 
 ---
 
-## 1. Luồng mở Gold (đường chính — on-device)
+## 1. Luồng mở Gold (Phương Thức 1 — DNS)
 
 ```
-┌──────────── iPhone ────────────┐
-│  Locket.app                     │
-│    │  GET https://api.revenuecat.com/v1/.../customer_info
-│    ▼                            │
-│  Shadowrocket (TLS MITM)        │
-│    │  giải mã bằng CA người dùng │
-│    ▼                            │
-│  script: b1s_revenuecat_response │
-│    • parse JSON                  │
-│    • subscriber.subscriptions    │
-│        += locket_1600_1y (PURCHASED, expires 9999-01-09)
-│    • subscriber.entitlements     │
-│        += Gold / gold / pro / premium / locket_gold
-│    • top-level "Attention"       │
-│    ▼                            │
-│  Locket.app nhận entitlement Gold → hiện huy hiệu ✦
-└─────────────────────────────────┘
+┌──────────── iPhone (hồ sơ .mobileconfig) ───┐
+│  Locket.app                                  │
+│    │  DNS (RFC 8484 DoH)                     │
+│    ▼                                          │
+│  doh.b1s.id.vn  /fly/dns-query               │
+│    │  allow-list → IP Fly (TTL 60)           │
+│    ▼                                          │
+│  Fly.io :443 (raw TCP)                       │
+│    │  forge leaf EC P-256 (Root CA hệ thống) │
+│    ▼                                          │
+│  Go MITM proxy :8443                          │
+│    • RevenueCat → entitlement Gold           │
+│    • Firebase Remote Config → VIP flags      │
+│      + camera_filter_config (247KB)          │
+│      + b1s_frame_catalog / camera_frame_config│
+│    • Locket API → bỏ paywall, unblur, badge  │
+│    • generateFilteredImage → photon worker   │
+│    ▼                                          │
+│  Locket.app nhận entitlement → huy hiệu Gold ✦│
+└────────────────────────────────────────────────┘
 ```
 
 Các host được MITM (allow-list SNI):
@@ -54,15 +57,19 @@ www.remoteconfig.googleapis.com · firebaseremoteconfigrealtime.googleapis.com
 api.locketcamera.com · cdn.locketcamera.com · public.locketcamera.com
 locket.camera · us-central1-locket-4252a.cloudfunctions.net
 firebasestorage.googleapis.com · storage.googleapis.com
+identitytoolkit.googleapis.com · securetoken.googleapis.com
+firestore.googleapis.com · firebase.googleapis.com
 ```
 
-> **Vì sao phải MITM?** Locket dùng **certificate pinning** cho RevenueCat/Firebase.
-> Một hồ sơ `.mobileconfig` chỉ cài CA cho hệ thống **không** đủ để app chấp nhận
-> chứng chỉ giả — vì vậy tầng 1 (module) là đường chắc chắn nhất.
+> **Vì sao DNS + Root CA hoạt động?** Locket dùng `URLSession` tiêu chuẩn của iOS —
+> chứng chỉ TLS đi qua trust store của hệ điều hành. Sau khi người dùng bật
+> “B1sTeam Root CA” trong Certificate Trust Settings, iOS chấp nhận leaf do proxy
+> tự ký theo SNI. Không có certificate pinning riêng trên các host RC/Firebase/Locket
+> trong allow-list (đã kiểm thử trên máy thật).
 
 ---
 
-## 2. Luồng DoH + MITM proxy (đường dự phòng qua mạng)
+## 2. DoH + MITM proxy (đường chính)
 
 ```
 iOS (hồ sơ .mobileconfig)
@@ -78,7 +85,7 @@ Fly.io :443 (raw TCP) → Go MITM proxy :8443
   ├─ chặn cache (If-None-Match, ETag, Accept-Encoding)
   ├─ response theo host:
   │    • revenuecat → entitlement Gold
-  │    • firebase   → VIP flags + catalog khung
+  │    • firebase   → VIP flags + catalog khung (full camera_filter_config 247KB)
   │    • locket API → bỏ paywall, unblur, badge Gold
   │    • generateFilteredImage → **worker photon** (vẽ khung thật) — fallback pool tĩnh
   └─ rate-limit per-IP → 429
@@ -86,8 +93,8 @@ Fly.io :443 (raw TCP) → Go MITM proxy :8443
 
 ### 2.1. Vẽ khung photon (generateFilteredImage) + pool tĩnh
 
-`generateFilteredImage` (Photobooth / overlay / khung Kawaii) được chuyển tới worker photon —
-trịnh `fetch(input_url)` → crop √1024 → vẽ khung → trả `data:image/png;base64,...` trong JSON
+`generateFilteredImage` (Photobooth / overlay / khung) được chuyển tới worker photon —
+tự `fetch(input_url)` → crop √1024 → vẽ khung → trả `data:image/png;base64,...` trong JSON
 Locket (`result.outputUrl`):
 
 ```
@@ -100,9 +107,9 @@ FAIL-OPEN: worker chết / ảnh hỏng / quá lớn (>15 MB)
              ─► Fly trả 200 với ảnh GỐC (không bao giờ làm vỡ app)
 ```
 
-Endpoint `/frame-raw` nhận base64 từ **upload ảnh của người dùng** (chặn in-device qua script
-`shadowrocket/js/b1s_upload_frame.js`) — xác thực bằng `x-b1s-license` + `x-b1s-device` qua
-`https://locket.b1s.id.vn/api/v2/locketgold/verify` (hoặc `x-b1s-proxy-key` từ MITM).
+Endpoint `/frame-raw` nhận base64 từ **upload ảnh của người dùng**; xác thực bằng
+`x-b1s-proxy-key` từ MITM (hoặc `x-b1s-license` + `x-b1s-device` qua
+`https://locket.b1s.id.vn/api/v2/locketgold/verify` — giữ lại để tương thích nội bộ).
 
 Pool tĩnh phục vụ **catalog khung** (Firebase entries → widget / gallery):
 
@@ -141,11 +148,10 @@ tổng vẫn ~80%. Số liệu lượng truy vấn đọc từ
 
 | Dữ liệu | Lưu ở đâu | Ghi chú |
 |----------|-----------|---------|
-| License key | D1 (`locketgold_license_keys`) | Chỉ lưu `sha256(key)` + 4 ký tự cuối |
-| Module/.conf đã phát | Không lưu | Response `Cache-Control: no-store` |
+| DNS query của user | Không lưu ở worker Fly | NextDNS tự quản lý log của account |
 | Ảnh người dùng | **Không lưu** | Proxy không ghi body |
-| Query DNS của user | Không lưu ở worker Fly | NextDNS tự quản lý log của account |
 | Audit admin | D1 (`locketgold_audit`) | Chỉ `ip_hash` (sha256+salt), không lưu IP thô |
+| Hồ sơ .mobileconfig | Không lưu | Client tự cài, không gửi dữ liệu về B1sTeam |
 
 ---
 
@@ -155,7 +161,7 @@ tổng vẫn ~80%. Số liệu lượng truy vấn đọc từ
 ┌─────────────────────────────────────────────────────────────┐
 │ L7  CSP · HSTS preload · X-Frame-Options DENY · COOP/CORP   │
 ├─────────────────────────────────────────────────────────────┤
-│ L6  License HMAC-SHA256 · device-bound · constant-time cmp │
+│ L6  DoH riêng theo tài khoản (NextDNS) + HMAC payload       │
 ├─────────────────────────────────────────────────────────────┤
 │ L5  Rate-limit 3 tầng (proxy MITM · static · DoH)           │
 ├─────────────────────────────────────────────────────────────┤
@@ -163,7 +169,7 @@ tổng vẫn ~80%. Số liệu lượng truy vấn đọc từ
 ├─────────────────────────────────────────────────────────────┤
 │ L3  Root CA ECDSA P-256 — private key ngoài repo            │
 ├─────────────────────────────────────────────────────────────┤
-│ L2  TLS 1.2+ · ECDHE-ECDSA · leaf P-256 · TTL 397 ngày     │
+│ L2  TLS 1.2+ · ECDHE-ECDSA · leaf P-256 · TTL 397 ngày      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -204,7 +210,7 @@ trả `429`. Đây là ranh giới giữa "hỗ trợ người dùng" và "trở
 
 | Biến | Ý nghĩa |
 |------|---------|
-| `LICENSE_SECRET` | Khóa HMAC-SHA256 ký license key |
+| `LICENSE_SECRET` | Khóa HMAC-SHA256 ký license key (nếu bật lại license nội bộ) |
 | `ADMIN_PASSWORD` | Mật khẩu admin panel |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Lưu account NextDNS (tuỳ chọn) |
 | `D1_API_TOKEN` / `D1_DATABASE_ID` | Lưu vào Cloudflare D1 (tuỳ chọn) |
@@ -231,8 +237,8 @@ cd proxy && go test ./...
 
 | Thư mục | Vai trò | Nơi deploy |
 |---------|---------|-----------|
-| `shadowrocket/` | Module + script MITM | GitHub raw (CDN cho Shadowrocket) |
 | `proxy/` | MITM proxy Go | Fly.io `b1steam-locketgold` |
+| `ios/` | Hồ sơ mẫu `.mobileconfig` | — (tham khảo) |
 | `ca/` | Root CA + sinh hồ sơ | Chạy 1 lần, offline |
 | `dns/` | Worker DoH | Cloudflare Workers (`doh.b1s.id.vn`) |
 | `nextdns/` | Engine + client | Dùng bởi `api/`, `dns/` |

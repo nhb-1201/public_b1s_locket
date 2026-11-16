@@ -14,7 +14,7 @@
 ## Auth (v2.0.0)
 
 - **`x-b1s-proxy-key`** — server-side (proxy LAN dùng) — shared secret
-- **`x-b1s-license` + `x-b1s-device`** — device-bound (Shadowrocket đưa qua module) — license key + device id `mitm-<hash>`, hiệu lực 60 phút
+- **`x-b1s-license` + `x-b1s-device`** — device-bound (client trước đây đưa qua module/.conf — nay đường này không còn dùng; MITM Fly.io gọi qua `x-b1s-proxy-key`)
 
 Frame worker **không chấp nhận** request thiếu auth.
 

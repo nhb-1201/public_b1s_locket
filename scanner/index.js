@@ -2,14 +2,14 @@
 
 /**
  * B1sTeam — LocketGold (Free)
- * Static scanner for the Shadowrocket tree.
+ * Static scanner for the repository tree.
  *
  * Finds hardcoded IP addresses and domain names so the team can spot a
  * leftover endpoint before shipping a release.
  *
  * Usage:
- *   node scanner/index.js                # scan ../shadowrocket
- *   node scanner/index.js --dir=./js     # scan another folder
+ *   node scanner/index.js                # scan repo root
+ *   node scanner/index.js --dir=./proxy  # scan another folder
  *   node scanner/index.js --dns          # resolve every domain
  *   node scanner/index.js --json         # machine readable output
  *   node scanner/index.js --self-check   # run the built-in assertions
@@ -25,7 +25,7 @@ const IP_REGEX = /\b(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4
 /** Matches the host part of an http(s) URL. */
 const URL_HOST_REGEX = /https?:\/\/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
 
-/** Matches the host of a Shadowrocket rule (DOMAIN, DOMAIN-SUFFIX, hostname…). */
+/** Matches the host of a rule (DOMAIN, DOMAIN-SUFFIX, hostname). */
 const RULE_DOMAIN_REGEX =
   /(?:DOMAIN(?:-SUFFIX)?|hostname|Host|host)\s*[,=:]\s*([a-zA-Z0-9*_.-]+\.[a-zA-Z]{2,})/gi;
 
@@ -203,7 +203,7 @@ function parseArgs(argv) {
   }
 
   return {
-    dir: dir || path.resolve(__dirname, '..', 'shadowrocket'),
+    dir: dir || path.resolve(__dirname, '..'),
     resolve,
     json,
     selfCheck: selfCheckMode,
@@ -242,7 +242,7 @@ async function main(argv) {
     return 0;
   }
 
-  console.log('=== B1sTeam · Shadowrocket scanner ===');
+  console.log('=== B1sTeam · Scanner ===');
   console.log(`Thư mục : ${result.root}`);
   console.log(`Tệp đã quét : ${result.files}`);
   console.log(`IP cứng : ${result.ips.length ? result.ips.join(', ') : '(không có)'}`);

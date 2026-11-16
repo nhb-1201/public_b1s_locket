@@ -277,8 +277,7 @@ func (s *proxyServer) direct(req *http.Request) {
 	stripCacheHeaders(req.Header)
 
 	// Ep vung US + thoi gian LA vao header va query — Locket chi mo filter/mic/
-	// caption/video/frame o khu vuc US. (Shadowrocket module cung ep vung US —
-	// worker B1sTeam khop nhu the.)
+	// caption/video/frame o khu vuc US. (MITM Fly cua B1sTeam khop nhu the.)
 	//
 	// QUAN TRONG: không đụng media (signed URL → 403 nếu bị sửa query).
 	if !isMediaPath(req.URL.Path) {

@@ -87,14 +87,14 @@ test('scanDir trả về kết quả rỗng khi thư mục không tồn tại', 
 });
 
 test('parseArgs hiểu các cờ của CLI', () => {
-  const options = parseArgs(['--dns', '--json', '--dir=./shadowrocket']);
+  const options = parseArgs(['--dns', '--json', '--dir=./proxy']);
   assert.equal(options.resolve, true);
   assert.equal(options.json, true);
-  assert.equal(options.dir, './shadowrocket');
+  assert.equal(options.dir, './proxy');
   assert.equal(options.selfCheck, false);
 
   const fallback = parseArgs([]);
-  assert.ok(fallback.dir.endsWith('shadowrocket'));
+  assert.ok(fallback.dir.length > 0);
   assert.equal(fallback.selfCheck, false);
 
   const selfCheckMode = parseArgs(['--self-check']);

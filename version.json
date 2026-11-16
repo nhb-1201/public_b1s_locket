@@ -1,8 +1,8 @@
 {
   "product": "LocketGold (Free) — B1sTeam",
-  "version": "7.8.2",
+  "version": "8.0.0",
   "updated": "2026-11-16",
   "channel": "stable",
-  "system": "Shadowrocket .conf (iOS) — primary · .sgmodule compatibility",
-  "note": "Repo CDN của LocketGold: .conf/.sgmodule + scripts + assets + proxy (Go, Fly.io) + DoH worker + B1sTeam Root CA. Cache-bust bằng version trong tên file (scripts/*.v7.8.2.js). Bản cài chính: ios/alfretro-allinone.conf (v7.8.2)."
+  "system": "DNS (iOS) — Phuong Thuc 1 only · Shadowrocket removed",
+  "note": "Repo CDN của LocketGold: proxy MITM Go (Fly.io) + DoH worker + 6 frame worker + api + admin. Cache-bust bằng version trong tên file. Phương Thức 2 (Shadowrocket) đã bị loại bỏ hoàn toàn."
 }

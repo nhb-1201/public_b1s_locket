@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#12321f">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="LocketGold (Free) ✦ B1sTeam — mã nguồn đầy đủ: MITM proxy Go trên Fly.io, DoH + NextDNS rotation, Root CA, module Shadowrocket, worker khung luân phiên. Cài 1 chạm, 0₫.">
+<meta name="description" content="LocketGold (Free) ✦ B1sTeam — mã nguồn đầy đủ: MITM proxy Go trên Fly.io, DoH + NextDNS rotation, Root CA, worker khung luân phiên. Chỉ Phương Thức 1 (DNS) — cài 1 hồ sơ iOS, 0₫.">
 <meta name="robots" content="index,follow">
 <title>LocketGold (Free) ✦ B1sTeam — mã nguồn đầy đủ, Gold vĩnh viễn 0₫</title>
 <link rel="icon" type="image/svg+xml" href="assets/icon-locketgold.svg">
 <link rel="canonical" href="https://b1s.id.vn/locketvip">
 <meta property="og:type" content="website">
 <meta property="og:title" content="LocketGold (Free) ✦ B1sTeam — Gold vĩnh viễn 0₫">
-<meta property="og:description" content="MITM proxy Go trên Fly.io · DoH + NextDNS 80% · Root CA ECDSA P-256 · 6 worker khung luân phiên · module Shadowrocket. Mã nguồn mở.">
+<meta property="og:description" content="MITM proxy Go trên Fly.io · DoH + NextDNS 80% · Root CA ECDSA P-256 · 6 worker khung luân phiên · DNS (1 hồ sơ iOS). Mã nguồn mở.">
 <meta property="og:image" content="https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/icon-locketgold-512.png">
 <meta name="twitter:card" content="summary_large_image">
 <style>
@@ -162,15 +162,15 @@
   <p class="lead">
     Toàn bộ mã nguồn của hệ thống LocketGold (Free) của B1sTeam —
     <b>MITM proxy Go trên Fly.io</b>, <b>DoH + NextDNS xoay vòng 80%</b>, <b>Root CA ECDSA P-256</b>,
-    <b>6 worker khung luân phiên</b> và <b>cấu hình .conf (Shadowrocket)</b> — mở, đọc, tự host.
+    <b>6 worker khung luân phiên</b> — mở, đọc, tự host. Chỉ cần 1 hồ sơ iOS, không app bên thứ ba.
   </p>
   <div class="cta">
-    <a class="btn" href="https://b1s.id.vn/locketvip">⚡ Tải key &amp; cài .conf 1-Click</a>
+    <a class="btn" href="https://doh.b1s.id.vn/mobileconfig">⚡ Tải hồ sơ .mobileconfig 1-Click</a>
     <a class="btn ghost" href="https://b1s.id.vn/locketvip">🌿 Hướng dẫn đầy đủ</a>
   </div>
   <div class="stats">
     <div><b>24</b><span>đặc quyền</span></div>
-    <div><b>14</b><span>khung Kawaii</span></div>
+    <div><b>106</b><span>khung trong suốt</span></div>
     <div><b>0₫</b><span>vĩnh viễn</span></div>
     <div><b>~5′</b><span>để cài</span></div>
   </div>
@@ -192,10 +192,6 @@
       <p>Không cần dự án ngoài — mọi tầng đều có mã nguồn, cấu hình deploy và test.</p>
     </div>
     <pre class="tree"><b>public_b1s_locket/</b>
-├── <i>shadowrocket/</i>        # Module + 12 script MITM (mỗi file tự chứa)
-│   ├── js/                    # b1s_revenuecat_*.js · b1s_firebase_*.js · b1s_locket_api_*.js …
-│   ├── modules/               # .sgmodule · .snippet · .plugin · .stoverride · .module
-│   └── assets/frames/         # ảnh khung + catalog.json
 ├── <i>proxy/</i>               # MITM proxy Go (Fly.io) — TLS forge, allow-list SNI, rate-limit
 │   ├── tls/                   # Root CA ECDSA P-256 · cache leaf · SAN list
 │   ├── handler/               # revenuecat · firebase · locket_api · photobooth · frames
@@ -204,12 +200,12 @@
 ├── <i>dns/</i>                  # Cloudflare Worker DoH — /&lt;token&gt;/dns-query + /fly/dns-query
 ├── <i>nextdns/</i>              # API client NextDNS + engine quay vòng 80%
 ├── <i>workers/frames/</i>       # 6 worker luân phiên phục vụ khung Kawaii
-├── <i>api/</i>                  # handler Vercel: module · conf · .mobileconfig · nextdns
+├── <i>api/</i>                  # handler Vercel: .mobileconfig · nextdns · health
 ├── <i>admin/</i>                # bảng quản trị + API HMAC-session
-├── <i>scanner/</i>              # quét IP/domain hardcode trong cây module
+├── <i>scanner/</i>              # quét IP/domain hardcode trong cây mã nguồn
 ├── <i>sql/migrations/</i>       # DDL (SQLite/D1) + seed
 ├── <i>tests/</i>                # node:test — license · mobileconfig · rotation · scanner
-├── <i>ios/</i>                  # .conf + .sgmodule dựng sẵn + hồ sơ .mobileconfig
+├── <i>ios/</i>                  # hồ sơ mẫu .mobileconfig (Phương Thức 1 — DNS)
 └── <i>assets/</i>               # icon · khung · sticker</pre>
   </section>
 
@@ -225,8 +221,8 @@
       <div class="card tile"><div class="ico">🔁</div><h3>NextDNS rotation 80%</h3><p>Mỗi user 1 profile riêng + rewrite domain sang IP Fly. 80% NextDNS / 20% direct, tự fallback 1.1.1.1 khi bão hòa.</p><p class="mono">300k truy vấn / 30 ngày</p></div>
       <div class="card tile"><div class="ico">🖼️</div><h3>6 worker khung</h3><p>b1steam-frames-1…6 — round-robin, cooldown 60s khi lỗi, cache 24h, phục vụ PNG khung Kawaii.</p><p class="mono">edge · round-robin</p></div>
       <div class="card tile"><div class="ico">🔑</div><h3>Root CA ECDSA P-256</h3><p>Root CA tự ký CN=B1sTeam Root CA. Private key ngoài repo, không log, không gửi ảnh người dùng lên server.</p><p class="mono">ca/gen-ca.py</p></div>
-      <div class="card tile"><div class="ico">📜</div><h3>Module Shadowrocket</h3><p>12 script MITM tự chứa (RevenueCat · Firebase · Locket API · Photobooth · Frame router), cùng 5 định dạng module.</p><p class="mono">shadowrocket/js</p></div>
-      <div class="card tile"><div class="ico">🗄️</div><h3>Backend D1 · license key</h3><p>Cấp key device-bound, sinh module/.conf/.mobileconfig nhúng sẵn key, ký HMAC-SHA256, audit log.</p><p class="mono">api-b1steam.b1s.id.vn</p></div>
+      <div class="card tile"><div class="ico">📜</div><h3>Hồ sơ .mobileconfig</h3><p>1 file duy nhất: Root CA EC P-256 + DoH riêng (RFC 8484). Cài xong là Gold — không cần app bên thứ ba.</p><p class="mono">doh.b1s.id.vn/mobileconfig</p></div>
+      <div class="card tile"><div class="ico">🗄️</div><h3>Backend D1 · DoH riêng</h3><p>Cấp hồ sơ DoH riêng theo tài khoản (NextDNS rotation), sinh .mobileconfig nhúng sẵn, ký HMAC-SHA256, audit log.</p><p class="mono">api-b1steam.b1s.id.vn</p></div>
       <div class="card tile"><div class="ico">🚧</div><h3>Chống lạm dụng</h3><p>Allow-list SNI, rate-limit per-IP, không open-resolver, CSP + HSTS + COOP/CORP, admin có HMAC session token.</p><p class="mono">defense-in-depth</p></div>
     </div>
   </section>
@@ -235,26 +231,28 @@
   <section>
     <div class="sec-head">
       <p class="label">🎀 KHUNG KAWAII</p>
-      <h2>14 khung — <em>phục vụ từ worker luân phiên</em></h2>
+      <h2>106 khung — <em>phục vụ từ worker luân phiên</em></h2>
     </div>
     <div class="frames" id="frames"></div>
   </section>
 
-  <!-- SO SÁNH -->
+  <!-- VÌ SAO DNS -->
   <section>
     <div class="sec-head">
-      <p class="label">🛣️ HAI ĐƯỜNG</p>
-      <h2>Chọn đường <em>phù hợp với bạn</em></h2>
+      <p class="label">🛣️ ĐƯỜNG DUY NHẤT</p>
+      <h2>Chỉ còn <em>Phương Thức 1 — DNS</em></h2>
+      <p>Phương Thức 2 (Shadowrocket / .conf / .sgmodule) đã bị loại bỏ hoàn toàn khỏi hệ thống. DNS là đường duy nhất — đơn giản, ổn định, không app bên thứ ba.</p>
     </div>
     <div class="card" style="overflow-x:auto;padding:4px 0">
       <table>
-        <thead><tr><th>Tiêu chí</th><th>Đường 1 · Shadowrocket</th><th>Đường 2 · Hồ sơ iOS</th></tr></thead>
+        <thead><tr><th>Tiêu chí</th><th>Phương Thức 1 · DNS (hỗ Trợ)</th></tr></thead>
         <tbody>
-          <tr><td>Mở Gold vĩnh viễn</td><td class="yes">✓ Có</td><td class="yes">✓ Có (qua Fly MITM)</td></tr>
-          <tr><td>Cần app bên thứ ba</td><td>Shadowrocket</td><td class="yes">Không — chỉ hồ sơ iOS</td></tr>
-          <tr><td>Dữ liệu qua máy chủ B1sTeam</td><td class="no">Không</td><td>Chỉ DNS + MITM (không lưu)</td></tr>
-          <tr><td>Chặn quảng cáo toàn máy</td><td>Trong phạm vi rule</td><td class="yes">Toàn máy</td></tr>
-          <tr><td>Độ ổn định dài hạn</td><td class="yes">Rất cao</td><td>Phụ thuộc hạ tầng</td></tr>
+          <tr><td>Mở Gold vĩnh viễn</td><td class="yes">✓ Có (qua Fly MITM)</td></tr>
+          <tr><td>Cần app bên thứ ba</td><td class="yes">Không — chỉ 1 hồ sơ iOS</td></tr>
+          <tr><td>Dữ liệu qua máy chủ B1sTeam</td><td>Chỉ DNS + MITM (không lưu)</td></tr>
+          <tr><td>Chặn quảng cáo toàn máy</td><td class="yes">✓ Toàn máy</td></tr>
+          <tr><td>Root CA ECDSA P-256</td><td class="yes">✓ CN=B1sTeam Root CA</td></tr>
+          <tr><td>Cài đặt</td><td>~5 phút · 4 bước</td></tr>
         </tbody>
       </table>
     </div>
@@ -283,9 +281,9 @@
       <h2>4 bước, <em>không mất dữ liệu Locket</em></h2>
     </div>
     <div class="grid g4">
-      <div class="card tile"><div class="ico">📲</div><h3>1 · Cài Shadowrocket</h3><p>App Store ID 932747118 (~$2.99, mua 1 lần). Không jailbreak.</p></div>
-      <div class="card tile"><div class="ico">🧩</div><h3>2 · Cài Module</h3><p>Bấm nút 1-Click ở trên → Shadowrocket hỏi “Add this module?” → OK.</p></div>
-      <div class="card tile"><div class="ico">🔏</div><h3>3 · CA + tin cậy</h3><p>Tạo chứng chỉ trong Shadowrocket → cài hồ sơ → Settings → General → About → Certificate Trust Settings → BẬT.</p></div>
+      <div class="card tile"><div class="ico">📲</div><h3>1 · Tải hồ sơ</h3><p>Bấm nút 1-Click ở trên → Safari tải “B1sTeam LocketGold (Free)” về máy.</p></div>
+      <div class="card tile"><div class="ico">🧩</div><h3>2 · Cài đặt</h3><p>Cài đặt → Cài đặt chung → VPN và Quản lý thiết bị → chọn hồ sơ → Cài đặt.</p></div>
+      <div class="card tile"><div class="ico">🔏</div><h3>3 · Tin cậy Root CA</h3><p>Cài đặt → Cài đặt chung → Giới thiệu → Cài đặt gốc chứng chỉ → BẬT “B1sTeam Root CA”.</p></div>
       <div class="card tile"><div class="ico">👑</div><h3>4 · Mở Locket</h3><p>Xóa Locket → tải lại → đăng nhập cũ → thấy huy hiệu Gold ✦.</p></div>
     </div>
     <p style="margin-top:12px;font-size:12px;color:var(--muted)">
@@ -302,11 +300,11 @@
     </div>
     <details class="faq"><summary>LocketGold (Free) là gì?</summary><p>Bản mở khóa đầy đủ đặc quyền Gold của app Locket (huy hiệu Gold, caption Premium, theme mùa, khung Kawaii, Widget, 0 quảng cáo) miễn phí vĩnh viễn qua B1sTeam — không cần thẻ, không cần mua gói của Locket, không jailbreak.</p></details>
     <details class="faq"><summary>Có copy code của repo khác không?</summary><p>Không. Toàn bộ script MITM, proxy Go, worker DoH, admin panel và test trong repo này do B1sTeam tự viết. Chỉ dùng tham khảo hành vi từ một repo công khai khác, không sao chép mã nguồn hay asset.</p></details>
-    <details class="faq"><summary>Bật VPN mà “không thấy gì xảy ra”?</summary><p>Thứ tự: (1) Module đã BẬT; (2) Cấu hình → (i) → HTTPS解密 BẬT; (3) tạo chứng chỉ → cài hồ sơ → BẬT “tin cậy chứng chỉ”; (4) xóa Locket → tải lại. Thiếu bước 3 thì app không giải mã được → không có Gold.</p></details>
-    <details class="faq"><summary>Ảnh của tôi có lên server không?</summary><p>Không. Module chạy trên máy bạn; proxy Fly chỉ dùng cho đường DNS dự phòng và chỉ log metadata, không ghi body hay ảnh.</p></details>
-    <details class="faq"><summary>Hồ sơ .mobileconfig có mở được Gold không?</summary><p>Hồ sơ luôn chặn được quảng cáo/telemetry và định tuyến DNS Locket về MITM proxy. Nhưng nếu iOS chặn MITM app (certificate pinning) thì app không nhận entitlement — lúc đó dùng Đường 1 (Shadowrocket) để chắc chắn mở Gold.</p></details>
+    <details class="faq"><summary>Cài xong mà không thấy Gold?</summary><p>Thứ tự: (1) hồ sơ đã cài chưa; (2) “B1sTeam Root CA” đã được BẬT trong Cài đặt gốc chứng chỉ (Certificate Trust Settings) chưa; (3) Locket đã được xóa và tải lại SAU khi bật Root CA chưa. Thiếu bước 2 thì MITM không giải mã được → không có Gold.</p></details>
+    <details class="faq"><summary>Ảnh của tôi có lên server không?</summary><p>Không. Proxy Fly chỉ phục vụ MITM entitlement Gold + catalog khung; chỉ log metadata (host, status, thời gian), không ghi body hay ảnh.</p></details>
+    <details class="faq"><summary>Hồ sơ .mobileconfig có mở được Gold không?</summary><p>Có — đây là Phương Thức duy nhất. Hồ sơ chặn quảng cáo/telemetry, định tuyến DNS Locket về MITM Fly.io, và Root CA EC P-256 giải mã TLS ngay trên đường truyền. Không cần app bên thứ ba.</p></details>
     <details class="faq"><summary>Tự host được không?</summary><p>Được. Repo có đủ Dockerfile + fly.toml cho proxy, wrangler.toml cho worker DoH và worker khung, vercel.json cho api/. Dùng chung Root CA của bạn, không dùng CA B1sTeam nếu bạn không muốn.</p></details>
-    <details class="faq"><summary>Báo lỗi ở đâu?</summary><p>Zalo <a href="https://zalo.me/0833399553">083.3399.553</a> hoặc mở issue trên GitHub. Nhớ gửi kèm bước đã làm và trạng thái bật/tắt “HTTPS giải mã”.</p></details>
+    <details class="faq"><summary>Báo lỗi ở đâu?</summary><p>Zalo <a href="https://zalo.me/0833399553">083.3399.553</a> hoặc mở issue trên GitHub. Nhớ gửi kèm bước đã làm và ảnh chụp Cài đặt gốc chứng chỉ.</p></details>
   </section>
 
   <!-- CTA -->
@@ -328,7 +326,7 @@
 <script>
 (function () {
   'use strict';
-  // ── Frames gallery (14 khung) ───────────────────────────────────────────
+  // ── Frames gallery mẫu (106 khung phục vụ tại b1s.id.vn/locketvip) ───
   var CDN = 'https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main';
   var FRAMES = [
     ['assets/images/kawaii/frame-01.png', 'Kawaii 01'],

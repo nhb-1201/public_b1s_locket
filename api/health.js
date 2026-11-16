@@ -11,7 +11,7 @@ const { getQuery, sendJson, withErrorHandling } = require('./lib/http');
 const { getStoreBackend } = require('./lib/nextdns-store');
 
 /** Version of the B1sTeam LocketGold backend. */
-const VERSION = '4.0.0';
+const VERSION = '8.0.0';
 
 /** Service identifier. */
 const SERVICE = 'b1steam-api';

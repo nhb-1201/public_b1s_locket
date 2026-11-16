@@ -303,8 +303,8 @@ func mergeFrameEntry(existing string, frames []Frame) string {
 
 // InjectFirebase — ép toàn bộ cờ Gold/VIP + merge catalog khung vào Remote Config.
 //
-// Mirror shadowrocket/js/b1s_firebase_response.js + ios build of that fragment.
-// 327 real Locket entries ({entries:{flag:value}}) are copied verbatim — these
+// Mirrors the old on-device MITM injection 1:1 — same 327 real Locket entries
+// ({entries:{flag:value}}) copied verbatim; these
 // include camera//mic//captions/filters/frames keys and the B1sTeam branding.
 // On top of that, we:
 //   1. Set cache_ttl_seconds=0 to force the app to refetch after install

@@ -2,50 +2,16 @@
   "version": 2,
   "cleanUrls": false,
   "rewrites": [
-    { "source": "/api/module", "destination": "/api/locketgold-module" },
-    { "source": "/api/conf", "destination": "/api/locketgold-conf" },
     { "source": "/api/profile", "destination": "/api/generate-profile" },
-    { "source": "/api/locketgold-module.sgmodule", "destination": "/api/locketgold-module" },
-    { "source": "/api/locketgold-conf.conf", "destination": "/api/locketgold-conf" },
     { "source": "/api/locketgold-profile.mobileconfig", "destination": "/api/generate-profile" }
   ],
   "headers": [
-    {
-      "source": "/api/locketgold-module",
-      "headers": [
-        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "Content-Disposition", "value": "attachment; filename=\"B1sTeam-LocketGold.sgmodule\"" }
-      ]
-    },
-    {
-      "source": "/api/locketgold-conf",
-      "headers": [
-        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "Content-Disposition", "value": "attachment; filename=\"B1sTeam-LocketGold.conf\"" }
-      ]
-    },
     {
       "source": "/api/generate-profile",
       "headers": [
         { "key": "Content-Type", "value": "application/x-apple-aspen-config" },
         { "key": "Cache-Control", "value": "no-store" },
         { "key": "Content-Disposition", "value": "attachment; filename=\"B1sTeam-LocketGold.mobileconfig\"" }
-      ]
-    },
-    {
-      "source": "/api/(.*)\\.sgmodule",
-      "headers": [
-        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    },
-    {
-      "source": "/api/(.*)\\.conf",
-      "headers": [
-        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
-        { "key": "Cache-Control", "value": "no-store" }
       ]
     },
     {

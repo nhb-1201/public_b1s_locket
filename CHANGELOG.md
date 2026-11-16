@@ -25,6 +25,23 @@ Tất cả thay đổi đáng chú ý của `public_b1s_locket`.
 
 ---
 
+## [8.0.0] — 2026-11-16 — ⭐ LOẠI BỎ HOÀN TOÀN Phương Thức 2 (Shadowrocket)
+
+### Thay đổi lớn (BREAKING)
+* **Chỉ còn Phương Thức 1 (DNS)** — cài 1 hồ sơ `.mobileconfig` (Root CA EC P-256 + DoH) → bật Root CA → xóa Locket → tải lại → Gold ✦.
+* **XÓA toàn bộ mã nguồn Shadowrocket** khỏi repo: `ios/` (chỉ còn `locketgold.mobileconfig` mẫu + README), `shadowrocket/` (legacy v4.0.0), `api/locketgold-module.js`, `api/locketgold-conf.js`, toàn bộ `ios/scripts/` `ios/src/` (Vibe on-device MITM).
+* **Xóa nút 1-Click .conf/Module** trên `index.html` — chỉ còn nút “Tải hồ sơ .mobileconfig 1-Click” (`doh.b1s.id.vn/mobileconfig`).
+* `vercel.json`: gỡ routes `/api/module`, `/api/conf`, `/api/locketgold-module.sgmodule`, `/api/locketgold-conf.conf` + headers tương ứng.
+* `package.json` 8.0.0, `api/health.js` version 8.0.0, `version.json` 8.0.0.
+* Landing page (`index.html`), `README.md`, `SECURITY.md`, `docs/ARCHITECTURE.md`, `api/README.md`, `admin/public/index.html` — đồng bộ chỉ-DNS; FAQ/steps/metadata cập nhật.
+* `proxy/` (Fly.io Go MITM): **không đổi** — vẫn phục vụ toàn bộ tính năng Gold qua PT1 DNS.
+
+### Ghi chú
+* Các endpoint `/api/v2/locketgold/module|config|verify` bên Cloudflare Workers (locket.b1s.id.vn) đã ngừng sử dụng — client không còn trỏ tới. Hệ thống sẽ trả 404/410 nếu gọi trực tiếp.
+* Khung B1sTeam nay phục vụ qua **GitHub raw** (`assets/rc/frames/*.png`, 106 khung) — không còn router photobooth/overlay on-device.
+
+---
+
 ## [4.1.0] — 2026-11-15 — ✨ PHƯƠNG THỨC 1 (DNS) · FULL GOLD FEATURES
 
 ### ✨ Tính năng mới

@@ -311,22 +311,12 @@
 
     <section class="panel">
       <h2>🔗 Liên kết tải cho người dùng</h2>
-      <p class="hint">Nhập license key để lấy module, cấu hình và hồ sơ cài đặt.</p>
+      <p class="hint">Nhập license key để lấy hồ sơ cài đặt (Phương Thức 1 — DNS).</p>
       <div class="row" style="max-width:520px;">
         <input id="license-key" type="text" placeholder="B1S-XXXX-XXXX-XXXX" class="mono" style="flex:1" />
         <button class="ghost small" id="copy-key">Sao chép</button>
       </div>
       <div style="margin-top:14px;">
-        <div class="link-row">
-          <span class="t">Module (.sgmodule)</span>
-          <code id="link-module">/api/locketgold-module?key=…</code>
-          <button class="small" data-open="link-module">Mở</button>
-        </div>
-        <div class="link-row">
-          <span class="t">Cấu hình (.conf)</span>
-          <code id="link-conf">/api/locketgold-conf?key=…</code>
-          <button class="small" data-open="link-conf">Mở</button>
-        </div>
         <div class="link-row">
           <span class="t">Hồ sơ (.mobileconfig)</span>
           <code id="link-profile">/api/generate-profile?key=…</code>
@@ -599,8 +589,6 @@
   function updateLinks() {
     var key = byId('license-key').value.trim();
     var suffix = key ? '?key=' + encodeURIComponent(key) : '?key=…';
-    byId('link-module').textContent = '/api/locketgold-module' + suffix;
-    byId('link-conf').textContent = '/api/locketgold-conf' + suffix;
     byId('link-profile').textContent = '/api/generate-profile' + suffix;
   }
 
