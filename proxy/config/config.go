@@ -40,6 +40,10 @@ var DefaultSANS = []string{
 	"firebasestorage.googleapis.com",
 	"storage.googleapis.com",
 	"firebaselogging.googleapis.com",
+	"identitytoolkit.googleapis.com",
+	"securetoken.googleapis.com",
+	"firestore.googleapis.com",
+	"firebase.googleapis.com",
 }
 
 // Config la snapshot cua cau hinh hien tai.

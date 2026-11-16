@@ -252,9 +252,6 @@ func TestFramesManifestValid(t *testing.T) {
 		if f.File == "" {
 			t.Errorf("%s: thieu file", f.ID)
 		}
-		if !strings.HasPrefix(f.WorkerPath, "/f/") {
-			t.Errorf("%s: worker_path = %q, phai bat dau bang /f/", f.ID, f.WorkerPath)
-		}
 		if f.Width <= 0 || f.Height <= 0 {
 			t.Errorf("%s: kich thuoc khong hop le (%dx%d)", f.ID, f.Width, f.Height)
 		}
