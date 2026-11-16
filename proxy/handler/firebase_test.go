@@ -98,8 +98,8 @@ func TestInjectFirebaseInjectsFullUnlock(t *testing.T) {
 	if !strings.Contains(cfc, `"pickerFilters"`) {
 		t.Errorf("camera_filter_config missing pickerFilters: %s", cfc[:200])
 	}
-	if !strings.Contains(cfc, `"looks_maxxing"`) {
-		t.Errorf("camera_filter_config missing AI filter looks_maxxing: %s", cfc[:300])
+	if !strings.Contains(cfc, `"b1s_locketvip_shin_chan_ngay_nghi_khung_long_xanh"`) {
+		t.Errorf("camera_filter_config missing frame b1s_locketvip_shin_chan_ngay_nghi_khung_long_xanh: %s", cfc[:300])
 	}
 	celebrity := asString(entries["celebrity_filter_config"])
 	if !strings.Contains(celebrity, `"celebrityUid":"locket_admin_custom"`) {

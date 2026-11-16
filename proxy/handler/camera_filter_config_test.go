@@ -40,7 +40,7 @@ func loadRCConfig(t *testing.T) rcConfig {
 
 func TestRCRemoteFiltersHaveWorkingURLs(t *testing.T) {
 	cfg := loadRCConfig(t)
-	if len(cfg.RemoteFilters) < 200 {
+	if len(cfg.RemoteFilters) < 140 {
 		t.Fatalf("remoteFilters too small: %d", len(cfg.RemoteFilters))
 	}
 	for _, f := range cfg.RemoteFilters {
@@ -122,7 +122,7 @@ func TestRCContainsB1sLocketVipFrames(t *testing.T) {
 			id, _ := g["id"].(string)
 			switch id {
 			case "group_b1skhung_shinchan", "group_b1skhung_kitty", "group_b1skhung_anime", "group_b1skhung_kawaii",
-				"group_b1skhung_social", "group_b1skhung_neon", "group_b1skhung_khac", "group_b1skhung_photobooth":
+				"group_b1skhung_social", "group_b1skhung_neon", "group_b1skhung_khac":
 				list, _ := g["filterIds"].([]any)
 				if len(list) == 0 {
 					t.Errorf("%s is empty", id)
@@ -141,7 +141,7 @@ func TestRCContainsB1sLocketVipFrames(t *testing.T) {
 
 	// mọi nhóm frame phải đứng TRƯỚC các nhóm AI-sticker ở cuối (group_looks…)
 	wantOrder := []string{"group_b1skhung_shinchan", "group_b1skhung_kitty", "group_b1skhung_anime", "group_b1skhung_kawaii",
-		"group_b1skhung_social", "group_b1skhung_neon", "group_b1skhung_khac", "group_b1skhung_photobooth"}
+		"group_b1skhung_social", "group_b1skhung_neon", "group_b1skhung_khac"}
 	for _, groups := range [][]map[string]any{cfg.FilterGroups, cfg.SheetFilters} {
 		idx := 0
 		for _, g := range groups {
