@@ -1,5 +1,5 @@
 {
- "version": "5.0.0",
+ "version": "5.1.0",
  "updated": "2026-11-16",
  "brand": "B1sTeam",
  "frames": [
@@ -114,39 +114,6 @@
    ]
   },
   {
-   "id": "b1s_locketvip_bikini_bottom_cartoon_frame_2",
-   "name": "Bikini Bottom Cartoon Frame 2",
-   "group": "community",
-   "file": "b1s_locketvip_bikini_bottom_cartoon_frame_2.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_bikini_bottom_cartoon_frame_2.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_bikini_bottom_cartoon_frame_3",
-   "name": "Bikini Bottom Cartoon Frame 3",
-   "group": "community",
-   "file": "b1s_locketvip_bikini_bottom_cartoon_frame_3.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_bikini_bottom_cartoon_frame_3.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_bikini_bottom_cartoon_frame_4",
-   "name": "Bikini Bottom Cartoon Frame 4",
-   "group": "community",
-   "file": "b1s_locketvip_bikini_bottom_cartoon_frame_4.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_bikini_bottom_cartoon_frame_4.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
    "id": "b1s_locketvip_birthday_bunny_cloud",
    "name": "Birthday Bunny Cloud",
    "group": "community",
@@ -202,55 +169,11 @@
    ]
   },
   {
-   "id": "b1s_locketvip_cinnamoroll_pastel",
-   "name": "Cinnamoroll Pastel",
-   "group": "community",
-   "file": "b1s_locketvip_cinnamoroll_pastel.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_cinnamoroll_pastel.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_cinnamoroll_pastel_2",
-   "name": "Cinnamoroll Pastel 2",
-   "group": "community",
-   "file": "b1s_locketvip_cinnamoroll_pastel_2.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_cinnamoroll_pastel_2.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_cinnamoroll_pastel_4",
-   "name": "Cinnamoroll Pastel 4",
-   "group": "community",
-   "file": "b1s_locketvip_cinnamoroll_pastel_4.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_cinnamoroll_pastel_4.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
    "id": "b1s_locketvip_cinnamoroll_pastel_5",
    "name": "Cinnamoroll Pastel 5",
    "group": "community",
    "file": "b1s_locketvip_cinnamoroll_pastel_5.png",
    "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_cinnamoroll_pastel_5.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_cinnamoroll_pastel_6",
-   "name": "Cinnamoroll Pastel 6",
-   "group": "community",
-   "file": "b1s_locketvip_cinnamoroll_pastel_6.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_cinnamoroll_pastel_6.png",
    "premium": true,
    "tags": [
     "community"
@@ -367,33 +290,11 @@
    ]
   },
   {
-   "id": "b1s_locketvip_doraemon_besties",
-   "name": "Doraemon Besties",
-   "group": "community",
-   "file": "b1s_locketvip_doraemon_besties.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_doraemon_besties.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
    "id": "b1s_locketvip_doraemon_besties_2",
    "name": "Doraemon Besties 2",
    "group": "community",
    "file": "b1s_locketvip_doraemon_besties_2.png",
    "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_doraemon_besties_2.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_doraemon_besties_3",
-   "name": "Doraemon Besties 3",
-   "group": "community",
-   "file": "b1s_locketvip_doraemon_besties_3.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_doraemon_besties_3.png",
    "premium": true,
    "tags": [
     "community"
@@ -455,17 +356,6 @@
    ]
   },
   {
-   "id": "b1s_locketvip_free_fire_booyah",
-   "name": "Free Fire Booyah",
-   "group": "community",
-   "file": "b1s_locketvip_free_fire_booyah.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_free_fire_booyah.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
    "id": "b1s_locketvip_free_fire_booyah_2",
    "name": "Free Fire Booyah 2",
    "group": "community",
@@ -488,44 +378,11 @@
    ]
   },
   {
-   "id": "b1s_locketvip_free_fire_booyah_4",
-   "name": "Free Fire Booyah 4",
-   "group": "community",
-   "file": "b1s_locketvip_free_fire_booyah_4.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_free_fire_booyah_4.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
    "id": "b1s_locketvip_frieren_ice",
    "name": "Frieren Ice",
    "group": "community",
    "file": "b1s_locketvip_frieren_ice.png",
    "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_frieren_ice.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_frieren_ice_2",
-   "name": "Frieren Ice 2",
-   "group": "community",
-   "file": "b1s_locketvip_frieren_ice_2.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_frieren_ice_2.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_frieren_ice_3",
-   "name": "Frieren Ice 3",
-   "group": "community",
-   "file": "b1s_locketvip_frieren_ice_3.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_frieren_ice_3.png",
    "premium": true,
    "tags": [
     "community"
@@ -554,77 +411,11 @@
    ]
   },
   {
-   "id": "b1s_locketvip_hello_kitty_flowers_2",
-   "name": "Hello Kitty Flowers 2",
-   "group": "community",
-   "file": "b1s_locketvip_hello_kitty_flowers_2.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_hello_kitty_flowers_2.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_hello_kitty_flowers_3",
-   "name": "Hello Kitty Flowers 3",
-   "group": "community",
-   "file": "b1s_locketvip_hello_kitty_flowers_3.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_hello_kitty_flowers_3.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_hello_kitty_flowers_4",
-   "name": "Hello Kitty Flowers 4",
-   "group": "community",
-   "file": "b1s_locketvip_hello_kitty_flowers_4.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_hello_kitty_flowers_4.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_hello_kitty_flowers_5",
-   "name": "Hello Kitty Flowers 5",
-   "group": "community",
-   "file": "b1s_locketvip_hello_kitty_flowers_5.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_hello_kitty_flowers_5.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
    "id": "b1s_locketvip_hello_kitty_hearts_pink",
    "name": "Hello Kitty Hearts Pink",
    "group": "community",
    "file": "b1s_locketvip_hello_kitty_hearts_pink.png",
    "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_hello_kitty_hearts_pink.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_hello_kitty_hearts_pink_2",
-   "name": "Hello Kitty Hearts Pink 2",
-   "group": "community",
-   "file": "b1s_locketvip_hello_kitty_hearts_pink_2.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_hello_kitty_hearts_pink_2.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_hello_kitty_hearts_pink_3",
-   "name": "Hello Kitty Hearts Pink 3",
-   "group": "community",
-   "file": "b1s_locketvip_hello_kitty_hearts_pink_3.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_hello_kitty_hearts_pink_3.png",
    "premium": true,
    "tags": [
     "community"
@@ -763,28 +554,6 @@
    ]
   },
   {
-   "id": "b1s_locketvip_instagram_comment_sunset_2",
-   "name": "Instagram Comment Sunset 2",
-   "group": "community",
-   "file": "b1s_locketvip_instagram_comment_sunset_2.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_instagram_comment_sunset_2.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_instagram_comment_sunset_3",
-   "name": "Instagram Comment Sunset 3",
-   "group": "community",
-   "file": "b1s_locketvip_instagram_comment_sunset_3.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_instagram_comment_sunset_3.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
    "id": "b1s_locketvip_kawaii_animals_pastel",
    "name": "Kawaii Animals Pastel",
    "group": "community",
@@ -823,28 +592,6 @@
    "group": "community",
    "file": "b1s_locketvip_kawaii_pink_bunny_heart_frame.png",
    "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_kawaii_pink_bunny_heart_frame.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_kawaii_space_themed_boys_frame",
-   "name": "Kawaii Space Themed Boys Frame",
-   "group": "community",
-   "file": "b1s_locketvip_kawaii_space_themed_boys_frame.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_kawaii_space_themed_boys_frame.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_kawaii_space_themed_boys_frame_2",
-   "name": "Kawaii Space Themed Boys Frame 2",
-   "group": "community",
-   "file": "b1s_locketvip_kawaii_space_themed_boys_frame_2.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_kawaii_space_themed_boys_frame_2.png",
    "premium": true,
    "tags": [
     "community"
@@ -1137,17 +884,6 @@
    ]
   },
   {
-   "id": "b1s_locketvip_shinchan_crayon_cream",
-   "name": "Shinchan Crayon Cream",
-   "group": "community",
-   "file": "b1s_locketvip_shinchan_crayon_cream.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_shinchan_crayon_cream.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
    "id": "b1s_locketvip_shinchan_crayon_cream_2",
    "name": "Shinchan Crayon Cream 2",
    "group": "community",
@@ -1274,28 +1010,6 @@
    "group": "community",
    "file": "b1s_locketvip_sparkle_vines_border.png",
    "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_sparkle_vines_border.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_spongebob_bikini_bottom",
-   "name": "Spongebob Bikini Bottom",
-   "group": "community",
-   "file": "b1s_locketvip_spongebob_bikini_bottom.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_spongebob_bikini_bottom.png",
-   "premium": true,
-   "tags": [
-    "community"
-   ]
-  },
-  {
-   "id": "b1s_locketvip_the_gioi_kawaii_tho_gau",
-   "name": "The Gioi Kawaii Tho Gau",
-   "group": "community",
-   "file": "b1s_locketvip_the_gioi_kawaii_tho_gau.png",
-   "url": "https://raw.githubusercontent.com/nhb-1201/public_b1s_locket/main/assets/rc/frames/b1s_locketvip_the_gioi_kawaii_tho_gau.png",
    "premium": true,
    "tags": [
     "community"
