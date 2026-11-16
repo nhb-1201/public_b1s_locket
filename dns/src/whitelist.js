@@ -3,7 +3,7 @@
  * Allow-list of the Locket / Firebase / RevenueCat hosts.
  *
  * Every host listed here is answered with the Fly.io MITM proxy IP so the
- * on-device scripts of the Shadowrocket module can intercept the traffic.
+ * MITM proxy (Phương Thức 1 — DNS) can intercept the traffic on the wire.
  *
  * @module whitelist
  */
